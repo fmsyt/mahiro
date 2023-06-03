@@ -1,0 +1,7 @@
+[
+  {
+    "id": "launch_vscode",
+    "type": "launch",
+    "command": "code"
+  }
+]
