@@ -7,7 +7,12 @@
 			"path": "client",
 			"problemMatcher": [],
 			"label": "npm: start - client",
-			"detail": "react-scripts start"
+			"detail": "Start client",
+		},
+		{
+			"label": "Start server",
+			"command": "${config:python.pythonPath}",
+			"args": [ "uvcorn", "main:app", "--reload" ]
 		}
 	]
 }
