@@ -6,7 +6,7 @@
 			"script": "start",
 			"path": "client",
 			"problemMatcher": [],
-			"label": "npm: start - client",
+			"label": "start client",
 			"detail": "Start client",
 		},
 		{

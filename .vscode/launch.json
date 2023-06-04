@@ -15,7 +15,8 @@
                 "--host=0.0.0.0"
             ],
             "jinja": true,
-            "justMyCode": true
+            "justMyCode": true,
+            "preLaunchTask": "start client"
         }
     ]
 }
