@@ -1,43 +1,24 @@
-import React, { ChangeEvent, InputHTMLAttributes, useCallback } from "react";
+import React, { useCallback } from "react";
 import { action } from "../interface";
+
+import { Slider, Stack } from "@mui/material";
 
 interface propsTypes {
   action: action,
   webSocket?: WebSocket
 }
 
-const Slider = (props: propsTypes) => {
+const AppSlider = (props: propsTypes) => {
 
-  const isInputHTMLAttributes = useCallback(function(attrs: any): attrs is InputHTMLAttributes<HTMLInputElement> {
-
-    if (!attrs) {
-      return false;
-    }
-
-    return true;
-
-  }, []);
-
-  const buttonAttrs = useCallback((action: action) => {
-
-    const overlap: InputHTMLAttributes<HTMLInputElement> = {
-      type: "range",
-      onChange: function(e: ChangeEvent) {},
-      defaultValue: action.current,
-    };
-
-    const attrs = isInputHTMLAttributes(action.attrs) ? action.attrs : {};
-
-    return { ...attrs, ...overlap };
-
-  }, [isInputHTMLAttributes]);
-
+  const handleChange = useCallback(() => {}, []);
 
   return (
-    <div>
-      <input type="range" {...buttonAttrs(props.action)} />
-    </div>
+    <Stack spacing={2} direction="row" sx={{ mb: 1, width: "100%" }} alignItems="center">
+      {/* <VolumeDown /> */}
+      <Slider aria-label="Volume" value={Number(props.action.current || 0)} onChange={handleChange} />
+      {/* <VolumeUp /> */}
+    </Stack>
   )
 }
 
-export default Slider;
+export default AppSlider;

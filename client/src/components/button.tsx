@@ -1,47 +1,31 @@
-import React, { ButtonHTMLAttributes, useCallback } from "react";
+import React, { useCallback } from "react";
 import { action } from "../interface";
 import { control } from "../functions";
+
+import Button from "@mui/material/Button/Button";
+import { ButtonBase, IconButton, Stack } from "@mui/material";
+
+import logo from "../logo.svg";
 
 interface propsTypes {
   action: action,
   webSocket?: WebSocket
 }
 
-const Button = (props: propsTypes) => {
+const AppButton = (props: propsTypes) => {
 
   const { action, webSocket } = props;
 
-  const isButtonHTMLAttributes = useCallback(function(attrs: any): attrs is ButtonHTMLAttributes<HTMLButtonElement> {
-
-    if (!attrs) {
-      return false;
-    }
-
-    return true;
-
-  }, []);
-
-  const buttonAttrs = useCallback((action: action) => {
-
-    const overlap: ButtonHTMLAttributes<HTMLButtonElement> = {
-      type: "button",
-      onClick: () => {
-        webSocket && control(webSocket, action);
-      }
-    };
-
-    const attrs = isButtonHTMLAttributes(action.attrs) ? action.attrs : {};
-
-    return { ...attrs, ...overlap };
-
-  }, [webSocket, isButtonHTMLAttributes]);
-
+  const handleClick = useCallback(() => { webSocket && control(webSocket, action) }, [action, webSocket]);
 
   return (
-    <div>
-      <button {...buttonAttrs(props.action)}>{action.label}</button>
-    </div>
+    <ButtonBase onClick={(e) => { handleClick() }}>
+      <Stack direction={"column"}>
+        <img src={logo} className="App-logo" alt="logo" style={{ width: "100%", height: "2em" }} />
+        {action.label}
+      </Stack>
+    </ButtonBase>
   )
 }
 
-export default Button;
+export default AppButton;

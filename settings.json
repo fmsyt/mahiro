@@ -1,7 +1,48 @@
-[
-  {
-    "id": "launch_vscode",
-    "type": "launch",
-    "command": "code"
-  }
-]
+{
+  "sheets": [
+    [
+      {
+        "id":"explorer",
+        "label": "Explorer",
+        "type": "button"
+      },
+      {
+        "id":"windows_terminal",
+        "label": "wt",
+        "type": "button"
+      },
+      {
+        "id":"display_clone",
+        "label": "複製",
+        "type": "button"
+      },
+      {
+        "id":"display_extend",
+        "label": "拡張",
+        "type": "button"
+      }
+    ]
+  ],
+  "actions": [
+    {
+      "id": "explorer",
+      "type": "command",
+      "command": "explorer.exe"
+    },
+    {
+      "id": "windows_terminal",
+      "type": "command",
+      "command": "wt"
+    },
+    {
+      "id": "display_clone",
+      "type": "command",
+      "command": ["D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/clone"]
+    },
+    {
+      "id": "display_extend",
+      "type": "command",
+      "command": ["D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/extend"]
+    }
+  ]
+}
