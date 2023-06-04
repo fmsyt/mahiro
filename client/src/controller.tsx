@@ -10,7 +10,8 @@ const Controller = () => {
   const [webSocket, setWebSocket] = useState<WebSocket>();
 
   useEffect(() => {
-    const webSocket = new WebSocket("ws://localhost:8000/ws");
+
+    const webSocket = new WebSocket(`ws://${window.location.hostname}:8000/ws`);
 
     webSocket.addEventListener("open", (e: Event) => {
       console.log("WebSocket Connection Established.");
