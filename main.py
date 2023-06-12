@@ -25,7 +25,8 @@ app = FastAPI()
 
 @app.get("/")
 def index(request: Request):
-    [host, port] = request.headers.get('host').split(":")
+    host = request.headers.get('host')
+    [hostname, port] = host.split(":") if host is not None else "localhost"
 
     return RedirectResponse(f"http://{host}:3000")
 
