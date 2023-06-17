@@ -66,7 +66,7 @@ class ConnectionManager:
             await connection.send_text(message)
 
     async def send_update_sheets(self, websocket: WebSocket) -> None:
-        await websocket.send_json({ "method": "update_sheets", "data": self.settings.sheets })
+        await websocket.send_json({ "method": "sheets.update", "data": self.settings.sheets })
 
     async def exec_receive(self, websocket: WebSocket, data) -> None:
         if "method" not in data:
@@ -88,7 +88,7 @@ class ConnectionManager:
                 return self._command(action["command"])
 
 
-        elif data["method"] == "update_sheets":
+        elif data["method"] == "sheets.update":
             await self.send_update_sheets(websocket)
 
     def _command(self, command):

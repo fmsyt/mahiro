@@ -51,7 +51,7 @@ const Controller = () => {
         switch (obj?.method) {
           default: break;
 
-          case "update_sheets":
+          case "sheets.update":
             setActions(obj?.data || []);
             break;
         }
