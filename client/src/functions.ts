@@ -1,3 +1,4 @@
+import { Events } from "./enum";
 import { action } from "./interface";
 
 function send(webSocket: WebSocket, method: "execute" | "sheets.update", data?: any) {
@@ -15,4 +16,24 @@ export function control(webSocket: WebSocket, action: action, data?: any) {
     key: action.id,
     data
   });
+}
+
+interface emitTypes {
+  action: string
+  event: Events
+  context?: number | string
+  payload?: {
+    coordinates?: {
+      column: number
+      row: number
+    }
+    isInMultiAction: boolean
+    state?: string
+    settings?: object
+    userDesiredState?: string | number
+  }
+}
+
+export function emit(ws: WebSocket, data: emitTypes) {
+
 }

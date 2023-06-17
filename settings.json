@@ -43,6 +43,10 @@
       "id": "display_extend",
       "type": "command",
       "command": ["D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/extend"]
+    },
+    {
+      "id": "mute",
+      "style": "toggle"
     }
   ]
 }
