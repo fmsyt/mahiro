@@ -3,9 +3,9 @@ import uvicorn
 import subprocess
 from typing import List
 
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+# from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -22,13 +22,6 @@ app = FastAPI()
 #     allow_methods=["*"],
 #     allow_headers=["*"],
 # )
-
-@app.get("/")
-def index(request: Request):
-    host = request.headers.get('host')
-    [hostname, port] = host.split(":") if host is not None else "localhost"
-
-    return RedirectResponse(f"http://{host}:3000")
 
 
 class Settings:
@@ -113,6 +106,8 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
+
+app.mount("/", StaticFiles(directory="./client/build", html=True), name="index")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0")

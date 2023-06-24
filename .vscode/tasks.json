@@ -12,6 +12,16 @@
 			"label": "Start Server",
 			"command": "${config:python.pythonPath}",
 			"args": [ "uvcorn", "main:app", "--reload" ]
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "client",
+			"label": "Build Client",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }
