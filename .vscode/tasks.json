@@ -6,11 +6,10 @@
 			"script": "start",
 			"path": "client",
 			"problemMatcher": [],
-			"label": "start client",
-			"detail": "Start client",
+			"label": "Start Client",
 		},
 		{
-			"label": "Start server",
+			"label": "Start Server",
 			"command": "${config:python.pythonPath}",
 			"args": [ "uvcorn", "main:app", "--reload" ]
 		}
