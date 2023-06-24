@@ -31,7 +31,8 @@ const Controller = () => {
 
       console.info("Connecting WebSocket...");
 
-      const ws = new WebSocket(`ws://${window.location.hostname}:8000/ws`);
+      const host = process.env.NODE_ENV === "production" ? window.location.host : "localhost:8000";
+      const ws = new WebSocket(`ws://${host}/ws`);
 
       ws.addEventListener("open", (e: Event) => {
         console.log("WebSocket Connection Established.");
