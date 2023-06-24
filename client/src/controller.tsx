@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { action } from "./interface";
 import AppButton from "./components/button";
 import AppSlider from "./components/slider";
 
-import { Box, CircularProgress, Grid, Pagination, Paper, Stack, styled } from "@mui/material";
+import { Box, CircularProgress, CssBaseline, Grid, Pagination, Paper, Stack, ThemeProvider, createTheme, styled, useMediaQuery } from "@mui/material";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -15,6 +15,14 @@ const Item = styled(Paper)(({ theme }) => ({
 
 
 const Controller = () => {
+
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const darkTheme = useMemo(() => createTheme({
+    palette: {
+      mode: prefersDarkMode ? 'dark' : 'light',
+    }
+  }), [prefersDarkMode]);
+
 
   const [page, setPage] = useState(1);
   const [actions, setActions] = useState<action[][]>([]);
@@ -87,41 +95,44 @@ const Controller = () => {
   }, [webSocket]);
 
   return (
-    <Box sx={{ padding: 8 }}>
-      <Box sx={{ width: '100%' }}>
-        <Stack direction="column" alignItems="center" spacing={1}>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <Box sx={{ padding: 8 }}>
+        <Box sx={{ width: '100%' }}>
+          <Stack direction="column" alignItems="center" spacing={1}>
 
-          {
-            webSocket?.readyState === WebSocket.OPEN
-            ? (
-              <>
-                <Grid container rowSpacing={1} columnSpacing={2}>
-                  {actions.length > 0 && actions[page - 1].map((action, i) => (
-                    <Grid key={i} item xs={12 / 4}>
-                      <Item>
-                        {putElement(action)}
-                      </Item>
-                    </Grid>
-                  ))}
-                </Grid>
+            {
+              webSocket?.readyState === WebSocket.OPEN
+              ? (
+                <>
+                  <Grid container rowSpacing={1} columnSpacing={2}>
+                    {actions.length > 0 && actions[page - 1].map((action, i) => (
+                      <Grid key={i} item xs={12 / 4}>
+                        <Item>
+                          {putElement(action)}
+                        </Item>
+                      </Grid>
+                    ))}
+                  </Grid>
 
-                {actions.length > 1 && (
-                  <Pagination
-                    count={actions.length}
-                    color="primary"
-                    onChange={(e, page) => setPage(page)}
-                    page={page}
-                    />
-                )}
-              </>
-            ): (
-              <CircularProgress />
-            )
-          }
+                  {actions.length > 1 && (
+                    <Pagination
+                      count={actions.length}
+                      color="primary"
+                      onChange={(e, page) => setPage(page)}
+                      page={page}
+                      />
+                  )}
+                </>
+              ): (
+                <CircularProgress />
+              )
+            }
 
-        </Stack>
+          </Stack>
+        </Box>
       </Box>
-    </Box>
+    </ThemeProvider>
   )
 
 }
