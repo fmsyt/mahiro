@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { action } from "../interface";
 import { control } from "../functions";
 
-import { ButtonBase,Stack } from "@mui/material";
+import { ButtonBase,Stack, Typography } from "@mui/material";
 
 import logo from "../logo.svg";
 
@@ -21,7 +21,9 @@ const AppButton = (props: propsTypes) => {
     <ButtonBase onClick={(e) => { handleClick() }}>
       <Stack direction={"column"}>
         <img src={logo} className="App-logo" alt="logo" style={{ width: "100%", height: "2em" }} />
-        {action.label}
+        <Typography overflow="hidden">
+          {action.label}
+        </Typography>
       </Stack>
     </ButtonBase>
   )
