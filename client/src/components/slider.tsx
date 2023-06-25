@@ -1,10 +1,10 @@
 import React, { useCallback } from "react";
-import { action } from "../interface";
+import { componentProps } from "../interface";
 
 import { Slider, Stack } from "@mui/material";
 
 interface propsTypes {
-  action: action,
+  action: componentProps,
   webSocket?: WebSocket
 }
 

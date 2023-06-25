@@ -1,9 +1,9 @@
 import { ButtonHTMLAttributes, InputHTMLAttributes } from "react";
 
-export interface action {
+export interface componentProps {
   id: string,
   label: string,
-  icon?: string | { unique: string },
+  icon: string,
 
   type: "button" | "slider",
   current?: number | string,

@@ -16,9 +16,15 @@
         "label": "複製",
         "type": "button"
       },
+      null,
       {
         "id":"display_extend",
         "label": "拡張",
+        "type": "button"
+      },
+      {
+        "id":"mui",
+        "label": "mui",
         "type": "button"
       }
     ]
@@ -43,6 +49,11 @@
       "id": "display_extend",
       "type": "command",
       "command": ["D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/extend"]
+    },
+    {
+      "id": "mui",
+      "type": "command",
+      "command": ["https://mui.com/"]
     },
     {
       "id": "mute",

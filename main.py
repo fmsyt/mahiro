@@ -36,6 +36,22 @@ class Settings:
             self.sheets = data["sheets"]
             self.actions = data["actions"]
 
+    def exec(self, action_id: str) -> None:
+        action = None
+        for a in self.actions:
+            if a["id"] == action_id:
+                action = a
+                break
+
+        if action is None:
+            return
+
+        if action["type"] == "command":
+            return self._command(action["command"])
+
+    def _command(self, command):
+        return subprocess.Popen(command)
+
 
 class ConnectionManager:
 
@@ -51,9 +67,6 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket) -> None:
         self.active_connections.remove(websocket)
 
-    async def send_personal_message(self, message: str, websocket: WebSocket) -> None:
-        await websocket.send_text(message)
-
     async def broadcast(self, message: str) -> None:
         for connection in self.active_connections:
             await connection.send_text(message)
@@ -61,31 +74,15 @@ class ConnectionManager:
     async def send_update_sheets(self, websocket: WebSocket) -> None:
         await websocket.send_json({ "method": "sheets.update", "data": self.settings.sheets })
 
-    async def exec_receive(self, websocket: WebSocket, data) -> None:
-        if "method" not in data:
+    async def exec_receive(self, websocket: WebSocket, receive) -> None:
+        if "method" not in receive:
             pass
 
-        elif data["method"] == "execute":
+        elif receive["method"] == "emit":
+            self.settings.exec(receive["data"]["action"])
 
-            action = None
-
-            for a in self.settings.actions:
-                if a["id"] == data["data"]["key"]:
-                    action = a
-                    break
-
-            if action is None:
-                return
-
-            if action["type"] == "command":
-                return self._command(action["command"])
-
-
-        elif data["method"] == "sheets.update":
+        elif receive["method"] == "sheets.update":
             await self.send_update_sheets(websocket)
-
-    def _command(self, command):
-        return subprocess.Popen(command)
 
 
 manager = ConnectionManager()
