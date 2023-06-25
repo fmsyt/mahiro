@@ -1,7 +1,7 @@
 import React from "react";
 import { componentProps } from "../interface";
 
-import { Card, CardContent, CardMedia, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 
 import logo from "../logo.svg";
 
@@ -37,19 +37,18 @@ const AppButton = (props: propsTypes) => {
   const { componentProps } = props;
 
   return (
-    <Card sx={{ width: "100%", textAlign: "center" }} variant="outlined">
-      <CardMedia
-        component="img"
-        height={60}
-        image={logo}
-        alt=""
-        />
-
-      <CardContent sx={{ padding: 0 }}>
-        <Typography component="div" variant="caption" padding={1} noWrap>{componentProps.label}</Typography>
-      </CardContent>
-
-    </Card>
+    <Paper sx={{ width: "100%" }}>
+      <Box alignItems="center" justifyContent="center" padding={1} overflow="hidden">
+        <Box sx={{ height: "100%" }}>
+          <img
+            src={logo}
+            alt=""
+            style={{ objectFit: "cover" }}
+            />
+        </Box>
+        <Typography component="div" variant="caption" noWrap>{componentProps.label}</Typography>
+      </Box>
+    </Paper>
   )
 }
 
