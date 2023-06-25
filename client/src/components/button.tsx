@@ -37,7 +37,7 @@ const AppButton = (props: propsTypes) => {
   const { componentProps } = props;
 
   return (
-    <Paper sx={{ width: "100%" }}>
+    <Paper sx={{ width: "100%" }} variant="outlined">
       <Box alignItems="center" justifyContent="center" padding={1} overflow="hidden">
         <Box sx={{ height: "100%" }}>
           <img

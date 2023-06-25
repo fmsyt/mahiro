@@ -50,7 +50,7 @@ const App = () => {
       ws.addEventListener("message", (e: MessageEvent) => {
 
         const obj = JSON.parse(e.data);
-        setColumnCount(5);
+        setColumnCount(4);
 
         console.log('Message from server ', obj);
 
