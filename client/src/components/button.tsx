@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { action } from "../interface";
 import { control } from "../functions";
 
-import { ButtonBase,Stack, Typography } from "@mui/material";
+import { Card, CardActionArea, CardContent, CardMedia, Typography } from "@mui/material";
 
 import logo from "../logo.svg";
 
@@ -15,17 +15,27 @@ const AppButton = (props: propsTypes) => {
 
   const { action, webSocket } = props;
 
-  const handleClick = useCallback(() => { webSocket && control(webSocket, action) }, [action, webSocket]);
+  const handleClick = useCallback(() => {
+    window.navigator.vibrate && window.navigator.vibrate(200);
+    webSocket && control(webSocket, action);
+
+  }, [action, webSocket]);
 
   return (
-    <ButtonBase onClick={(e) => { handleClick() }}>
-      <Stack direction={"column"}>
-        <img src={logo} className="App-logo" alt="logo" style={{ width: "100%", height: "2em" }} />
-        <Typography overflow="hidden">
-          {action.label}
-        </Typography>
-      </Stack>
-    </ButtonBase>
+    <Card>
+      <CardActionArea onClick={handleClick}>
+        <CardMedia
+          component="img"
+          height={60}
+          image={logo}
+          alt=""
+          />
+
+        <CardContent sx={{ textAlign: "center" }}>
+          <Typography variant="caption" noWrap>{action.label}</Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   )
 }
 

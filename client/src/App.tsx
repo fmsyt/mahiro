@@ -3,16 +3,7 @@ import { action } from "./interface";
 import AppButton from "./components/button";
 import AppSlider from "./components/slider";
 
-import { Box, CircularProgress, CssBaseline, Grid, Pagination, Paper, Stack, ThemeProvider, createTheme, styled, useMediaQuery } from "@mui/material";
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}));
-
+import { CircularProgress, Container, CssBaseline, Grid, Pagination, Stack, ThemeProvider, createTheme, useMediaQuery } from "@mui/material";
 
 const App = () => {
 
@@ -29,6 +20,8 @@ const App = () => {
 
   const [webSocket, setWebSocket] = useState<WebSocket>();
 
+  const [columnCount, setColumnCount] = useState<number>(12);
+
   useEffect(() => {
 
     const connectWebSocket = () => {
@@ -37,10 +30,14 @@ const App = () => {
         return;
       }
 
-      console.info("Connecting WebSocket...");
+      const host = process.env.NODE_ENV === "production"
+        ? window.location.host
+        : `${window.location.hostname}:8000`;
 
-      const host = process.env.NODE_ENV === "production" ? window.location.host : "localhost:8000";
-      const ws = new WebSocket(`ws://${host}/ws`);
+      const to = `ws://${host}/ws`;
+      console.info(`Connecting to ${to}`);
+
+      const ws = new WebSocket(to);
 
       ws.addEventListener("open", (e: Event) => {
         console.log("WebSocket Connection Established.");
@@ -54,6 +51,7 @@ const App = () => {
       ws.addEventListener("message", (e: MessageEvent) => {
 
         const obj = JSON.parse(e.data);
+        setColumnCount(12);
 
         console.log('Message from server ', obj);
 
@@ -97,44 +95,39 @@ const App = () => {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <Box sx={{ padding: 8 }}>
-        <Box sx={{ width: '100%' }}>
-          <Stack direction="column" alignItems="center" spacing={1}>
 
-            {
-              webSocket?.readyState === WebSocket.OPEN
-              ? (
-                <>
-                  <Grid container rowSpacing={1} columnSpacing={2}>
-                    {actions.length > 0 && actions[page - 1].map((action, i) => (
-                      <Grid key={i} item xs={12 / 4}>
-                        <Item>
-                          {putElement(action)}
-                        </Item>
-                      </Grid>
-                    ))}
-                  </Grid>
+      <Container>
+        <Stack direction="column" alignItems="center" spacing={1} padding={2}>
+          {
+            webSocket?.readyState === WebSocket.OPEN
+            ? (
+              <>
+                <Grid container columns={columnCount} rowSpacing={1} columnSpacing={2}>
+                  {actions.length > 0 && actions[page - 1].map((action, i) => (
+                    <Grid key={i} item xs sx={{ flex: 1, width: "100%", overflow: "hidden", textOverflow: "clip" }}>
+                      { putElement(action) }
+                    </Grid>
+                  ))}
+                </Grid>
 
-                  {actions.length > 1 && (
-                    <Pagination
-                      count={actions.length}
-                      color="primary"
-                      onChange={(e, page) => setPage(page)}
-                      page={page}
-                      />
-                  )}
-                </>
-              ): (
-                <CircularProgress />
-              )
-            }
+                {actions.length > 1 && (
+                  <Pagination
+                    count={actions.length}
+                    color="primary"
+                    onChange={(e, page) => setPage(page)}
+                    page={page}
+                    />
+                )}
+              </>
+            ): (
+              <CircularProgress />
+            )
+          }
+        </Stack>
 
-          </Stack>
-        </Box>
-      </Box>
+      </Container>
     </ThemeProvider>
   )
-
 }
 
 export default App;
