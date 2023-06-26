@@ -1,6 +1,8 @@
 import json
 import uvicorn
 import subprocess
+import os
+import webbrowser
 from typing import List
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -47,11 +49,17 @@ class Settings:
             return
 
         if action["type"] == "command":
-            return self._command(action["command"])
+            self._command(action["command"])
 
-    def _command(self, command):
-        return subprocess.Popen(command)
+        if action["type"] == "browser":
+            self._browser(action["url"])
 
+    def _command(self, command) -> int:
+        process = subprocess.Popen(command)
+        return process.pid
+
+    def _browser(self, url: str):
+        return webbrowser.open(url)
 
 class ConnectionManager:
 
