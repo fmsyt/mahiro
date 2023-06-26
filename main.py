@@ -112,7 +112,8 @@ async def websocket_endpoint(websocket: WebSocket):
         manager.disconnect(websocket)
 
 
-app.mount("/", StaticFiles(directory="./client/build", html=True), name="index")
+if os.path.isfile("./client/build"):
+    app.mount("/", StaticFiles(directory="./client/build", html=True), name="index")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0")
