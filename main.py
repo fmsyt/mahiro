@@ -112,7 +112,7 @@ async def websocket_endpoint(websocket: WebSocket):
         manager.disconnect(websocket)
 
 
-if os.path.isfile("./client/build"):
+if os.path.isfile("./client/build/index.html"):
     app.mount("/", StaticFiles(directory="./client/build", html=True), name="index")
 
 if __name__ == "__main__":
