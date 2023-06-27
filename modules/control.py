@@ -124,3 +124,9 @@ class Controller:
         control = next(filter(lambda x: x.control_id == control_id, self.controls), None)
         return control
 
+    def action(self, control_id: str, event_name: str):
+        control = self.get_control(control_id)
+        if control is None:
+            return
+
+        control.action(event_name)
