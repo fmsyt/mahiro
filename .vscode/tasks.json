@@ -10,8 +10,13 @@
 		},
 		{
 			"label": "Start Server",
-			"command": "${config:python.pythonPath}",
-			"args": [ "uvcorn", "main:app", "--reload" ]
+			"windows": {
+				"command": "${workspaceFolder}\\venv\\Scripts\\python.exe",
+			},
+			"linux": {
+				"command": "${workspaceFolder}/venv/bin/python",
+			},
+			"args": ["main.py"]
 		},
 		{
 			"type": "npm",
