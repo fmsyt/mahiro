@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { componentProps } from "./interface";
 import { Events } from "./enum";
 import { ButtonBase } from "@mui/material";
-import AppButton from "./components/button";
+import Button from "./components/Button";
 import { emit } from "./functions";
 
 interface controlPropsType {
@@ -29,7 +29,7 @@ const Control = (props: controlPropsType) => {
     switch (componentProps.type) {
       default: break;
       case "button":
-        return <AppButton icon={icon} label={label} componentProps={componentProps} webSocket={ws} />
+        return <Button icon={icon} label={label} componentProps={componentProps} webSocket={ws} />
     }
     return null;
 

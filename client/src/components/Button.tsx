@@ -32,7 +32,7 @@ interface propsTypes {
   webSocket?: WebSocket
 }
 
-const AppButton = (props: propsTypes) => {
+const Button = (props: propsTypes) => {
 
   const { componentProps } = props;
 
@@ -52,4 +52,4 @@ const AppButton = (props: propsTypes) => {
   )
 }
 
-export default AppButton;
+export default Button;
