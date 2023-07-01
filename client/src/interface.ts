@@ -5,7 +5,7 @@ export interface componentProps {
   label: string,
   icon: string,
 
-  type: "button" | "slider",
+  style: "button" | "slider",
   current?: number | string,
 
   attrs?: InputHTMLAttributes<HTMLInputElement> | ButtonHTMLAttributes<HTMLButtonElement>

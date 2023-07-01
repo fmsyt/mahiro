@@ -17,3 +17,10 @@ export enum Events {
   propertyInspectorDidDisappear = "property_inspector_did_disappear",
   sendToPlugin = "send_to_plugin",
 }
+
+export enum ControlTypes {
+  command = "command",
+  launch = "launch",
+  keyboard = "keyboard",
+  browser = "browser",
+}

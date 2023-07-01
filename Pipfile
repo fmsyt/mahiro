@@ -7,6 +7,7 @@ name = "pypi"
 fastapi = "*"
 websockets = "*"
 uvicorn = {extras = ["standard"], version = "*"}
+keyboard = "*"
 
 [dev-packages]
 

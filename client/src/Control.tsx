@@ -16,7 +16,7 @@ const Control = (props: controlPropsType) => {
 
   const handleMouseUp = useCallback(() => {
     if (!componentProps) return;
-    emit(ws, { action: componentProps.id, event: Events.keyDown })
+    emit(ws, { action: componentProps.id, event: Events.keyUp })
   }, [componentProps, ws]);
 
 
@@ -26,7 +26,7 @@ const Control = (props: controlPropsType) => {
 
     const { icon, label } = componentProps;
 
-    switch (componentProps.type) {
+    switch (componentProps.style) {
       default: break;
       case "button":
         return <Button icon={icon} label={label} componentProps={componentProps} webSocket={ws} />
