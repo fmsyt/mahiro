@@ -1,3 +1,4 @@
+import keyboard
 import subprocess
 import webbrowser
 
@@ -111,13 +112,22 @@ class KeyState:
         self.alt = alt
 
 class KeyboardControl(Control):
-    def __init__(self, control_id: str, key: str, style: str = "button") -> None:
+    def __init__(self, control_id: str, text: str, style: str = "button") -> None:
         super().__init__(control_id=control_id, action_type="keyboard", style=style)
 
-        self.url = key
+        self.text = text
 
     async def _key_up(self):
-        webbrowser.open(self.url)
+        keyboard.write(self.text)
+
+class HotKeyControl(Control):
+    def __init__(self, control_id: str, hotkey: str, style: str = "button") -> None:
+        super().__init__(control_id=control_id, action_type="hotkey", style=style)
+
+        self.hotkey = hotkey
+
+    async def _key_up(self):
+        keyboard.send(self.hotkey)
 
 class Controller:
     def __init__(self) -> None:
@@ -128,6 +138,8 @@ class Controller:
             CommandControl(control_id="display_clone", command=[f"D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/clone"]),
             CommandControl(control_id="display_extend", command=[f"D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/extend"]),
             BrowserControl(control_id="mui", url="https://mui.com/"),
+            KeyboardControl(control_id="keyboard", text="test"),
+            HotKeyControl(control_id="hotkey", hotkey="win+i"),
         ]
 
         self.sheets: list[list[SheetItem | None]] = [
@@ -138,7 +150,14 @@ class Controller:
                 None,
                 self.controls[3].to_sheet_item("拡張"),
                 self.controls[4].to_sheet_item("mui"),
-            ]
+                self.controls[5].to_sheet_item("keyboard"),
+                self.controls[6].to_sheet_item("ctrl+i"),
+            ],
+            [
+                self.controls[0].to_sheet_item("Explorer"),
+                self.controls[1].to_sheet_item("wt"),
+                self.controls[2].to_sheet_item("複製"),
+            ],
         ]
 
     def get_control(self, control_id: str) -> Control | None:
