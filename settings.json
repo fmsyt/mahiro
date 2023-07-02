@@ -2,34 +2,34 @@
   "sheets": [
     [
       {
-        "id":"explorer",
+        "control_id": "explorer",
         "label": "Explorer",
         "type": "button"
       },
       {
-        "id":"windows_terminal",
+        "control_id": "windows_terminal",
         "label": "wt",
         "type": "button"
       },
       {
-        "id":"display_clone",
+        "control_id": "display_clone",
         "label": "複製",
         "type": "button"
       },
       null,
       {
-        "id":"display_extend",
+        "control_id": "display_extend",
         "label": "拡張",
         "type": "button"
       },
       {
-        "id":"mui",
+        "control_id": "mui",
         "label": "mui",
         "type": "button"
       }
     ]
   ],
-  "actions": [
+  "controls": [
     {
       "id": "explorer",
       "type": "command",

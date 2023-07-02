@@ -1,4 +1,3 @@
-import json
 import uvicorn
 import os
 from typing import List
@@ -7,18 +6,11 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 
 from modules.control import Controller
+# from modules.settings import Settings
 
 app = FastAPI()
 
 
-class Settings:
-
-    def __init__(self) -> None:
-        self.load()
-
-    def load(self):
-        with open("./settings.json", encoding="utf-8") as f:
-            data = json.load(f)
 
 class ConnectionManager:
 
