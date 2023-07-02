@@ -1,18 +1,16 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { componentProps } from "./interface";
 
-import { CircularProgress, Container, CssBaseline, Grid, Pagination, Stack, ThemeProvider, createTheme, useMediaQuery } from "@mui/material";
+import { CircularProgress, Container, Grid, Pagination, Stack } from "@mui/material";
 import Control from "./Control";
 
-const Board = () => {
+interface BoardProps {
+  host?: string
+}
 
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const darkTheme = useMemo(() => createTheme({
-    palette: {
-      mode: prefersDarkMode ? 'dark' : 'light',
-    }
-  }), [prefersDarkMode]);
+const Board = (props: BoardProps) => {
 
+  const { host } = props;
 
   const [page, setPage] = useState(1);
   const [actions, setActions] = useState<componentProps[][]>([]);
@@ -28,10 +26,6 @@ const Board = () => {
       if (webSocket) {
         return;
       }
-
-      const host = process.env.NODE_ENV === "production"
-        ? window.location.host
-        : `${window.location.hostname}:8000`;
 
       const to = `ws://${host}/ws`;
       console.info(`Connecting to ${to}`);
@@ -74,44 +68,40 @@ const Board = () => {
       webSocket && webSocket.close();
     }
 
-  }, [webSocket]);
+  }, [host, webSocket]);
 
 
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
+    <Container>
+      {
+        webSocket?.readyState === WebSocket.OPEN
+        ? (
+          <Stack direction="column" alignItems="center" spacing={1} padding={2}>
+            <Grid container columns={columnCount} rowSpacing={1} columnSpacing={2}>
+              {actions.length > 0 && actions[page - 1].map((action, i) => (
+                <Grid item key={i} xs={1} overflow="hidden" textOverflow="clip">
+                  <Control componentProps={action} ws={webSocket} />
+                </Grid>
+              ))}
+            </Grid>
 
-      <Container>
-        {
-          webSocket?.readyState === WebSocket.OPEN
-          ? (
-            <Stack direction="column" alignItems="center" spacing={1} padding={2}>
-              <Grid container columns={columnCount} rowSpacing={1} columnSpacing={2}>
-                {actions.length > 0 && actions[page - 1].map((action, i) => (
-                  <Grid item key={i} xs={1} overflow="hidden" textOverflow="clip">
-                    <Control componentProps={action} ws={webSocket} />
-                  </Grid>
-                ))}
-              </Grid>
+            {actions.length > 1 && (
+              <Pagination
+                count={actions.length}
+                color="primary"
+                onChange={(e, page) => setPage(page)}
+                page={page}
+                />
+            )}
+          </Stack>
+        ): (
+          <Stack alignItems="center" justifyContent="center" height="90vh">
+            <CircularProgress />
+          </Stack>
+        )
+      }
 
-              {actions.length > 1 && (
-                <Pagination
-                  count={actions.length}
-                  color="primary"
-                  onChange={(e, page) => setPage(page)}
-                  page={page}
-                  />
-              )}
-            </Stack>
-          ): (
-            <Stack alignItems="center" justifyContent="center" height="90vh">
-              <CircularProgress />
-            </Stack>
-          )
-        }
-
-      </Container>
-    </ThemeProvider>
+    </Container>
   )
 }
 
