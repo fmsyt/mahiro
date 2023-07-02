@@ -73,7 +73,7 @@ const Board = (props: BoardProps) => {
       {
         webSocket?.readyState === WebSocket.OPEN
         ? (
-          <Stack direction="column" alignItems="center" spacing={1} padding={2}>
+          <Stack direction="column" alignItems="center" justifyContent="space-between" spacing={1} padding={2} height="100vh">
             {pages.length > 0 && (
               <Page webSocket={webSocket} {...pages[page - 1]} />
             )}
@@ -88,7 +88,7 @@ const Board = (props: BoardProps) => {
             )}
           </Stack>
         ): (
-          <Stack alignItems="center" justifyContent="center" height="90vh">
+          <Stack alignItems="center" justifyContent="center" height="100vh">
             <CircularProgress />
           </Stack>
         )
@@ -107,7 +107,7 @@ const Page = (props: PageProps) => {
   const { controls, webSocket, columns: rows } = props;
 
   return (
-    <Grid container columns={rows} rowSpacing={1} columnSpacing={2}>
+    <Grid container columns={rows} rowSpacing={1} columnSpacing={2} maxHeight="100%" sx={{ overflowY: "auto" }}>
       {controls.map((control, i) => (
         <Grid item key={i} xs={1} overflow="hidden" textOverflow="clip">
             <Control componentProps={control} ws={webSocket} />
