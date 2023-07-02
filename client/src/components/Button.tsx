@@ -1,5 +1,5 @@
 import React from "react";
-import { componentProps } from "../interface";
+import { controlProps } from "../interface";
 
 import { Box, Paper, Typography } from "@mui/material";
 
@@ -28,7 +28,7 @@ interface propsTypes {
   onSendToPlugin?: Function
 
 
-  componentProps: componentProps
+  componentProps: controlProps
   webSocket?: WebSocket
 }
 

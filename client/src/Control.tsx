@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from "react";
-import { componentProps } from "./interface";
+import { controlProps } from "./interface";
 import { Events } from "./enum";
 import { ButtonBase } from "@mui/material";
 import Button from "./components/Button";
 import { emit } from "./functions";
 
 interface controlPropsType {
-  componentProps?: componentProps,
+  componentProps?: controlProps,
   ws: WebSocket,
 }
 

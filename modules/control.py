@@ -19,6 +19,12 @@ class SheetItem:
         self.style = style
         self.label = label
 
+@dataclass
+class Sheet:
+    def __init__(self, columns: int, controls: list[SheetItem|None] = []) -> None:
+        self.columns = columns
+        self.controls = controls
+
 class Control:
     def __init__(self, control_id: str, action_type: str, style: str = "button") -> None:
         self.control_id = control_id
@@ -142,8 +148,8 @@ class Controller:
             HotKeyControl(control_id="hotkey", hotkey="win+i"),
         ]
 
-        self.sheets: list[list[SheetItem | None]] = [
-            [
+        self.sheets: list[Sheet] = [
+            Sheet(columns=4, controls=[
                 self.controls[0].to_sheet_item("Explorer"),
                 self.controls[1].to_sheet_item("wt"),
                 self.controls[2].to_sheet_item("複製"),
@@ -152,12 +158,17 @@ class Controller:
                 self.controls[4].to_sheet_item("mui"),
                 self.controls[5].to_sheet_item("keyboard"),
                 self.controls[6].to_sheet_item("ctrl+i"),
-            ],
-            [
+            ]),
+            Sheet(columns=3, controls=[
                 self.controls[0].to_sheet_item("Explorer"),
                 self.controls[1].to_sheet_item("wt"),
                 self.controls[2].to_sheet_item("複製"),
-            ],
+                None,
+                self.controls[3].to_sheet_item("拡張"),
+                self.controls[4].to_sheet_item("mui"),
+                self.controls[5].to_sheet_item("keyboard"),
+                self.controls[6].to_sheet_item("ctrl+i"),
+            ]),
         ]
 
     def get_control(self, control_id: str) -> Control | None:
@@ -173,5 +184,8 @@ class Controller:
 
 
     def sheets_json(self):
-        return list(map(lambda sheet: list(map(lambda item: None if item is None else item.__dict__, sheet), ), self.sheets))
+        return list(map(lambda sheet: dict(
+            columns=sheet.columns,
+            controls=list(map(lambda item: None if item is None else item.__dict__, sheet.controls))
+        ), self.sheets))
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { componentProps } from "./interface";
+import { controlProps, isTypeOfPageProps, pageProps } from "./interface";
 
 import { CircularProgress, Container, Grid, Pagination, Stack } from "@mui/material";
 import Control from "./Control";
@@ -13,11 +13,9 @@ const Board = (props: BoardProps) => {
   const { host } = props;
 
   const [page, setPage] = useState(1);
-  const [actions, setActions] = useState<componentProps[][]>([]);
+  const [pages, setPages] = useState<pageProps[]>([]);
 
   const [webSocket, setWebSocket] = useState<WebSocket>();
-
-  const [columnCount, setColumnCount] = useState<number>(4);
 
   useEffect(() => {
 
@@ -44,7 +42,6 @@ const Board = (props: BoardProps) => {
       ws.addEventListener("message", (e: MessageEvent) => {
 
         const obj = JSON.parse(e.data);
-        setColumnCount(4);
 
         console.log('Message from server ', obj);
 
@@ -52,7 +49,7 @@ const Board = (props: BoardProps) => {
           default: break;
 
           case "sheets.update":
-            setActions(obj?.data || []);
+            setPages(obj?.data);
             break;
         }
 
@@ -77,17 +74,13 @@ const Board = (props: BoardProps) => {
         webSocket?.readyState === WebSocket.OPEN
         ? (
           <Stack direction="column" alignItems="center" spacing={1} padding={2}>
-            <Grid container columns={columnCount} rowSpacing={1} columnSpacing={2}>
-              {actions.length > 0 && actions[page - 1].map((action, i) => (
-                <Grid item key={i} xs={1} overflow="hidden" textOverflow="clip">
-                  <Control componentProps={action} ws={webSocket} />
-                </Grid>
-              ))}
-            </Grid>
+            {pages.length > 0 && (
+              <Page webSocket={webSocket} {...pages[page - 1]} />
+            )}
 
-            {actions.length > 1 && (
+            {pages.length > 1 && (
               <Pagination
-                count={actions.length}
+                count={pages.length}
                 color="primary"
                 onChange={(e, page) => setPage(page)}
                 page={page}
@@ -102,6 +95,25 @@ const Board = (props: BoardProps) => {
       }
 
     </Container>
+  )
+}
+
+interface PageProps extends pageProps {
+  webSocket: WebSocket
+}
+
+const Page = (props: PageProps) => {
+
+  const { controls, webSocket, columns: rows } = props;
+
+  return (
+    <Grid container columns={rows} rowSpacing={1} columnSpacing={2}>
+      {controls.map((control, i) => (
+        <Grid item key={i} xs={1} overflow="hidden" textOverflow="clip">
+            <Control componentProps={control} ws={webSocket} />
+        </Grid>
+      ))}
+    </Grid>
   )
 }
 
