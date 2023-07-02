@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { controlProps, isTypeOfPageProps, pageProps } from "./interface";
+import { pageProps } from "./interface";
 
 import { CircularProgress, Container, Grid, Pagination, Stack } from "@mui/material";
 import Control from "./Control";
