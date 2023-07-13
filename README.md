@@ -2,7 +2,7 @@
 
 ## Installation
 
-### Server
+1. Setup server
 
 ```bash
 $ cd path/to/mihari
@@ -12,7 +12,7 @@ $ . ./venv/bin/activate
 (venv) $ pipenv install
 ```
 
-### Client
+2. Setup client
 
 ```bash
 $ cd path/to/mihari/client
