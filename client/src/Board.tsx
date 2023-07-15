@@ -5,67 +5,42 @@ import { CircularProgress, Container, Grid, Pagination, Stack } from "@mui/mater
 import Control from "./Control";
 
 interface BoardProps {
-  host?: string
+  webSocket?: WebSocket|null,
 }
 
 const Board = (props: BoardProps) => {
 
-  const { host } = props;
+  const { webSocket } = props;
 
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState<pageProps[]>([]);
 
-  const [webSocket, setWebSocket] = useState<WebSocket>();
-
   useEffect(() => {
 
-    const connectWebSocket = () => {
+    if (!webSocket) return;
 
-      if (webSocket) {
-        return;
+    const handleMessage = (e: MessageEvent) => {
+      const obj = JSON.parse(e.data);
+
+      console.log('Message from server ', obj);
+
+      switch (obj?.method) {
+        default: break;
+
+        case "sheets.update":
+          setPages(obj?.data);
+          break;
       }
-
-      const to = `ws://${host}/ws`;
-      console.info(`Connecting to ${to}`);
-
-      const ws = new WebSocket(to);
-
-      ws.addEventListener("open", (e: Event) => {
-        console.log("WebSocket Connection Established.");
-      })
-
-      ws.addEventListener("close", (e: CloseEvent) => {
-        console.log("WebSocket Connection Closed.");
-        setWebSocket(undefined);
-      })
-
-      ws.addEventListener("message", (e: MessageEvent) => {
-
-        const obj = JSON.parse(e.data);
-
-        console.log('Message from server ', obj);
-
-        switch (obj?.method) {
-          default: break;
-
-          case "sheets.update":
-            setPages(obj?.data);
-            break;
-        }
-
-      })
-
-      setWebSocket(ws);
     }
 
-    const timeout = setTimeout(connectWebSocket, 1000);
+    webSocket?.addEventListener("message", handleMessage);
 
     return () => {
-      clearTimeout(timeout);
-      webSocket && webSocket.close();
+      webSocket?.removeEventListener("message", handleMessage);
     }
 
-  }, [host, webSocket]);
+
+  }, [webSocket]);
 
 
   return (
