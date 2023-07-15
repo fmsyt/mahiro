@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from "react"
 import Board from "./Board"
 
-import { Route, Routes, MemoryRouter } from "react-router-dom";
+import { Route, Routes, BrowserRouter } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme, useMediaQuery } from "@mui/material";
 
-import useWebSocket from "./webSocket";
+import Settings from "./Settings";
+
+import { AppContextProvider } from "./AppContext";
 
 const defaultWebSocketUri = process.env.NODE_ENV === "production"
         ? `ws://${window.location.host}/ws`
@@ -13,7 +15,6 @@ const defaultWebSocketUri = process.env.NODE_ENV === "production"
 const App = () => {
 
   const [webSocketUri, setWebSocketUri] = useState(defaultWebSocketUri);
-  const webSocket = useWebSocket(webSocketUri);
 
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const darkTheme = useMemo(() => createTheme({
@@ -24,15 +25,18 @@ const App = () => {
 
 
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
+    <BrowserRouter>
+      <ThemeProvider theme={darkTheme}>
+        <CssBaseline />
 
-      <MemoryRouter>
-        <Routes>
-          <Route path="/" element={<Board webSocket={webSocket} />} />
-        </Routes>
-      </MemoryRouter>
-    </ThemeProvider>
+        <AppContextProvider uri={webSocketUri}>
+          <Routes>
+            <Route path="/" element={<Board />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </AppContextProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   )
 }
 

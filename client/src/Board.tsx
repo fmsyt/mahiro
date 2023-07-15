@@ -1,47 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useContext, useEffect, useState } from "react";
 import { pageProps } from "./interface";
 
-import { CircularProgress, Container, Grid, Pagination, Stack } from "@mui/material";
+import { Button, CircularProgress, Container, Grid, Pagination, Stack } from "@mui/material";
 import Control from "./Control";
+import { useNavigate } from "react-router-dom";
 
-interface BoardProps {
-  webSocket?: WebSocket|null,
-}
+import { AppContext } from "./AppContext";
 
-const Board = (props: BoardProps) => {
+const Board = memo(() => {
 
-  const { webSocket } = props;
+  const { pages, webSocket } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
-  const [pages, setPages] = useState<pageProps[]>([]);
-
-  useEffect(() => {
-
-    if (!webSocket) return;
-
-    const handleMessage = (e: MessageEvent) => {
-      const obj = JSON.parse(e.data);
-
-      console.log('Message from server ', obj);
-
-      switch (obj?.method) {
-        default: break;
-
-        case "sheets.update":
-          setPages(obj?.data);
-          break;
-      }
-    }
-
-    webSocket?.addEventListener("message", handleMessage);
-
-    return () => {
-      webSocket?.removeEventListener("message", handleMessage);
-    }
-
-
-  }, [webSocket]);
-
 
   return (
     <Container>
@@ -61,6 +32,8 @@ const Board = (props: BoardProps) => {
                 page={page}
                 />
             )}
+
+            <Button variant="contained" onClick={() => navigate("/settings")}>Settings</Button>
           </Stack>
         ): (
           <Stack alignItems="center" justifyContent="center" height="100vh">
@@ -71,7 +44,7 @@ const Board = (props: BoardProps) => {
 
     </Container>
   )
-}
+})
 
 interface PageProps extends pageProps {
   webSocket: WebSocket
