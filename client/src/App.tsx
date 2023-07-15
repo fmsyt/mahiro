@@ -9,13 +9,10 @@ import Settings from "./Settings";
 import { AppContextProvider } from "./AppContext";
 
 const defaultWebSocketUri = process.env.NODE_ENV === "production"
-        ? `ws://${window.location.host}/ws`
-        : `ws://${window.location.hostname}:8000/ws`;
+  ? `ws://${window.location.host}/ws`
+  : `ws://${window.location.hostname}:8000/ws`;
 
 const App = () => {
-
-  const [webSocketUri, setWebSocketUri] = useState(defaultWebSocketUri);
-
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const darkTheme = useMemo(() => createTheme({
     palette: {
@@ -29,7 +26,7 @@ const App = () => {
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
 
-        <AppContextProvider uri={webSocketUri}>
+        <AppContextProvider uri={defaultWebSocketUri}>
           <Routes>
             <Route path="/" element={<Board />} />
             <Route path="/settings" element={<Settings />} />

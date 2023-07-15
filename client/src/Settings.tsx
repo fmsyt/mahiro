@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-import { Button, Container, TextField } from "@mui/material";
+import { Button, Container, TextField, Stack } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
 
@@ -62,18 +62,25 @@ const Settings = memo(() => {
     <Container>
       <h1>Settings</h1>
 
-      <TextField
-        label="URL"
-        variant="outlined"
-        inputRef={ref}
-        defaultValue={uri || ""}
-        color={readyState === WebSocket.OPEN ? "success" : "primary"}
-        focused
-        />
+      <Stack direction="column" spacing={2} justifyContent="flex-start" alignItems="flex-start">
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <TextField
+            label="URL"
+            variant="outlined"
+            inputRef={ref}
+            defaultValue={uri || ""}
+            color={readyState === WebSocket.OPEN ? "success" : "primary"}
+            focused
+            />
 
-      <Button onClick={connect}>Connect</Button>
+          <Button variant="contained" onClick={connect}>Connect</Button>
+        </Stack>
 
-      <Button onClick={() => navigate("/")}>Back</Button>
+
+        <Button onClick={() => navigate("/")}>Back</Button>
+
+      </Stack>
+
     </Container>
   )
 })
