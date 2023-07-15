@@ -5,39 +5,12 @@ import { Box, Paper, Typography } from "@mui/material";
 
 import logo from "../logo.svg";
 
-interface propsTypes {
-  icon?: string
-  label?: string
+const Button = (props: controlProps) => {
 
-  onKeyDown?: Function
-  onKeyUp?: Function
-  onTouchTap?: Function
-  onDialDown?: Function
-  onDialUp?: Function
-  onDialRotate?: Function
-  onWillAppear?: Function
-  onWillDisappear?: Function
-  onTitleParametersDidChange?: Function
-  onDeviceDidConnect?: Function
-  onDeviceDidDisconnect?: Function
-  onApplicationDidLaunch?: Function
-  onApplicationDidTerminate?: Function
-  onSystemDidWakeUp?: Function
-  onPropertyInspectorDidAppear?: Function
-  onPropertyInspectorDidDisappear?: Function
-  onSendToPlugin?: Function
-
-
-  componentProps: controlProps
-  webSocket?: WebSocket
-}
-
-const Button = (props: propsTypes) => {
-
-  const { componentProps } = props;
+  const { label } = props;
 
   return (
-    <Paper sx={{ width: "100%" }} variant="outlined">
+    <Paper sx={{ width: "100%", backgroundColor: "transparent" }} variant="outlined">
       <Box alignItems="center" justifyContent="center" padding={1} overflow="hidden">
         <Box sx={{ height: "100%" }}>
           <img
@@ -46,7 +19,7 @@ const Button = (props: propsTypes) => {
             style={{ objectFit: "cover" }}
             />
         </Box>
-        <Typography component="div" variant="caption" noWrap>{componentProps.label}</Typography>
+        <Typography component="div" variant="caption" noWrap>{label}</Typography>
       </Box>
     </Paper>
   )

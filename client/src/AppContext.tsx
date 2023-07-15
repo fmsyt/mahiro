@@ -5,13 +5,16 @@ import { useWebSocket } from "./webSocket";
 interface AppContextProps {
   webSocket: WebSocket | null,
   pages: pageProps[],
+  uri: string | null,
+  setUri: React.Dispatch<React.SetStateAction<string>>,
 }
 
 const AppContext = React.createContext<AppContextProps>({
   webSocket: null,
   pages: [],
+  uri: null,
+  setUri: () => {},
 });
-
 
 interface AppContextProviderProps {
   uri: string,
@@ -20,7 +23,9 @@ interface AppContextProviderProps {
 
 const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
-    const { uri, children } = props;
+    const { uri: defaultUri, children } = props;
+    const [uri, setUri] = React.useState(defaultUri);
+
     const webSocket = useWebSocket(uri);
 
     const [pages, setPages] = React.useState<pageProps[]>([]);
@@ -55,7 +60,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
 
     return (
-      <AppContext.Provider value={{ webSocket, pages }}>
+      <AppContext.Provider value={{ webSocket, pages, uri, setUri }}>
         {children}
       </AppContext.Provider>
     )

@@ -1,47 +1,52 @@
-import React, { useCallback, useMemo } from "react";
+import React, { memo, useCallback } from "react";
 import { controlProps } from "./interface";
 import { Events } from "./enum";
-import { ButtonBase } from "@mui/material";
-import Button from "./components/Button";
+import { Button, Paper } from "@mui/material";
+import StyleButton from "./components/Button";
 import { emit } from "./functions";
 
-interface controlPropsType {
-  componentProps?: controlProps,
+interface controlUIPropsType {
+  controlProps?: controlProps,
+}
+
+interface controlPropsType extends controlUIPropsType {
   ws: WebSocket,
 }
 
-const Control = (props: controlPropsType) => {
+export const Control = (props: controlPropsType) => {
 
-  const { componentProps, ws } = props;
+  const { controlProps, ws } = props;
 
-  const handleMouseUp = useCallback(() => {
-    if (!componentProps) return;
-    emit(ws, { action: componentProps.id, event: Events.keyUp })
-  }, [componentProps, ws]);
+  const setEvent = useCallback((eventKey: Events) => {
+    if (!controlProps) return () => {};
+    return () => emit(ws, { action: controlProps.id, event: eventKey })
 
+  }, [ws, controlProps]);
 
-  const component = useMemo(() => {
-
-    if (!componentProps) return;
-
-    const { icon, label } = componentProps;
-
-    switch (componentProps.style) {
-      default: break;
-      case "button":
-        return <Button icon={icon} label={label} componentProps={componentProps} webSocket={ws} />
-    }
-    return null;
-
-  }, [componentProps, ws]);
+  const handleMouseUp = setEvent(Events.keyUp);
 
   return (
-    <ButtonBase sx={{ width: "100%" }} onMouseUp={handleMouseUp}>
-      { component }
-    </ButtonBase>
+    <Button sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }} onMouseUp={handleMouseUp}>
+      <ControlUI controlProps={controlProps} />
+    </Button>
   )
 }
 
+export const ControlUI = memo((props: controlUIPropsType) => {
 
+  const { controlProps } = props;
+  if (!controlProps) return <DefaultControlUI />;
 
-export default Control;
+  switch (controlProps.style) {
+    default:
+      return <DefaultControlUI />;
+    case "button":
+      return <StyleButton {...controlProps} />
+  }
+})
+
+const DefaultControlUI = memo(() => {
+  return (
+    <Paper variant="outlined" sx={{ width: "100%", height: "100%" }} />
+  )
+})
