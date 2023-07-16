@@ -1,33 +1,36 @@
 {
   "sheets": [
-    [
-      {
-        "control_id": "explorer",
-        "label": "Explorer",
-        "type": "button"
-      },
-      {
-        "control_id": "windows_terminal",
-        "label": "wt",
-        "type": "button"
-      },
-      {
-        "control_id": "display_clone",
-        "label": "複製",
-        "type": "button"
-      },
-      null,
-      {
-        "control_id": "display_extend",
-        "label": "拡張",
-        "type": "button"
-      },
-      {
-        "control_id": "mui",
-        "label": "mui",
-        "type": "button"
-      }
-    ]
+    {
+      "columns": 4,
+      "controls": [
+        {
+          "control_id": "explorer",
+          "label": "Explorer",
+          "type": "button"
+        },
+        {
+          "control_id": "windows_terminal",
+          "label": "wt",
+          "type": "button"
+        },
+        {
+          "control_id": "display_clone",
+          "label": "複製",
+          "type": "button"
+        },
+        null,
+        {
+          "control_id": "display_extend",
+          "label": "拡張",
+          "type": "button"
+        },
+        {
+          "control_id": "mui",
+          "label": "mui",
+          "type": "button"
+        }
+      ]
+    }
   ],
   "controls": [
     {

@@ -1,4 +1,9 @@
 import json
+import os
+
+default_sheets_file_path = os.path.expanduser("~/.config/mahiro/sheets.json")
+default_controls_file_path = os.path.expanduser("~/.config/mahiro/controls.json")
+default_port = 8000
 
 class Settings:
 
@@ -6,5 +11,47 @@ class Settings:
         self.load()
 
     def load(self):
-        with open("./settings.json", encoding="utf-8") as f:
-            data = json.load(f)
+
+        # Load settings from ~/.config/mahiro/settings.json
+        try:
+            with open(os.path.expanduser("~/.config/mahiro/settings.json"), "r") as f:
+                self._settings = json.load(f)
+
+        # If the file doesn't exist, create it with default settings
+        except FileNotFoundError:
+            self._settings = {
+                "sheets_file_path": default_sheets_file_path,
+                "port": default_port
+            }
+
+    def save(self):
+        with open(os.path.expanduser("~/.config/mahiro/settings.json"), "w") as f:
+            json.dump(self._settings, f, indent=2)
+
+    def get(self, key):
+        return self._settings[key]
+
+    def set(self, key, value):
+        self._settings[key] = value
+        self.save()
+
+    def get_sheets_file_path(self):
+        return self._settings["sheets_file_path"] if "sheets_file_path" in self._settings else default_sheets_file_path
+
+    def set_sheets_file_path(self, path):
+        self._settings["sheets_file_path"] = path
+        self.save()
+
+    def get_controls_file_path(self):
+        return self._settings["controls_file_path"] if "controls_file_path" in self._settings else default_controls_file_path
+
+    def set_controls_file_path(self, path):
+        self._settings["controls_file_path"] = path
+        self.save()
+
+    def get_port(self) -> int:
+        return self._settings["port"] if "port" in self._settings else default_port
+
+    def set_port(self, port):
+        self._settings["port"] = port
+        self.save()

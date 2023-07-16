@@ -6,7 +6,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 
 from modules.control import Controller
-# from modules.settings import Settings
+from modules.settings import Settings
 
 app = FastAPI()
 
@@ -14,7 +14,9 @@ app = FastAPI()
 
 class ConnectionManager:
 
-    def __init__(self) -> None:
+    def __init__(self, settings: Settings) -> None:
+
+        self.settings = settings
 
         self.controller = Controller()
         self.active_connections: List[WebSocket] = []
@@ -48,10 +50,8 @@ class ConnectionManager:
             await self.send_update_sheets(websocket)
 
 
-manager = ConnectionManager()
-
-
-
+settings = Settings()
+manager = ConnectionManager(settings)
 
 
 @app.websocket("/ws")
@@ -71,4 +71,4 @@ if os.path.isfile("./client/build/index.html"):
     app.mount("/", StaticFiles(directory="./client/build", html=True), name="index")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0")
+    uvicorn.run(app, host="0.0.0.0", port=settings.get_port())

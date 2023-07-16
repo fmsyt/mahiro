@@ -1,8 +1,13 @@
+import os
+import json
+
 import keyboard
 import subprocess
 import webbrowser
 
 from dataclasses import dataclass
+
+from modules.settings import Settings
 
 @dataclass
 class SheetItem:
@@ -135,8 +140,26 @@ class HotKeyControl(Control):
     async def _key_up(self):
         keyboard.send(self.hotkey)
 
+def control_from_dict(**kwargs) -> Control:
+
+    action_type = kwargs["type"]
+
+    if action_type == "command":
+        return CommandControl(**kwargs)
+    elif action_type == "browser":
+        return BrowserControl(**kwargs)
+    elif action_type == "keyboard":
+        return KeyboardControl(**kwargs)
+    elif action_type == "hotkey":
+        return HotKeyControl(**kwargs)
+
+    raise Exception(f"Unknown type: {action_type}")
+
+
 class Controller:
-    def __init__(self) -> None:
+    def __init__(self, settings: Settings) -> None:
+
+        self.settings = settings
 
         self.controls: list[Control] = [
             CommandControl(control_id="explorer", command="explorer.exe"),
@@ -170,6 +193,28 @@ class Controller:
                 self.controls[6].to_sheet_item("ctrl+i"),
             ]),
         ]
+
+    def load_controls(self):
+        controls_file_path = self.settings.get_controls_file_path()
+
+        try:
+            with open(controls_file_path, "r") as f:
+                controls_json = json.load(f)
+                self.controls = list(map(control_from_dict, **controls_json)) # type: ignore
+        except FileNotFoundError:
+            self.controls = []
+
+    def load_sheets(self):
+        sheets_file_path = self.settings.get_sheets_file_path()
+
+        try:
+            with open(sheets_file_path, "r") as f:
+                sheets_json = json.load(f)
+                self.sheets = list(map(lambda sheet: Sheet(columns=sheet["columns"], controls=list(map(lambda control: self.get_control(control["control_id"])))), sheets_json)) # type: ignore
+
+        except FileNotFoundError:
+            self.sheets = []
+
 
     def get_control(self, control_id: str) -> Control | None:
         control = next(filter(lambda x: x.control_id == control_id, self.controls), None)
