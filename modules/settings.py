@@ -21,10 +21,16 @@ class Settings:
         except FileNotFoundError:
             self._settings = {
                 "sheets_file_path": default_sheets_file_path,
+                "controls_file_path": default_controls_file_path,
                 "port": default_port
             }
+            self.save()
 
     def save(self):
+
+        if not os.path.exists(os.path.expanduser("~/.config/mahiro")):
+            os.makedirs(os.path.expanduser("~/.config/mahiro"))
+
         with open(os.path.expanduser("~/.config/mahiro/settings.json"), "w") as f:
             json.dump(self._settings, f, indent=2)
 

@@ -18,7 +18,7 @@ class ConnectionManager:
 
         self.settings = settings
 
-        self.controller = Controller()
+        self.controller = Controller(settings)
         self.active_connections: List[WebSocket] = []
         # self.settings = Settings()
 

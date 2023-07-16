@@ -23,4 +23,5 @@ export enum ControlTypes {
   launch = "launch",
   keyboard = "keyboard",
   browser = "browser",
+  empty = "empty",
 }

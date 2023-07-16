@@ -12,7 +12,7 @@ from modules.settings import Settings
 @dataclass
 class SheetItem:
 
-    def __init__(self, control_id: str, style: str = "button", label: str = "") -> None:
+    def __init__(self, control_id: str | None = None, style: str = "button", label: str = "") -> None:
         """
         Args:
             id (str): id of control
@@ -26,12 +26,12 @@ class SheetItem:
 
 @dataclass
 class Sheet:
-    def __init__(self, columns: int, controls: list[SheetItem|None] = []) -> None:
+    def __init__(self, columns: int, controls: list[SheetItem] = []) -> None:
         self.columns = columns
         self.controls = controls
 
 class Control:
-    def __init__(self, control_id: str, action_type: str, style: str = "button") -> None:
+    def __init__(self, action_type: str, control_id: str | None = None, style: str = "empty") -> None:
         self.control_id = control_id
         self.action_type = action_type
         self.style = style
@@ -95,8 +95,12 @@ class Control:
     async def _property_inspector_did_disappear(self): pass
     async def _send_to_plugin(self): pass
 
+class EmptyControl(Control):
+    def __init__(self, style: str = "empty", **kwargs) -> None:
+        super().__init__(control_id=None, action_type="empty", style=style)
+
 class CommandControl(Control):
-    def __init__(self, control_id: str, command: str | list[str], style: str = "button") -> None:
+    def __init__(self, control_id: str, command: str | list[str], style: str = "button", **kwargs) -> None:
         super().__init__(control_id=control_id, action_type="command", style=style)
 
         self.command = command
@@ -106,7 +110,7 @@ class CommandControl(Control):
 
 
 class BrowserControl(Control):
-    def __init__(self, control_id: str, url: str, style: str = "button") -> None:
+    def __init__(self, control_id: str, url: str, style: str = "button", **kwargs) -> None:
         super().__init__(control_id=control_id, action_type="browser", style=style)
 
         self.url = url
@@ -123,7 +127,7 @@ class KeyState:
         self.alt = alt
 
 class KeyboardControl(Control):
-    def __init__(self, control_id: str, text: str, style: str = "button") -> None:
+    def __init__(self, control_id: str, text: str, style: str = "button", **kwargs) -> None:
         super().__init__(control_id=control_id, action_type="keyboard", style=style)
 
         self.text = text
@@ -132,7 +136,7 @@ class KeyboardControl(Control):
         keyboard.write(self.text)
 
 class HotKeyControl(Control):
-    def __init__(self, control_id: str, hotkey: str, style: str = "button") -> None:
+    def __init__(self, control_id: str, hotkey: str, style: str = "button", **kwargs) -> None:
         super().__init__(control_id=control_id, action_type="hotkey", style=style)
 
         self.hotkey = hotkey
@@ -140,7 +144,7 @@ class HotKeyControl(Control):
     async def _key_up(self):
         keyboard.send(self.hotkey)
 
-def control_from_dict(**kwargs) -> Control:
+def _control_from_dict(**kwargs) -> Control:
 
     action_type = kwargs["type"]
 
@@ -153,71 +157,75 @@ def control_from_dict(**kwargs) -> Control:
     elif action_type == "hotkey":
         return HotKeyControl(**kwargs)
 
-    raise Exception(f"Unknown type: {action_type}")
+    return EmptyControl(**kwargs)
 
 
 class Controller:
+
+    controls: list[Control] = []
+    sheets: list[Sheet] = []
+
+    controls_raw: list[dict] = []
+    sheets_raw: list[dict] = []
+
     def __init__(self, settings: Settings) -> None:
 
         self.settings = settings
 
-        self.controls: list[Control] = [
-            CommandControl(control_id="explorer", command="explorer.exe"),
-            CommandControl(control_id="windows_terminal", command="wt"),
-            CommandControl(control_id="display_clone", command=[f"D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/clone"]),
-            CommandControl(control_id="display_extend", command=[f"D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/extend"]),
-            BrowserControl(control_id="mui", url="https://mui.com/"),
-            KeyboardControl(control_id="keyboard", text="test"),
-            HotKeyControl(control_id="hotkey", hotkey="win+i"),
-        ]
-
-        self.sheets: list[Sheet] = [
-            Sheet(columns=4, controls=[
-                self.controls[0].to_sheet_item("Explorer"),
-                self.controls[1].to_sheet_item("wt"),
-                self.controls[2].to_sheet_item("複製"),
-                None,
-                self.controls[3].to_sheet_item("拡張"),
-                self.controls[4].to_sheet_item("mui"),
-                self.controls[5].to_sheet_item("keyboard"),
-                self.controls[6].to_sheet_item("ctrl+i"),
-            ]),
-            Sheet(columns=3, controls=[
-                self.controls[0].to_sheet_item("Explorer"),
-                self.controls[1].to_sheet_item("wt"),
-                self.controls[2].to_sheet_item("複製"),
-                None,
-                self.controls[3].to_sheet_item("拡張"),
-                self.controls[4].to_sheet_item("mui"),
-                self.controls[5].to_sheet_item("keyboard"),
-                self.controls[6].to_sheet_item("ctrl+i"),
-            ]),
-        ]
+        self.load_controls()
+        self.load_sheets()
 
     def load_controls(self):
         controls_file_path = self.settings.get_controls_file_path()
 
         try:
-            with open(controls_file_path, "r") as f:
-                controls_json = json.load(f)
-                self.controls = list(map(control_from_dict, **controls_json)) # type: ignore
+            with open(controls_file_path, "r", encoding="utf-8") as f:
+                self.controls_raw = json.load(f)
+
         except FileNotFoundError:
-            self.controls = []
+            self.controls_raw = []
+            self.save_controls()
+
+        self.controls = list(map(lambda control: _control_from_dict(**control), self.controls_raw)) # type: ignore
 
     def load_sheets(self):
         sheets_file_path = self.settings.get_sheets_file_path()
 
         try:
-            with open(sheets_file_path, "r") as f:
-                sheets_json = json.load(f)
-                self.sheets = list(map(lambda sheet: Sheet(columns=sheet["columns"], controls=list(map(lambda control: self.get_control(control["control_id"])))), sheets_json)) # type: ignore
+            with open(sheets_file_path, "r", encoding="utf-8") as f:
+                self.sheets_raw = json.load(f)
 
         except FileNotFoundError:
-            self.sheets = []
+            self.sheets_raw = []
+            self.save_sheets()
+
+    def save_controls(self):
+        controls_file_path = self.settings.get_controls_file_path()
+
+        if not os.path.exists(os.path.dirname(controls_file_path)):
+            os.makedirs(os.path.dirname(controls_file_path))
+
+        with open(controls_file_path, "w") as f:
+            json.dump(self.controls_raw, f)
+
+    def save_sheets(self):
+        sheets_file_path = self.settings.get_sheets_file_path()
+
+        if not os.path.exists(os.path.dirname(sheets_file_path)):
+            os.makedirs(os.path.dirname(sheets_file_path))
+
+        with open(sheets_file_path, "w") as f:
+            json.dump(self.sheets_raw, f)
 
 
-    def get_control(self, control_id: str) -> Control | None:
-        control = next(filter(lambda x: x.control_id == control_id, self.controls), None)
+    def get_control(self, control_id: str | None) -> Control:
+
+        # find control by id
+
+        if control_id is None:
+            return EmptyControl()
+
+        control = next(filter(lambda control: control.control_id == control_id, self.controls), EmptyControl()) # type: ignore
         return control
 
     async def emit(self, control_id: str, event_name: str):
@@ -229,8 +237,13 @@ class Controller:
 
 
     def sheets_json(self):
-        return list(map(lambda sheet: dict(
+
+        sheets = list(map(lambda sheet: Sheet(columns=sheet["columns"], controls=list(map(lambda sheet_control: self.get_control(sheet_control["control_id"] if "control_id" in sheet_control else None).to_sheet_item(sheet_control["label"] if "label" in sheet_control else None), sheet["controls"]))), self.sheets_raw)) # type: ignore
+
+        result = list(map(lambda sheet: dict(
             columns=sheet.columns,
             controls=list(map(lambda item: None if item is None else item.__dict__, sheet.controls))
-        ), self.sheets))
+        ), sheets))
+
+        return result
 
