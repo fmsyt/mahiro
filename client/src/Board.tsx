@@ -20,14 +20,14 @@ const Board = memo(() => {
       {
         webSocket?.readyState === WebSocket.OPEN
         ? (
-          <Stack direction="column" alignItems="center" justifyContent="space-between" spacing={1} padding={2} height="100vh">
+          <Stack direction="column" alignItems="center" justifyContent="space-between" spacing={1}>
 
             {pages.length > 0 && (
               <Page webSocket={webSocket} isEditMode={isEditMode} {...pages[page - 1]} />
             )}
 
             {pages.length > 1 && (
-              <Stack>
+              <Stack position="absolute" bottom={32}>
                 <Pagination
                   count={pages.length}
                   color="primary"
