@@ -7,7 +7,7 @@ export function useWebSocket(uri: string) {
 
     const connect = () => {
 
-      if (socket?.readyState !== WebSocket.CLOSED) {
+      if (socket?.readyState === WebSocket.OPEN) {
         return;
       }
 
