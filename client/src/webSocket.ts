@@ -4,12 +4,29 @@ export function useWebSocket(uri: string) {
   const [socket, setSocket] = React.useState<WebSocket | null>(null);
 
   React.useEffect(() => {
-    const ws = new WebSocket(uri);
-    setSocket(ws);
-    return () => {
-      ws.readyState === WebSocket.OPEN && ws.close();
+
+    const connect = () => {
+
+      if (socket?.readyState !== WebSocket.CLOSED) {
+        return;
+      }
+
+
+      const ws = new WebSocket(uri);
+      ws.addEventListener("close", () => setSocket(null));
+
+      setSocket(ws);
+
+      return ws;
     };
-  }, [uri]);
+
+    const interval = setInterval(connect, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+
+  }, [socket, uri]);
 
   return socket;
 }

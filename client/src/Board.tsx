@@ -38,7 +38,7 @@ const Board = memo(() => {
             )}
           </Stack>
         ): (
-          <Stack alignItems="center" justifyContent="center" height="100vh">
+          <Stack alignItems="center" justifyContent="center" height="80vh">
             <CircularProgress />
           </Stack>
         )
