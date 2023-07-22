@@ -34,32 +34,32 @@
   ],
   "controls": [
     {
-      "id": "explorer",
+      "control_id": "explorer",
       "type": "command",
       "command": "explorer.exe"
     },
     {
-      "id": "windows_terminal",
+      "control_id": "windows_terminal",
       "type": "command",
       "command": "wt"
     },
     {
-      "id": "display_clone",
+      "control_id": "display_clone",
       "type": "command",
-      "command": ["D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/clone"]
+      "command": ["DisplaySwitch.exe", "/clone"]
     },
     {
-      "id": "display_extend",
+      "control_id": "display_extend",
       "type": "command",
-      "command": ["D:\\Users\\motsuni\\Desktop\\DisplaySwitch.exe", "/extend"]
+      "command": ["DisplaySwitch.exe", "/extend"]
     },
     {
-      "id": "mui",
+      "control_id": "mui",
       "type": "browser",
       "url": "https://mui.com/"
     },
     {
-      "id": "mute",
+      "control_id": "mute",
       "style": "toggle"
     }
   ]
