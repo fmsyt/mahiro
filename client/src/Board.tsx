@@ -4,7 +4,7 @@ import { pageProps } from "./interface";
 import { Button, CircularProgress, Container, Grid, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
-import { Control, ControlUI } from "./Control";
+import { Control } from "./Control";
 
 import { AppContext } from "./AppContext";
 
