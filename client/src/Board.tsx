@@ -61,14 +61,7 @@ const Page = (props: PageProps) => {
     <Grid container columns={columns} spacing={2} maxHeight="100%" sx={{ overflowY: "auto" }}>
       {controls.map((control, i) => (
         <Grid item key={i} xs={1} overflow="hidden" textOverflow="clip">
-          {!isEditMode ? (
-            <Control controlProps={control} ws={webSocket} />
-          )
-          : (
-            <Button sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }}>
-              <ControlUI controlProps={control} />
-            </Button>
-          )}
+          <Control controlProps={control} ws={webSocket} disabled={isEditMode} />
         </Grid>
       ))}
 

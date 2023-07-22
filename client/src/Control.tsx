@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useMemo } from "react";
 import { controlProps } from "./interface";
 import { Events } from "./enum";
 import { Button, Paper } from "@mui/material";
@@ -11,22 +11,26 @@ interface controlUIPropsType {
 
 interface controlPropsType extends controlUIPropsType {
   ws: WebSocket,
+  disabled?: boolean,
 }
 
 export const Control = (props: controlPropsType) => {
 
-  const { controlProps, ws } = props;
+  const { controlProps, disabled, ws } = props;
 
-  const setEvent = useCallback((eventKey: Events) => {
-    if (!controlProps) return () => {};
-    return () => emit(ws, { action: controlProps.id, event: eventKey })
+  const events = useMemo(() => {
+    if (!controlProps || disabled || controlProps.disabled) {
+      return {}
+    }
 
-  }, [ws, controlProps]);
+    return {
+      onMouseUp: () => emit(ws, { action: controlProps.id, event: Events.keyUp }),
+    }
 
-  const handleMouseUp = setEvent(Events.keyUp);
+  }, [ws, controlProps, disabled]);
 
   return (
-    <Button sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }} onMouseUp={handleMouseUp}>
+    <Button { ...events } sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }}>
       <ControlUI controlProps={controlProps} />
     </Button>
   )

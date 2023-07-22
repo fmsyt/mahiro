@@ -1,5 +1,6 @@
 import os
 import json
+import platform as p
 
 import pyautogui
 import subprocess
@@ -13,7 +14,7 @@ from modules.settings import Settings
 @dataclass
 class SheetItem:
 
-    def __init__(self, control_id: str | None = None, style: str = "button", label: str = "") -> None:
+    def __init__(self, control_id: str | None = None, style: str = "button", label: str = "", disabled: bool = False) -> None:
         """
         Args:
             id (str): id of control
@@ -24,6 +25,7 @@ class SheetItem:
         self.id = control_id
         self.style = style
         self.label = label
+        self.disabled = disabled
 
 @dataclass
 class Sheet:
@@ -32,13 +34,23 @@ class Sheet:
         self.controls = controls
 
 class Control:
-    def __init__(self, action_type: str, control_id: str | None = None, style: str = "empty") -> None:
+    def __init__(self, action_type: str, control_id: str | None = None, style: str = "empty", platform: str | list[str] | None= None, **kwargs) -> None:
         self.control_id = control_id
         self.action_type = action_type
         self.style = style
 
+        self.disabled = False
+
+        if platform is None:
+            self.disabled = False
+        elif isinstance(platform, str):
+            self.disabled = platform != p.system()
+        elif isinstance(platform, list):
+            self.disabled = p.system() not in platform
+
+
     def to_sheet_item(self, label: str):
-        return SheetItem(control_id=self.control_id, label=label, style=self.style)
+        return SheetItem(control_id=self.control_id, label=label, style=self.style, disabled=self.disabled)
 
     async def action(self, event_name: str):
         if event_name == "key_down":
@@ -98,11 +110,11 @@ class Control:
 
 class EmptyControl(Control):
     def __init__(self, style: str = "empty", **kwargs) -> None:
-        super().__init__(control_id=None, action_type="empty", style=style)
+        super().__init__(control_id=None, action_type="empty", style=style, **kwargs)
 
 class CommandControl(Control):
     def __init__(self, control_id: str, command: str | list[str], style: str = "button", **kwargs) -> None:
-        super().__init__(control_id=control_id, action_type="command", style=style)
+        super().__init__(control_id=control_id, action_type="command", style=style, **kwargs)
 
         self.command = command
 
@@ -112,7 +124,7 @@ class CommandControl(Control):
 
 class BrowserControl(Control):
     def __init__(self, control_id: str, url: str, style: str = "button", **kwargs) -> None:
-        super().__init__(control_id=control_id, action_type="browser", style=style)
+        super().__init__(control_id=control_id, action_type="browser", style=style, **kwargs)
 
         self.url = url
 
@@ -131,7 +143,7 @@ _keyboard = KeyboardController()
 
 class KeyboardControl(Control):
     def __init__(self, control_id: str, text: str, style: str = "button", **kwargs) -> None:
-        super().__init__(control_id=control_id, action_type="keyboard", style=style)
+        super().__init__(control_id=control_id, action_type="keyboard", style=style, **kwargs)
 
         self.text = text
 
@@ -140,7 +152,7 @@ class KeyboardControl(Control):
 
 class HotKeyControl(Control):
     def __init__(self, control_id: str, hotkey: str, style: str = "button", **kwargs) -> None:
-        super().__init__(control_id=control_id, action_type="hotkey", style=style)
+        super().__init__(control_id=control_id, action_type="hotkey", style=style, **kwargs)
 
         self.hotkey = hotkey
 

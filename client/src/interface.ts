@@ -5,6 +5,7 @@ export interface controlProps {
 
   style: "button" | "slider"
   current?: number | string
+  disabled?: boolean
 }
 
 export function isTypeOfControlProps(data: any): data is controlProps {
