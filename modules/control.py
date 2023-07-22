@@ -1,11 +1,12 @@
 import os
 import json
 
-import keyboard
+import pyautogui
 import subprocess
 import webbrowser
 
 from dataclasses import dataclass
+from pynput.keyboard import Controller as KeyboardController
 
 from modules.settings import Settings
 
@@ -126,6 +127,8 @@ class KeyState:
         self.shift = shift
         self.alt = alt
 
+_keyboard = KeyboardController()
+
 class KeyboardControl(Control):
     def __init__(self, control_id: str, text: str, style: str = "button", **kwargs) -> None:
         super().__init__(control_id=control_id, action_type="keyboard", style=style)
@@ -133,7 +136,7 @@ class KeyboardControl(Control):
         self.text = text
 
     async def _key_up(self):
-        keyboard.write(self.text)
+        _keyboard.type(self.text)
 
 class HotKeyControl(Control):
     def __init__(self, control_id: str, hotkey: str, style: str = "button", **kwargs) -> None:
@@ -142,7 +145,7 @@ class HotKeyControl(Control):
         self.hotkey = hotkey
 
     async def _key_up(self):
-        keyboard.send(self.hotkey)
+        pyautogui.hotkey(*self.hotkey)
 
 def _control_from_dict(**kwargs) -> Control:
 

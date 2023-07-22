@@ -1,8 +1,8 @@
 # mahiro
 
-## Installation
+## インストール
 
-1. Setup server
+1. サーバーのセットアップ
 
 ```bash
 $ cd path/to/mihari
@@ -12,7 +12,7 @@ $ . ./venv/bin/activate
 (venv) $ pipenv install
 ```
 
-2. Setup client
+2. クライアントのセットアップ
 
 ```bash
 $ cd path/to/mihari/client
@@ -20,9 +20,9 @@ $ npm install
 $ npm run build
 ```
 
-## Run
+## 実行
 
-HTTP server will be started on port `8000`.
+`8000`番ポートでHTTPサーバーが起動します。
 
 ```bash
 $ cd path/to/mihari
