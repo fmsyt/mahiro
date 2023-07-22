@@ -23,6 +23,7 @@ export function useWebSocket(uri: string) {
     const interval = setInterval(connect, 1000);
 
     return () => {
+      socket && socket.close();
       clearInterval(interval);
     };
 
