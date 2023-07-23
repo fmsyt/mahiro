@@ -184,9 +184,10 @@ class Controller:
     sheets_raw: list[dict] = []
 
     def __init__(self, settings: Settings) -> None:
-
         self.settings = settings
+        self.reload()
 
+    def reload(self):
         self.load_controls()
         self.load_sheets()
 

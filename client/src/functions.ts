@@ -5,7 +5,7 @@ function send(webSocket: WebSocket, method: string, data?: any) {
   webSocket.send(body);
 }
 
-export function requestSheets(webSocket: WebSocket) {
+export function updateSheets(webSocket: WebSocket) {
   send(webSocket, "sheets.update");
 }
 

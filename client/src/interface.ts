@@ -3,7 +3,7 @@ export interface controlProps {
   label: string
   icon: string
 
-  style: "button" | "slider"
+  style: "button" | "slider" | "empty"
   current?: number | string
   disabled?: boolean
 }

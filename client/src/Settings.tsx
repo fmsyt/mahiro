@@ -5,6 +5,7 @@ import { Button, Container, TextField, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import { AppContext } from "./AppContext";
+import { emit, updateSheets } from "./functions";
 
 const Settings = memo(() => {
 
@@ -57,6 +58,15 @@ const Settings = memo(() => {
     setUri(ref.current.value);
   }, [ref, setUri]);
 
+  const reload = useCallback(() => {
+    if (!webSocket) {
+      return;
+    }
+
+    updateSheets(webSocket);
+
+  }, [webSocket]);
+
 
   return (
     <Container>
@@ -78,6 +88,7 @@ const Settings = memo(() => {
 
 
         <Button onClick={() => navigate("/")}>Back</Button>
+        <Button onClick={reload}>Reload</Button>
 
       </Stack>
 

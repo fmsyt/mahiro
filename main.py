@@ -25,21 +25,21 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket) -> None:
         await websocket.accept()
-        await self.send_update_sheets(websocket)
+        await self.send_sheets_update(websocket)
         self.active_connections.append(websocket)
 
-    def disconnect(self, websocket: WebSocket) -> None:
+    async def disconnect(self, websocket: WebSocket) -> None:
         self.active_connections.remove(websocket)
 
     async def broadcast(self, message: str) -> None:
         for connection in self.active_connections:
             await connection.send_text(message)
 
-    async def send_update_sheets(self, websocket: WebSocket) -> None:
+    async def send_sheets_update(self, websocket: WebSocket) -> None:
         sheets = self.controller.sheets_json()
         await websocket.send_json({ "method": "sheets.update", "data": sheets })
 
-    async def exec_receive(self, websocket: WebSocket, receive) -> None:
+    async def receive(self, websocket: WebSocket, receive) -> None:
         if "method" not in receive:
             pass
 
@@ -47,7 +47,11 @@ class ConnectionManager:
             await self.controller.emit(control_id=receive["data"]["action"], event_name=receive["data"]["event"])
 
         elif receive["method"] == "sheets.update":
-            await self.send_update_sheets(websocket)
+            await self.send_sheets_update(websocket)
+
+        elif receive["method"] == "sheets.reload":
+            self.controller.reload()
+            await self.send_sheets_update(websocket)
 
 
 settings = Settings()
@@ -61,10 +65,14 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
-            await manager.exec_receive(websocket, data)
+            await manager.receive(websocket, data)
 
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        await manager.disconnect(websocket)
+
+    except KeyboardInterrupt:
+        for websocket in manager.active_connections:
+            await manager.disconnect(websocket)
 
 
 if os.path.isfile("./client/build/index.html"):

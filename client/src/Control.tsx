@@ -6,7 +6,7 @@ import StyleButton from "./components/Button";
 import { emit } from "./functions";
 
 interface controlUIPropsType {
-  controlProps?: controlProps,
+  controlProps: controlProps,
 }
 
 interface controlPropsType extends controlUIPropsType {
@@ -14,12 +14,14 @@ interface controlPropsType extends controlUIPropsType {
   disabled?: boolean,
 }
 
-export const Control = (props: controlPropsType) => {
+export const Control = memo((props: controlPropsType) => {
 
-  const { controlProps, disabled, ws } = props;
+  const { controlProps, ws } = props;
+
+  const disabled = controlProps.style === "empty" || props.disabled || controlProps.disabled || false;
 
   const events = useMemo(() => {
-    if (!controlProps || disabled || controlProps.disabled) {
+    if (disabled) {
       return {}
     }
 
@@ -30,11 +32,11 @@ export const Control = (props: controlPropsType) => {
   }, [ws, controlProps, disabled]);
 
   return (
-    <Button { ...events } sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }}>
+    <Button variant="outlined" { ...events } disabled={disabled} sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }}>
       <ControlUI controlProps={controlProps} />
     </Button>
   )
-}
+})
 
 export const ControlUI = memo((props: controlUIPropsType) => {
 
