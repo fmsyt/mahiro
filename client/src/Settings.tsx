@@ -5,7 +5,7 @@ import { Button, Container, TextField, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import { AppContext } from "./AppContext";
-import { emit, updateSheets } from "./functions";
+import { updateSheets } from "./functions";
 
 const Settings = memo(() => {
 

@@ -35,6 +35,10 @@ class Sheet:
 
 class Control:
     def __init__(self, action_type: str, control_id: str | None = None, style: str = "empty", platform: str | list[str] | None= None, **kwargs) -> None:
+
+        for x in kwargs:
+            setattr(self, x, kwargs[x])
+
         self.control_id = control_id
         self.action_type = action_type
         self.style = style
