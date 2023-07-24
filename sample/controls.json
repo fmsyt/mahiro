@@ -1,0 +1,63 @@
+[
+  {
+    "control_id": "explorer",
+    "type": "command",
+    "command": "explorer.exe",
+    "platform": "Windows"
+  },
+  {
+    "control_id": "windows_terminal",
+    "type": "command",
+    "command": "wt",
+    "platform": "Windows"
+  },
+  {
+    "control_id": "display_clone",
+    "type": "command",
+    "command": ["DisplaySwitch.exe", "/clone"],
+    "platform": "Windows"
+  },
+  {
+    "control_id": "display_extend",
+    "type": "command",
+    "command": ["DisplaySwitch.exe", "/extend"],
+    "platform": "Windows"
+  },
+  {
+    "control_id": "mui",
+    "type": "browser",
+    "url": "https://mui.com/"
+  },
+  {
+    "control_id": "Ctrl+C",
+    "type": "hotkey",
+    "hotkey": ["ctrl", "c"]
+  },
+  {
+    "control_id": "Ctrl+V",
+    "type": "hotkey",
+    "hotkey": ["ctrl", "v"]
+  },
+  {
+    "control_id": "text",
+    "type": "keyboard",
+    "text": "text"
+  },
+  {
+    "control_id": "volume",
+    "type": "command",
+    "style": "slider",
+    "sync": true,
+    "command": [
+      "nircmd.exe",
+      "setsysvolume",
+      "{context}"
+    ],
+    "props": {
+      "min": 0,
+      "max": 65535,
+      "step": 655
+    },
+    "platform": "Windows"
+  }
+]
