@@ -16,12 +16,17 @@ const Slider = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
       return {}
     }
 
+    let isActive = false;
+
     return {
-      onChange: (e: Event, value: number | number[], activeThumb: number) => emit(ws, {
-        action: controlProps.id,
-        event: Events.keyUp,
-        context: JSON.stringify(value)
-      }),
+      onChange: (e: Event, value: number | number[], activeThumb: number) => {
+
+        if (isActive) return;
+        isActive = true;
+        setTimeout(() => { isActive = false }, 100);
+
+        emit(ws, { action: controlProps.id, event: Events.keyUp, context: JSON.stringify(value) })
+      },
     }
 
   }, [ws, controlProps, disabled]);
