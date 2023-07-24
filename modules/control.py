@@ -14,7 +14,7 @@ from modules.settings import Settings
 @dataclass
 class SheetItem:
 
-    def __init__(self, control_id: str | None = None, style: str = "button", label: str = "", disabled: bool = False) -> None:
+    def __init__(self, control_id: str | None = None, style: str = "button", label: str = "", disabled: bool = False, props: dict | None = None, **kwargs) -> None:
         """
         Args:
             id (str): id of control
@@ -22,10 +22,14 @@ class SheetItem:
             type (str, optional): define style of component. Defaults to "button".
         """
 
+        for x in kwargs:
+            setattr(self, x, kwargs[x])
+
         self.id = control_id
         self.style = style
         self.label = label
         self.disabled = disabled
+        self.props = props
 
 @dataclass
 class Sheet:
@@ -34,14 +38,14 @@ class Sheet:
         self.controls = controls
 
 class Control:
-    def __init__(self, action_type: str, control_id: str | None = None, style: str = "empty", platform: str | list[str] | None= None, **kwargs) -> None:
+    def __init__(self, action_type: str, control_id: str | None = None, style: str = "empty", platform: str | list[str] | None= None, props: dict | None = None, **kwargs) -> None:
 
-        for x in kwargs:
-            setattr(self, x, kwargs[x])
+        self.kwargs = kwargs
 
         self.control_id = control_id
         self.action_type = action_type
         self.style = style
+        self.props = props
 
         self.disabled = False
 
@@ -54,76 +58,91 @@ class Control:
 
 
     def to_sheet_item(self, label: str):
-        return SheetItem(control_id=self.control_id, label=label, style=self.style, disabled=self.disabled)
+        return SheetItem(control_id=self.control_id, label=label, style=self.style, disabled=self.disabled, props=self.props, **self.kwargs)
 
-    async def action(self, event_name: str):
+    async def action(self, event_name: str, data: dict | None = None):
         if event_name == "key_down":
-            return await self._key_down()
+            return await self._key_down(data)
         elif event_name == "key_up":
-            return await self._key_up()
+            return await self._key_up(data)
         elif event_name == "touch_tap":
-            return await self._touch_tap()
+            return await self._touch_tap(data)
         elif event_name == "dial_down":
-            return await self._dial_down()
+            return await self._dial_down(data)
         elif event_name == "dial_up":
-            return await self._dial_up()
+            return await self._dial_up(data)
         elif event_name == "dial_rotate":
-            return await self._dial_rotate()
+            return await self._dial_rotate(data)
         elif event_name == "will_appear":
-            return await self._will_appear()
+            return await self._will_appear(data)
         elif event_name == "will_disappear":
-            return await self._will_disappear()
+            return await self._will_disappear(data)
         elif event_name == "title_parameters_did_change":
-            return await self._title_parameters_did_change()
+            return await self._title_parameters_did_change(data)
         elif event_name == "device_did_connect":
-            return await self._device_did_connect()
+            return await self._device_did_connect(data)
         elif event_name == "device_did_disconnect":
-            return await self._device_did_disconnect()
+            return await self._device_did_disconnect(data)
         elif event_name == "application_did_launch":
-            return await self._application_did_launch()
+            return await self._application_did_launch(data)
         elif event_name == "application_did_terminate":
-            return await self._application_did_terminate()
+            return await self._application_did_terminate(data)
         elif event_name == "system_did_wake_up":
-            return await self._system_did_wake_up()
+            return await self._system_did_wake_up(data)
         elif event_name == "property_inspector_did_appear":
-            return await self._property_inspector_did_appear()
+            return await self._property_inspector_did_appear(data)
         elif event_name == "property_inspector_did_disappear":
-            return await self._property_inspector_did_disappear()
+            return await self._property_inspector_did_disappear(data)
         elif event_name == "send_to_plugin":
-            return await self._send_to_plugin()
+            return await self._send_to_plugin(data)
 
         return
 
-    async def _key_down(self): pass
-    async def _key_up(self): pass
-    async def _touch_tap(self): pass
-    async def _dial_down(self): pass
-    async def _dial_up(self): pass
-    async def _dial_rotate(self): pass
-    async def _will_appear(self): pass
-    async def _will_disappear(self): pass
-    async def _title_parameters_did_change(self): pass
-    async def _device_did_connect(self): pass
-    async def _device_did_disconnect(self): pass
-    async def _application_did_launch(self): pass
-    async def _application_did_terminate(self): pass
-    async def _system_did_wake_up(self): pass
-    async def _property_inspector_did_appear(self): pass
-    async def _property_inspector_did_disappear(self): pass
-    async def _send_to_plugin(self): pass
+    async def _key_down(self, data: dict | None = None): pass
+    async def _key_up(self, data: dict | None = None): pass
+    async def _touch_tap(self, data: dict | None = None): pass
+    async def _dial_down(self, data: dict | None = None): pass
+    async def _dial_up(self, data: dict | None = None): pass
+    async def _dial_rotate(self, data: dict | None = None): pass
+    async def _will_appear(self, data: dict | None = None): pass
+    async def _will_disappear(self, data: dict | None = None): pass
+    async def _title_parameters_did_change(self, data: dict | None = None): pass
+    async def _device_did_connect(self, data: dict | None = None): pass
+    async def _device_did_disconnect(self, data: dict | None = None): pass
+    async def _application_did_launch(self, data: dict | None = None): pass
+    async def _application_did_terminate(self, data: dict | None = None): pass
+    async def _system_did_wake_up(self, data: dict | None = None): pass
+    async def _property_inspector_did_appear(self, data: dict | None = None): pass
+    async def _property_inspector_did_disappear(self, data: dict | None = None): pass
+    async def _send_to_plugin(self, data: dict | None = None): pass
 
 class EmptyControl(Control):
     def __init__(self, style: str = "empty", **kwargs) -> None:
         super().__init__(control_id=None, action_type="empty", style=style, **kwargs)
 
 class CommandControl(Control):
-    def __init__(self, control_id: str, command: str | list[str], style: str = "button", **kwargs) -> None:
+    def __init__(self, control_id: str, command: str | list[str], style: str = "button", sync: bool = True, **kwargs) -> None:
         super().__init__(control_id=control_id, action_type="command", style=style, **kwargs)
 
         self.command = command
+        self.sync = sync
 
-    async def _key_up(self):
-        subprocess.Popen(self.command)
+    async def _key_up(self, data: dict | None = None):
+
+        command = self.command
+
+        if data is not None and "context" in data:
+            if isinstance(command, list):
+                command = list(map(lambda param: param.format(context=data["context"]), command))
+            else:
+                command = command.format(context=data["context"])
+
+        print(command if type(command) is str else " ".join(command))
+
+        if self.sync:
+            subprocess.run(command)
+        else:
+            subprocess.Popen(self.command)
 
 
 class BrowserControl(Control):
@@ -248,12 +267,12 @@ class Controller:
         control = next(filter(lambda control: control.control_id == control_id, self.controls), EmptyControl()) # type: ignore
         return control
 
-    async def emit(self, control_id: str, event_name: str):
+    async def emit(self, control_id: str, event_name: str, data: dict | None = None):
         control = self.get_control(control_id)
         if control is None:
             return
 
-        await control.action(event_name)
+        await control.action(event_name, data)
 
 
     def sheets_json(self):

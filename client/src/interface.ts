@@ -5,6 +5,9 @@ export interface controlProps {
 
   style: "button" | "slider" | "empty"
   current?: number | string
+  props?: {
+    [key: string]: number | string | boolean | null
+  }
   disabled?: boolean
   [key: string]: any
 }

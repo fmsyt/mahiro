@@ -32,8 +32,8 @@ const Slider = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
       <MuiSlider
         aria-label="Volume"
         defaultValue={Number(controlProps.current || 0)}
-        min={Number(controlProps.min || 0)}
-        max={Number(controlProps.max || 100)}
+        disabled={disabled}
+        { ...(controlProps.props || {}) }
         { ...events }
         />
       {/* <VolumeUp /> */}

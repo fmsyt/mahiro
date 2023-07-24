@@ -44,7 +44,7 @@ class ConnectionManager:
             pass
 
         elif receive["method"] == "emit":
-            await self.controller.emit(control_id=receive["data"]["action"], event_name=receive["data"]["event"])
+            await self.controller.emit(control_id=receive["data"]["action"], event_name=receive["data"]["event"], data=receive["data"])
 
         elif receive["method"] == "sheets.update":
             await self.send_sheets_update(websocket)
