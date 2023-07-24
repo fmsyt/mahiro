@@ -151,7 +151,7 @@ class BrowserControl(Control):
 
         self.url = url
 
-    async def _key_up(self):
+    async def _key_up(self, data: dict | None = None):
         webbrowser.open(self.url)
 
 
@@ -170,7 +170,7 @@ class KeyboardControl(Control):
 
         self.text = text
 
-    async def _key_up(self):
+    async def _key_up(self, data: dict | None = None):
         _keyboard.type(self.text)
 
 class HotKeyControl(Control):
@@ -179,7 +179,7 @@ class HotKeyControl(Control):
 
         self.hotkey = hotkey
 
-    async def _key_up(self):
+    async def _key_up(self, data: dict | None = None):
         pyautogui.hotkey(*self.hotkey)
 
 def _control_from_dict(**kwargs) -> Control:
