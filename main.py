@@ -44,7 +44,16 @@ class ConnectionManager:
             pass
 
         elif receive["method"] == "emit":
-            await self.controller.emit(control_id=receive["data"]["action"], event_name=receive["data"]["event"], data=receive["data"])
+            try:
+                await self.controller.emit(control_id=receive["data"]["action"], event_name=receive["data"]["event"], data=receive["data"])
+
+            except Exception as e:
+                await websocket.send_json({ "method": "emit.error", "data": {
+                    "received": receive,
+                    "error": str(e)
+                }})
+
+                print(e)
 
         elif receive["method"] == "sheets.update":
             await self.send_sheets_update(websocket)
