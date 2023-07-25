@@ -7,6 +7,12 @@ default_port = 8000
 
 class Settings:
 
+    _settings = {
+        "sheets_file_path": default_sheets_file_path,
+        "controls_file_path": default_controls_file_path,
+        "port": default_port,
+    }
+
     def __init__(self) -> None:
         self.load()
 
@@ -15,15 +21,10 @@ class Settings:
         # Load settings from ~/.config/mahiro/settings.json
         try:
             with open(os.path.expanduser("~/.config/mahiro/settings.json"), "r") as f:
-                self._settings = json.load(f)
+                self._settings.update(json.load(f))
 
         # If the file doesn't exist, create it with default settings
         except FileNotFoundError:
-            self._settings = {
-                "sheets_file_path": default_sheets_file_path,
-                "controls_file_path": default_controls_file_path,
-                "port": default_port
-            }
             self.save()
 
     def save(self):
