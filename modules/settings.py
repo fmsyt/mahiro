@@ -1,16 +1,19 @@
 import json
+import socket
 import os
 
 default_sheets_file_path = os.path.expanduser("~/.config/mahiro/sheets.json")
 default_controls_file_path = os.path.expanduser("~/.config/mahiro/controls.json")
 default_port = 8000
+hostname = socket.gethostname()
 
 class Settings:
 
-    _settings = {
+    settings = {
         "sheets_file_path": default_sheets_file_path,
         "controls_file_path": default_controls_file_path,
         "port": default_port,
+        "hostname": hostname
     }
 
     def __init__(self) -> None:
@@ -21,7 +24,7 @@ class Settings:
         # Load settings from ~/.config/mahiro/settings.json
         try:
             with open(os.path.expanduser("~/.config/mahiro/settings.json"), "r") as f:
-                self._settings.update(json.load(f))
+                self.settings.update(json.load(f))
 
         # If the file doesn't exist, create it with default settings
         except FileNotFoundError:
@@ -33,32 +36,32 @@ class Settings:
             os.makedirs(os.path.expanduser("~/.config/mahiro"))
 
         with open(os.path.expanduser("~/.config/mahiro/settings.json"), "w") as f:
-            json.dump(self._settings, f, indent=2)
+            json.dump(self.settings, f, indent=2)
 
     def get(self, key):
-        return self._settings[key]
+        return self.settings[key]
 
     def set(self, key, value):
-        self._settings[key] = value
+        self.settings[key] = value
         self.save()
 
     def get_sheets_file_path(self):
-        return self._settings["sheets_file_path"] if "sheets_file_path" in self._settings else default_sheets_file_path
+        return self.settings["sheets_file_path"] if "sheets_file_path" in self.settings else default_sheets_file_path
 
     def set_sheets_file_path(self, path):
-        self._settings["sheets_file_path"] = path
+        self.settings["sheets_file_path"] = path
         self.save()
 
     def get_controls_file_path(self):
-        return self._settings["controls_file_path"] if "controls_file_path" in self._settings else default_controls_file_path
+        return self.settings["controls_file_path"] if "controls_file_path" in self.settings else default_controls_file_path
 
     def set_controls_file_path(self, path):
-        self._settings["controls_file_path"] = path
+        self.settings["controls_file_path"] = path
         self.save()
 
     def get_port(self) -> int:
-        return self._settings["port"] if "port" in self._settings else default_port
+        return self.settings["port"] if "port" in self.settings else default_port
 
     def set_port(self, port):
-        self._settings["port"] = port
+        self.settings["port"] = port
         self.save()

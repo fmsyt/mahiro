@@ -7,6 +7,7 @@ interface AppContextProps {
   pages: pageProps[],
   uri: string | null,
   setUri: React.Dispatch<React.SetStateAction<string>>,
+  hostname?: string,
 }
 
 const AppContext = React.createContext<AppContextProps>({
@@ -25,6 +26,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
     const { uri: defaultUri, children } = props;
     const [uri, setUri] = React.useState(defaultUri);
+    const [hostname, setHostname] = React.useState<string | undefined>(undefined);
 
     const webSocket = useWebSocket(uri);
 
@@ -40,6 +42,10 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
           switch (obj?.method) {
             default: break;
+
+            case "general.update":
+              setHostname(obj?.data?.hostname);
+              break;
 
             case "sheets.update":
               setPages(obj?.data);
@@ -60,7 +66,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
 
     return (
-      <AppContext.Provider value={{ webSocket, pages, uri, setUri }}>
+      <AppContext.Provider value={{ webSocket, pages, uri, setUri, hostname }}>
         {children}
       </AppContext.Provider>
     )

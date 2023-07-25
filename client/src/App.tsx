@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react"
+import React, { memo, useCallback, useContext, useMemo, useState } from "react"
 import Board from "./Board"
 
 import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
-import { Box, CssBaseline, Drawer, Divider, List, ListItem, ThemeProvider, Toolbar, Typography, createTheme, styled, useMediaQuery, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { Box, CssBaseline, Drawer, Divider, List, ListItem, ThemeProvider, Toolbar, Typography, createTheme, styled, useMediaQuery, ListItemButton, ListItemIcon, ListItemText, useTheme } from "@mui/material";
 
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 
@@ -15,7 +15,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 import Settings from "./Settings";
 
-import { AppContextProvider } from "./AppContext";
+import { AppContext, AppContextProvider } from "./AppContext";
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 
@@ -88,7 +88,27 @@ const App = () => {
     }
   }), [prefersDarkMode]);
 
+
+
+
+
+  return (
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <AppContextProvider uri={defaultWebSocketUri}>
+          <AppContent />
+        </AppContextProvider>
+      </ThemeProvider>
+    </BrowserRouter>
+  )
+}
+
+const AppContent = memo(() => {
+
+  const theme = useTheme();
   const [open, setOpen] = useState(false);
+
+  const { hostname } = useContext(AppContext);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -98,70 +118,56 @@ const App = () => {
     setOpen(false);
   };
 
-
-
   return (
-    <BrowserRouter>
-      <ThemeProvider theme={theme}>
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AppBar position="fixed" open={open}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={{ mr: 2, ...(open && { display: 'none' }) }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">{hostname}</Typography>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+        variant="persistent"
+        anchor="left"
+        open={open}
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
 
-        <AppContextProvider uri={defaultWebSocketUri}>
+        <DrawerItem handleDrawerClose={handleDrawerClose} />
+      </Drawer>
+      <Main open={open}>
+        <DrawerHeader />
 
-          <Box sx={{ display: 'flex' }}>
-            <CssBaseline />
-            <AppBar position="fixed" open={open}>
-              <Toolbar>
-                <IconButton
-                  color="inherit"
-                  aria-label="open drawer"
-                  onClick={handleDrawerOpen}
-                  edge="start"
-                  sx={{ mr: 2, ...(open && { display: 'none' }) }}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Typography variant="h6" noWrap component="div">
-                  Mahiro
-                </Typography>
-              </Toolbar>
-            </AppBar>
-            <Drawer
-              sx={{
-                width: drawerWidth,
-                flexShrink: 0,
-                '& .MuiDrawer-paper': {
-                  width: drawerWidth,
-                  boxSizing: 'border-box',
-                },
-              }}
-              variant="persistent"
-              anchor="left"
-              open={open}
-            >
-              <DrawerHeader>
-                <IconButton onClick={handleDrawerClose}>
-                  {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-                </IconButton>
-              </DrawerHeader>
-              <Divider />
-
-              <DrawerItem handleDrawerClose={handleDrawerClose} />
-            </Drawer>
-            <Main open={open}>
-              <DrawerHeader />
-
-              <Routes>
-                <Route path="/" element={<Board />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </Main>
-          </Box>
-
-
-        </AppContextProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Board />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
+      </Main>
+    </Box>
   )
-}
+})
 
 
 const DrawerItem = ({ handleDrawerClose }: { handleDrawerClose: Function }) => {

@@ -25,7 +25,9 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket) -> None:
         await websocket.accept()
+        await self.send_general_update(websocket)
         await self.send_sheets_update(websocket)
+
         self.active_connections.append(websocket)
 
     async def disconnect(self, websocket: WebSocket) -> None:
@@ -34,6 +36,9 @@ class ConnectionManager:
     async def broadcast(self, message: str) -> None:
         for connection in self.active_connections:
             await connection.send_text(message)
+
+    async def send_general_update(self, websocket: WebSocket) -> None:
+        await websocket.send_json({ "method": "general.update", "data": self.settings.settings })
 
     async def send_sheets_update(self, websocket: WebSocket) -> None:
         sheets = self.controller.sheets_json()
