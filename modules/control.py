@@ -208,9 +208,14 @@ class Controller:
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
-        self.reload()
+        self.load()
+
+    def load(self):
+        self.load_controls()
+        self.load_sheets()
 
     def reload(self):
+        self.settings.load()
         self.load_controls()
         self.load_sheets()
 

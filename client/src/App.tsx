@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import Board from "./Board"
 
 import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
@@ -6,21 +6,22 @@ import { Box, CssBaseline, Drawer, Divider, List, ListItem, ThemeProvider, Toolb
 
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 
+import AppsIcon from '@mui/icons-material/Apps';
 import CastConnectedIcon from '@mui/icons-material/CastConnected';
-
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
 
 import Settings from "./Settings";
 
 import { AppContextProvider } from "./AppContext";
 
+const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+
 const defaultWebSocketUri = process.env.NODE_ENV === "production"
-  ? `ws://${window.location.host}/ws`
-  : `ws://${window.location.hostname}:8000/ws`
+  ? `${protocol}//${window.location.host}/ws`
+  : `${protocol}//${window.location.hostname}:8000/ws`
   ;
 
 
@@ -143,7 +144,7 @@ const App = () => {
               </DrawerHeader>
               <Divider />
 
-              <DrawerItem />
+              <DrawerItem handleDrawerClose={handleDrawerClose} />
             </Drawer>
             <Main open={open}>
               <DrawerHeader />
@@ -163,15 +164,29 @@ const App = () => {
 }
 
 
-const DrawerItem = () => {
+const DrawerItem = ({ handleDrawerClose }: { handleDrawerClose: Function }) => {
 
   const navigate = useNavigate();
+
+  const handleClickLink = useCallback((path: string) => {
+    handleDrawerClose();
+    navigate(path);
+  }, [handleDrawerClose, navigate]);
+
 
   return (
     <>
       <List>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => { navigate("/settings") }}>
+          <ListItemButton onClick={() => { handleClickLink("/") }}>
+            <ListItemIcon>
+              <AppsIcon />
+            </ListItemIcon>
+            <ListItemText primary="App" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => { handleClickLink("/settings") }}>
             <ListItemIcon>
               <CastConnectedIcon />
             </ListItemIcon>

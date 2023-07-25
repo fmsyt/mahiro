@@ -56,9 +56,6 @@ class ConnectionManager:
                 print(e)
 
         elif receive["method"] == "sheets.update":
-            await self.send_sheets_update(websocket)
-
-        elif receive["method"] == "sheets.reload":
             self.controller.reload()
             await self.send_sheets_update(websocket)
 

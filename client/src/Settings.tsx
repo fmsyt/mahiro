@@ -1,13 +1,14 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-import { Button, Container, TextField, Stack } from "@mui/material";
-
-import { useNavigate } from "react-router-dom";
+import { Button, Container, TextField, Stack, useTheme, useMediaQuery } from "@mui/material";
 
 import { AppContext } from "./AppContext";
 import { updateSheets } from "./functions";
 
 const Settings = memo(() => {
+
+  const theme = useTheme();
+  const matched = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { webSocket, uri, setUri } = useContext(AppContext);
 
@@ -47,7 +48,6 @@ const Settings = memo(() => {
   }, [webSocket]);
 
 
-  const navigate = useNavigate();
   const ref = useRef<HTMLInputElement>(null);
 
   const connect = useCallback(() => {
@@ -70,25 +70,24 @@ const Settings = memo(() => {
 
   return (
     <Container>
-      <h1>Settings</h1>
+      <h1>Connection</h1>
 
       <Stack direction="column" spacing={2} justifyContent="flex-start" alignItems="flex-start">
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <TextField
-            label="URL"
-            variant="outlined"
-            inputRef={ref}
-            defaultValue={uri || ""}
-            color={readyState === WebSocket.OPEN ? "success" : "primary"}
-            focused
-            />
+        <TextField
+          label="URL"
+          variant="standard"
+          inputRef={ref}
+          defaultValue={uri || ""}
+          color={readyState === WebSocket.OPEN ? "success" : "primary"}
+          fullWidth={matched}
+          focused
+          />
 
-          <Button variant="contained" onClick={connect}>Connect</Button>
-        </Stack>
+        <Button variant="contained" onClick={connect}>Connect</Button>
 
-
-        <Button onClick={() => navigate("/")}>Back</Button>
-        <Button onClick={reload}>Reload</Button>
+        {readyState === WebSocket.OPEN && (
+          <Button onClick={reload}>Reload</Button>
+        )}
 
       </Stack>
 
