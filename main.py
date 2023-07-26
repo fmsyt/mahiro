@@ -38,7 +38,7 @@ class ConnectionManager:
             await connection.send_text(message)
 
     async def send_general_update(self, websocket: WebSocket) -> None:
-        await websocket.send_json({ "method": "general.update", "data": self.settings.settings })
+        await websocket.send_json({ "method": "general.update", "data": self.settings.general })
 
     async def send_sheets_update(self, websocket: WebSocket) -> None:
         sheets = self.controller.sheets_json()
