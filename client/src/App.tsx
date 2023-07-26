@@ -17,6 +17,8 @@ import Settings from "./Settings";
 
 import { AppContext, AppContextProvider } from "./AppContext";
 
+import "./App.css";
+
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 
 const defaultWebSocketUri = process.env.NODE_ENV === "production"

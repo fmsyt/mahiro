@@ -1,9 +1,10 @@
 import React, { memo } from "react";
 import { controlProps } from "./interface";
-import { Box, Paper } from "@mui/material";
+import { Paper, Typography } from "@mui/material";
 
 import StyleButton from "./components/Button";
 import StyleSlider from "./components/Slider";
+import Square from "./components/Square";
 
 interface controlUIPropsType {
   controlProps: controlProps,
@@ -34,8 +35,8 @@ export const Control = memo((props: controlPropsType) => {
 const DefaultControlUI = memo(() => {
   return (
     <Paper variant="outlined" sx={{ width: "100%", height: "100%" }}>
-      <Box sx={{ width: "100%",  "&::before": { content: '""', paddingTop: "100%" } }}>
-      </Box>
+      <Square />
+      <Typography component="div" variant="caption" noWrap>&nbsp;</Typography>
     </Paper>
   )
 })
