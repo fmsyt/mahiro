@@ -25,7 +25,7 @@ const Board = memo(() => {
       {
         webSocket?.readyState === WebSocket.OPEN
         ? (
-          <Box sx={{ display: "grid", gap: 2, gridTemplateRows: "1fr 32px" }}>
+          <Box sx={{ display: "grid", gap: 2, gridTemplateRows: "1fr 32px", height: "calc(90vh - 88px)" }}>
             {pages.length > 0 && (
               <Page webSocket={webSocket} isEditMode={isEditMode} {...pages[page - 1]} />
             )}
@@ -65,7 +65,7 @@ const Page = (props: PageProps) => {
   const gridTemplateRows = useMemo(() => `repeat(${Math.ceil(controls.length / columns)}, 1fr)`, [controls, columns]);
 
   return (
-    <Box gap={2} sx={{ display: "grid", height: "80vh", gridTemplateColumns, gridTemplateRows }}>
+    <Box gap={2} sx={{ display: "grid", height: "100%", gridTemplateColumns, gridTemplateRows }}>
       {controls.map((control, i) => (
         <Control key={i} controlProps={control} ws={webSocket} disabled={isEditMode} />
       ))}

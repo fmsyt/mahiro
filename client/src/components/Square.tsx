@@ -2,7 +2,7 @@ import React, { memo } from "react";
 
 const square = ({ image }: { image?: string }) => {
   return (
-    <div className="square">
+    <div className="square_">
       {image && <img src={image} alt="" className="square-image" />}
     </div>
   );
