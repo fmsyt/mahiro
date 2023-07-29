@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { controlProps } from "../interface";
 
-import { Box, Chip, Button as MuiButton, Stack, Typography } from "@mui/material";
+import { Chip, Button as MuiButton, Stack } from "@mui/material";
 
 import logo from "../logo.svg";
 import { Events } from "../enum";
