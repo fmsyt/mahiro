@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { controlProps } from "../interface";
 
-import { Box, Chip, Button as MuiButton, Stack } from "@mui/material";
+import { Box, Button as MuiButton, Stack, Typography } from "@mui/material";
 
 import logo from "../logo.svg";
 import { Events } from "../enum";
@@ -33,7 +33,7 @@ const Button = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
             <img src={logo} alt="" className="square-image" />
           )}
         </Box>
-        <Chip size="small" label={label} />
+        <Typography variant="caption">{label}</Typography>
       </Stack>
     </MuiButton>
   )

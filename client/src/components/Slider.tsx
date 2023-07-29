@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { controlProps } from "../interface";
 
-import { Chip, Slider as MuiSlider, Paper, Stack } from "@mui/material";
+import { Slider as MuiSlider, Paper, Stack, Typography } from "@mui/material";
 import { emit } from "../functions";
 import { Events } from "../enum";
 import styled from "@emotion/styled";
@@ -78,7 +78,7 @@ const Slider = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
 
   return (
     <Paper variant="outlined">
-      <Stack spacing={2} direction="column" sx={{ width: "100%", height: "100%" }} alignItems="center">
+      <Stack padding={1} spacing={2} direction="column" sx={{ width: "100%", height: "100%" }} alignItems="center">
         {/* <VolumeDown /> */}
         <BoldSlider
           aria-label="Volume"
@@ -90,7 +90,7 @@ const Slider = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
           { ...events }
           />
         {/* <VolumeUp /> */}
-        <Chip size="small" label={controlProps.label} />
+        <Typography variant="caption">{controlProps.label}</Typography>
       </Stack>
     </Paper>
   )
