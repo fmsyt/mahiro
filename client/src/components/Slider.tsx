@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { controlProps } from "../interface";
 
-import { Slider as MuiSlider, Stack } from "@mui/material";
+import { Chip, Slider as MuiSlider, Paper, Stack } from "@mui/material";
 import { emit } from "../functions";
 import { Events } from "../enum";
 import styled from "@emotion/styled";
@@ -20,6 +20,9 @@ const BoldSlider = styled(MuiSlider)(({ theme }) => ({
     "&:hover": {
       boxShadow: "0 0 0 8px rgba(0, 0, 0, 0.1)",
     },
+  },
+  "&.MuiSlider-vertical": {
+    padding: 0,
   },
   "&.MuiSlider-vertical .MuiSlider-thumb": {
     width: sliderSize,
@@ -74,19 +77,22 @@ const Slider = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
   }, [ws, controlProps, disabled]);
 
   return (
-    <Stack spacing={2} direction="row" sx={{ mb: 1, width: "100%" }} alignItems="center">
-      {/* <VolumeDown /> */}
-      <BoldSlider
-        aria-label="Volume"
-        defaultValue={Number(controlProps.current || 0)}
-        disabled={disabled}
-        orientation="vertical"
-        sx={{ width: "100%", height: "100%" }}
-        { ...(controlProps.props || {}) }
-        { ...events }
-        />
-      {/* <VolumeUp /> */}
-    </Stack>
+    <Paper variant="outlined">
+      <Stack spacing={2} direction="column" sx={{ width: "100%", height: "100%" }} alignItems="center">
+        {/* <VolumeDown /> */}
+        <BoldSlider
+          aria-label="Volume"
+          defaultValue={Number(controlProps.current || 0)}
+          disabled={disabled}
+          orientation="vertical"
+          sx={{ width: "100%", height: "100%" }}
+          { ...(controlProps.props || {}) }
+          { ...events }
+          />
+        {/* <VolumeUp /> */}
+        <Chip size="small" label={controlProps.label} />
+      </Stack>
+    </Paper>
   )
 }
 

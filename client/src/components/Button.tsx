@@ -1,12 +1,11 @@
 import React, { useMemo } from "react";
 import { controlProps } from "../interface";
 
-import { Chip, Button as MuiButton, Stack } from "@mui/material";
+import { Box, Chip, Button as MuiButton, Stack } from "@mui/material";
 
 import logo from "../logo.svg";
 import { Events } from "../enum";
 import { emit } from "../functions";
-import Square from "./Square";
 
 const Button = (props: { ws: WebSocket, controlProps: controlProps, disabled?: boolean }) => {
 
@@ -29,7 +28,11 @@ const Button = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
   return (
     <MuiButton variant="outlined" { ...events } disabled={disabled} sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }}>
       <Stack width="100%" height="100%" alignItems="center" justifyContent="space-between" padding={2}>
-        <Square image={logo} />
+        <Box>
+          {logo && (
+            <img src={logo} alt="" className="square-image" />
+          )}
+        </Box>
         <Chip size="small" label={label} />
       </Stack>
     </MuiButton>
