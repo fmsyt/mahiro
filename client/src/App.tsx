@@ -27,8 +27,6 @@ const defaultWebSocketUri = process.env.NODE_ENV === "production"
   ;
 
 
-
-
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
@@ -89,10 +87,6 @@ const App = () => {
       mode: prefersDarkMode ? 'dark' : 'light',
     }
   }), [prefersDarkMode]);
-
-
-
-
 
   return (
     <BrowserRouter>

@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo, useState } from "react";
+import React, { memo, useCallback, useContext, useMemo, useState } from "react";
 import { pageProps } from "./interface";
 
 import { Box, Button, CircularProgress, Container, Pagination, Stack } from "@mui/material";
@@ -7,12 +7,17 @@ import AddIcon from '@mui/icons-material/Add';
 import { Control } from "./Control";
 
 import { AppContext } from "./AppContext";
+import { useSearchParams } from "react-router-dom";
 
 const Board = memo(() => {
 
   const { pages, webSocket } = useContext(AppContext);
 
-  const [page, setPage] = useState(1);
+  let [searchParams, setSearchParams] = useSearchParams();
+
+  const page = Number(searchParams.get("page") || 1);
+  const setPage = useCallback((page: number) => setSearchParams({ page: page.toString() }), [setSearchParams]);
+
   const [isEditMode] = useState(false);
 
   return (
