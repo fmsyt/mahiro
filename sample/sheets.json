@@ -53,7 +53,7 @@
       {
         "control_id": "volume",
         "label": "Volume",
-        "type": "command"
+        "type": "slider"
       }
     ]
   }

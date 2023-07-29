@@ -14,7 +14,16 @@ from modules.settings import Settings
 @dataclass
 class SheetItem:
 
-    def __init__(self, control_id: str | None = None, style: str = "button", label: str = "", disabled: bool = False, props: dict | None = None, **kwargs) -> None:
+    def __init__(
+            self,
+            control_id: str | None = None,
+            style: str = "button",
+            label: str = "",
+            disabled: bool = False,
+            props: dict | None = None,
+            default = None,
+            **kwargs
+        ) -> None:
         """
         Args:
             id (str): id of control
@@ -25,11 +34,26 @@ class SheetItem:
         for x in kwargs:
             setattr(self, x, kwargs[x])
 
+        self.props = props if props is not None else {}
+
+        # if default is not dict
+        if isinstance(default, dict):
+            # if object has key "command"
+            if "command" in default:
+                out = subprocess.run(default["command"], shell=True, capture_output=True)
+                self.props["defaultValue"] = out.stdout.decode("utf-8").strip()
+
+            elif "value" in default:
+                self.props["defaultValue"] = default["value"]
+
+        elif default is not None:
+            self.props["defaultValue"] = default
+
         self.id = control_id
         self.style = style
         self.label = label
         self.disabled = disabled
-        self.props = props
+
 
 @dataclass
 class Sheet:
@@ -38,7 +62,16 @@ class Sheet:
         self.controls = controls
 
 class Control:
-    def __init__(self, action_type: str, control_id: str | None = None, style: str = "empty", platform: str | list[str] | None= None, props: dict | None = None, **kwargs) -> None:
+    def __init__(
+            self,
+            action_type: str,
+            control_id: str | None = None,
+            style: str = "empty",
+            platform: str | list[str] | None = None,
+            props: dict | None = None,
+            default = None,
+            **kwargs
+        ) -> None:
 
         self.kwargs = kwargs
 
@@ -46,6 +79,7 @@ class Control:
         self.action_type = action_type
         self.style = style
         self.props = props
+        self.default = default
 
         self.disabled = False
 
@@ -58,7 +92,15 @@ class Control:
 
 
     def to_sheet_item(self, label: str):
-        return SheetItem(control_id=self.control_id, label=label, style=self.style, disabled=self.disabled, props=self.props, **self.kwargs)
+        return SheetItem(
+            control_id=self.control_id,
+            label=label,
+            style=self.style,
+            disabled=self.disabled,
+            props=self.props,
+            default=self.default,
+            **self.kwargs
+        )
 
     async def action(self, event_name: str, data: dict | None = None):
         if event_name == "key_down":

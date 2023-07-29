@@ -59,5 +59,21 @@
       "step": 655
     },
     "platform": "Windows"
+  },
+  {
+    "control_id": "volume_pa",
+    "type": "command",
+    "command": ["pacmd", "set-sink-volume", "@DEFAULT_SINK@", "{context}"],
+    "style": "slider",
+    "default": {
+      "command": "pacmd list-sinks | grep -A 22 '* index' | grep 'volume: front' | awk '{print $3}'",
+      "value": 0
+    },
+    "props": {
+      "min": 0,
+      "max": 65535,
+      "step": 655
+    }
   }
+
 ]
