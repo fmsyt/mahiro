@@ -20,14 +20,13 @@ const Board = memo(() => {
       {
         webSocket?.readyState === WebSocket.OPEN
         ? (
-          <Stack direction="column" alignItems="center" justifyContent="space-between" spacing={1}>
-
+          <>
             {pages.length > 0 && (
               <Page webSocket={webSocket} isEditMode={isEditMode} {...pages[page - 1]} />
             )}
 
             {pages.length > 1 && (
-              <Stack position="absolute" bottom={32}>
+              <Stack position="absolute" bottom={32} width="100%" alignItems="center">
                 <Pagination
                   count={pages.length}
                   color="primary"
@@ -36,7 +35,7 @@ const Board = memo(() => {
                   />
               </Stack>
             )}
-          </Stack>
+          </>
         ): (
           <Stack alignItems="center" justifyContent="center" height="80vh">
             <CircularProgress />
@@ -58,7 +57,7 @@ const Page = (props: PageProps) => {
   const { controls, webSocket, columns, isEditMode } = props;
 
   return (
-    <Grid container columns={columns} spacing={2} maxHeight="100%" sx={{ overflowY: "auto" }}>
+    <Grid container columns={columns} spacing={2} sx={{ maxHeight: "80vh", overflowY: "auto" }}>
       {controls.map((control, i) => (
         <Grid item key={i} xs={1} overflow="hidden" textOverflow="clip">
           <Control controlProps={control} ws={webSocket} disabled={isEditMode} />
