@@ -1,7 +1,7 @@
-import React, { memo, useContext, useState } from "react";
+import React, { memo, useContext, useMemo, useState } from "react";
 import { pageProps } from "./interface";
 
-import { Button, CircularProgress, Container, Grid, Pagination, Stack } from "@mui/material";
+import { Box, Button, CircularProgress, Container, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
 import { Control } from "./Control";
@@ -20,13 +20,13 @@ const Board = memo(() => {
       {
         webSocket?.readyState === WebSocket.OPEN
         ? (
-          <>
+          <Box sx={{ display: "grid", gap: 2, gridTemplateRows: "1fr 32px" }}>
             {pages.length > 0 && (
               <Page webSocket={webSocket} isEditMode={isEditMode} {...pages[page - 1]} />
             )}
 
             {pages.length > 1 && (
-              <Stack position="absolute" bottom={32} width="100%" alignItems="center">
+              <Stack alignItems="center">
                 <Pagination
                   count={pages.length}
                   color="primary"
@@ -35,7 +35,7 @@ const Board = memo(() => {
                   />
               </Stack>
             )}
-          </>
+          </Box>
         ): (
           <Stack alignItems="center" justifyContent="center" height="80vh">
             <CircularProgress />
@@ -56,22 +56,21 @@ const Page = (props: PageProps) => {
 
   const { controls, webSocket, columns, isEditMode } = props;
 
+  const gridTemplateColumns = useMemo(() => `repeat(${columns}, 1fr)`, [columns]);
+  const gridTemplateRows = useMemo(() => `repeat(${Math.ceil(controls.length / columns)}, 1fr)`, [controls, columns]);
+
   return (
-    <Grid container columns={columns} spacing={2} sx={{ maxHeight: "80vh", overflowY: "auto" }}>
+    <Box gap={2} sx={{ display: "grid", height: "80vh", gridTemplateColumns, gridTemplateRows }}>
       {controls.map((control, i) => (
-        <Grid item key={i} xs={1} overflow="hidden" textOverflow="clip">
-          <Control controlProps={control} ws={webSocket} disabled={isEditMode} />
-        </Grid>
+        <Control key={i} controlProps={control} ws={webSocket} disabled={isEditMode} />
       ))}
 
       {isEditMode && (
-        <Grid item xs={1}>
-          <Button variant="outlined" sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }} onClick={() => console.log("edit")}>
-            <AddIcon />
-          </Button>
-        </Grid>
+        <Button variant="outlined" sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }} onClick={() => console.log("edit")}>
+          <AddIcon />
+        </Button>
       )}
-    </Grid>
+    </Box>
   )
 }
 

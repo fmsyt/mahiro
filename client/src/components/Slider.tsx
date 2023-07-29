@@ -6,7 +6,7 @@ import { emit } from "../functions";
 import { Events } from "../enum";
 import styled from "@emotion/styled";
 
-const sliderSize = 32;
+const sliderSize = "100%";
 
 const BoldSlider = styled(MuiSlider)(({ theme }) => ({
 
@@ -80,8 +80,8 @@ const Slider = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
         aria-label="Volume"
         defaultValue={Number(controlProps.current || 0)}
         disabled={disabled}
-        // orientation="vertical"
-        // sx={{ height: 300 }}
+        orientation="vertical"
+        sx={{ width: "100%", height: "100%" }}
         { ...(controlProps.props || {}) }
         { ...events }
         />
