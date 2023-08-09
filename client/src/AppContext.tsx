@@ -1,7 +1,7 @@
 import React from "react";
 import { pageProps } from "./interface";
 import { useWebSocket } from "./webSocket";
-import { Alert, Snackbar } from "@mui/material";
+import { Alert, Snackbar, createTheme, ThemeProvider, useMediaQuery } from "@mui/material";
 
 interface AppContextProps {
   webSocket: WebSocket | null,
@@ -25,51 +25,59 @@ interface AppContextProviderProps {
 
 const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
-    const { uri: defaultUri, children } = props;
-    const [uri, setUri] = React.useState(defaultUri);
-    const [hostname, setHostname] = React.useState<string | undefined>(undefined);
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const theme = React.useMemo(() => createTheme({
+    palette: {
+      mode: prefersDarkMode ? 'dark' : 'light',
+    }
+  }), [prefersDarkMode]);
 
-    const webSocket = useWebSocket(uri);
+  const { uri: defaultUri, children } = props;
+  const [uri, setUri] = React.useState(defaultUri);
+  const [hostname, setHostname] = React.useState<string | undefined>(undefined);
 
-    const [open, setOpen] = React.useState(false);
-    const [pages, setPages] = React.useState<pageProps[]>([]);
+  const webSocket = useWebSocket(uri);
 
-    React.useEffect(() => {
-      if (!webSocket) return;
+  const [open, setOpen] = React.useState(false);
+  const [pages, setPages] = React.useState<pageProps[]>([]);
 
-      const handleMessage = (event: MessageEvent) => {
+  React.useEffect(() => {
+    if (!webSocket) return;
 
-        try {
-          const obj = JSON.parse(event.data);
+    const handleMessage = (event: MessageEvent) => {
 
-          switch (obj?.method) {
-            default: break;
+      try {
+        const obj = JSON.parse(event.data);
 
-            case "general.update":
-              setHostname(obj?.data?.hostname);
-              break;
+        switch (obj?.method) {
+          default: break;
 
-            case "sheets.update":
-              setPages(obj?.data);
-              break;
-          }
-        }
-        catch (e) {
-          console.error(e);
-          setOpen(true);
+          case "general.update":
+            setHostname(obj?.data?.hostname);
+            break;
+
+          case "sheets.update":
+            setPages(obj?.data);
+            break;
         }
       }
-
-      webSocket?.addEventListener("message", handleMessage);
-
-      return () => {
-        webSocket?.removeEventListener("message", handleMessage);
+      catch (e) {
+        console.error(e);
+        setOpen(true);
       }
-    }, [webSocket]);
+    }
+
+    webSocket?.addEventListener("message", handleMessage);
+
+    return () => {
+      webSocket?.removeEventListener("message", handleMessage);
+    }
+  }, [webSocket]);
 
 
-    return (
-      <AppContext.Provider value={{ webSocket, pages, uri, setUri, hostname }}>
+  return (
+    <AppContext.Provider value={{ webSocket, pages, uri, setUri, hostname }}>
+      <ThemeProvider theme={theme}>
         {children}
 
         <Snackbar
@@ -79,8 +87,9 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
         >
           <Alert severity="warning">不正なデータを受信しました。</Alert>
         </Snackbar>
-      </AppContext.Provider>
-    )
-  }
+      </ThemeProvider>
+    </AppContext.Provider>
+  )
+}
 
 export { AppContext, AppContextProvider };

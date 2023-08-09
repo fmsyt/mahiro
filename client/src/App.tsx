@@ -1,8 +1,8 @@
-import React, { memo, useCallback, useContext, useMemo, useState } from "react"
+import React, { memo, useCallback, useContext, useState } from "react"
 import Board from "./Board"
 
 import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
-import { Box, CssBaseline, Drawer, Divider, List, ListItem, ThemeProvider, Toolbar, Typography, createTheme, styled, useMediaQuery, ListItemButton, ListItemIcon, ListItemText, useTheme } from "@mui/material";
+import { Box, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, useTheme } from "@mui/material";
 
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 
@@ -81,20 +81,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 
 const App = () => {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const theme = useMemo(() => createTheme({
-    palette: {
-      mode: prefersDarkMode ? 'dark' : 'light',
-    }
-  }), [prefersDarkMode]);
-
   return (
     <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        <AppContextProvider uri={defaultWebSocketUri}>
-          <AppContent />
-        </AppContextProvider>
-      </ThemeProvider>
+      <AppContextProvider uri={defaultWebSocketUri}>
+        <AppContent />
+      </AppContextProvider>
     </BrowserRouter>
   )
 }
@@ -174,7 +165,6 @@ const DrawerItem = ({ handleDrawerClose }: { handleDrawerClose: Function }) => {
     handleDrawerClose();
     navigate(path);
   }, [handleDrawerClose, navigate]);
-
 
   return (
     <>
