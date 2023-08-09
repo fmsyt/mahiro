@@ -1,6 +1,7 @@
 import React from "react";
 import { pageProps } from "./interface";
 import { useWebSocket } from "./webSocket";
+import { Alert, Snackbar } from "@mui/material";
 
 interface AppContextProps {
   webSocket: WebSocket | null,
@@ -30,6 +31,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
     const webSocket = useWebSocket(uri);
 
+    const [open, setOpen] = React.useState(false);
     const [pages, setPages] = React.useState<pageProps[]>([]);
 
     React.useEffect(() => {
@@ -54,6 +56,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
         }
         catch (e) {
           console.error(e);
+          setOpen(true);
         }
       }
 
@@ -68,6 +71,14 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
     return (
       <AppContext.Provider value={{ webSocket, pages, uri, setUri, hostname }}>
         {children}
+
+        <Snackbar
+          open={open}
+          autoHideDuration={6000}
+          onClose={() => setOpen(false)}
+        >
+          <Alert severity="warning">不正なデータを受信しました。</Alert>
+        </Snackbar>
       </AppContext.Provider>
     )
   }
