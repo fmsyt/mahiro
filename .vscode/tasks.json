@@ -3,7 +3,7 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "start",
+			"script": "dev",
 			"path": "client",
 			"problemMatcher": [],
 			"label": "Start Client",
