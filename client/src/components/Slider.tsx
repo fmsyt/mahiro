@@ -1,10 +1,9 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { controlProps } from "../interface";
 
-import { Slider as MuiSlider, Paper, Stack, Typography } from "@mui/material";
+import { Slider as MuiSlider, Paper, Stack, styled, Typography } from "@mui/material";
 import { emit } from "../functions";
 import { Events } from "../enum";
-import styled from "@emotion/styled";
 
 const sliderSize = "100%";
 

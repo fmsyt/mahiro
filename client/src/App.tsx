@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useState } from "react"
+import { memo, useCallback, useContext, useState } from "react"
 import Board from "./Board"
 
 import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ import "./App.css";
 
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 
-const defaultWebSocketUri = process.env.NODE_ENV === "production"
+const defaultWebSocketUri = import.meta.env.MODE === "production"
   ? `${protocol}//${window.location.host}/ws`
   : `${protocol}//${window.location.hostname}:8000/ws`
   ;

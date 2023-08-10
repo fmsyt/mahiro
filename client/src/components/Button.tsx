@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { controlProps } from "../interface";
 
 import { Box, Button as MuiButton, Stack, Typography } from "@mui/material";
