@@ -9,6 +9,9 @@ websockets = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 pynput = "*"
 pyautogui = "*"
+fastapi-sessions = "*"
+tinydb = "*"
+python-multipart = "*"
 
 [dev-packages]
 

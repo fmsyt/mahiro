@@ -1,10 +1,15 @@
 import uvicorn
 import os
+from uuid import UUID, uuid4
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from typing import Annotated
+
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status, WebSocket, WebSocketDisconnect, WebSocketException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
+from modules.session import SessionData, cookie, backend, verifier
 from modules.settings import Settings
 from modules.websocket import ConnectionManager
 
@@ -19,13 +24,38 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 
 manager = ConnectionManager(settings)
 
 
+@app.post("/token")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response):
+    os.getlogin()
+
+    if form_data.username != os.getlogin():
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+
+    token = uuid4()
+    session = uuid4()
+    data = SessionData(token=token)
+
+    await backend.create(session, data)
+    cookie.attach_to_response(response, session)
+
+    return {"access_token": token, "token_type": "bearer"}
+
+
+
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, token=Query(default=None)):
+
+    if settings.get("require_token") and token is None:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
     await manager.connect(websocket)
 
     try:

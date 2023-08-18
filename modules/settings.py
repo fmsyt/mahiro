@@ -5,6 +5,8 @@ import os
 default_sheets_file_path = os.path.expanduser("~/.config/mahiro/sheets.json")
 default_controls_file_path = os.path.expanduser("~/.config/mahiro/controls.json")
 default_port = 8000
+default_require_token = False
+default_token_expiration = 60
 default_origins = [
     "http://localhost:{default_port}",
     "http://127.0.0.1:{default_port}",
@@ -17,6 +19,8 @@ class Settings:
         "sheets_file_path": default_sheets_file_path,
         "controls_file_path": default_controls_file_path,
         "port": default_port,
+        "require_token": default_require_token,
+        "token_expiration": default_token_expiration,
         "hostname": hostname,
         "origins": default_origins,
     }
