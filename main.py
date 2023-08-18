@@ -4,13 +4,21 @@ from typing import List
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 from modules.control import Controller
 from modules.settings import Settings
 
+settings = Settings()
+
 app = FastAPI()
-
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.get("origins"),
+    allow_credentials=True,
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 
 class ConnectionManager:
 
@@ -64,7 +72,6 @@ class ConnectionManager:
             await self.send_sheets_update(websocket)
 
 
-settings = Settings()
 manager = ConnectionManager(settings)
 
 

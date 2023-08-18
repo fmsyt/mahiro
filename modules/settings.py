@@ -5,6 +5,10 @@ import os
 default_sheets_file_path = os.path.expanduser("~/.config/mahiro/sheets.json")
 default_controls_file_path = os.path.expanduser("~/.config/mahiro/controls.json")
 default_port = 8000
+default_origins = [
+    "http://localhost:{default_port}",
+    "http://127.0.0.1:{default_port}",
+]
 hostname = socket.gethostname()
 
 class Settings:
@@ -13,7 +17,8 @@ class Settings:
         "sheets_file_path": default_sheets_file_path,
         "controls_file_path": default_controls_file_path,
         "port": default_port,
-        "hostname": hostname
+        "hostname": hostname,
+        "origins": default_origins,
     }
 
     def __init__(self) -> None:
