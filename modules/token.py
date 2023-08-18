@@ -3,14 +3,14 @@ from tinydb import TinyDB, Query
 
 db = TinyDB("db.json")
 
-def register(token, expiration: int | None = None):
+def register(token: str, expiration: int | None = None):
     expire_at = None
     if expiration is not None:
         expire_at = time.time() + expiration
 
     db.insert({"token": token, "expire_at": expire_at, "is_expired": False })
 
-def verify(token):
+def verify(token: str):
     rows = db.search(Query().token == token)
     if len(rows) == 0:
         return False
@@ -30,7 +30,7 @@ def verify(token):
 
     return True
 
-def expire(token):
+def expire(token: str):
     db.remove(Query().token == token)
 
 def expire_all():
