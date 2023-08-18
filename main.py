@@ -20,14 +20,9 @@ class ConnectionManager:
 
         self.controller = Controller(settings)
         self.active_connections: List[WebSocket] = []
-        # self.settings = Settings()
-
 
     async def connect(self, websocket: WebSocket) -> None:
         await websocket.accept()
-        await self.send_general_update(websocket)
-        await self.send_sheets_update(websocket)
-
         self.active_connections.append(websocket)
 
     async def disconnect(self, websocket: WebSocket) -> None:
@@ -59,6 +54,10 @@ class ConnectionManager:
                 }})
 
                 print(e)
+
+        elif receive["method"] == "general.update":
+            self.controller.reload()
+            await self.send_general_update(websocket)
 
         elif receive["method"] == "sheets.update":
             self.controller.reload()

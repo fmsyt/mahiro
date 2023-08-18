@@ -5,6 +5,10 @@ function send(webSocket: WebSocket, method: string, data?: any) {
   webSocket.send(body);
 }
 
+export function updateGeneral(webSocket: WebSocket) {
+  send(webSocket, "general.update");
+}
+
 export function updateSheets(webSocket: WebSocket) {
   send(webSocket, "sheets.update");
 }

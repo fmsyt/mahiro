@@ -2,7 +2,7 @@ import { memo, useCallback, useContext, useState } from "react"
 import Board from "./Board"
 
 import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
-import { Box, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, useTheme } from "@mui/material";
+import { Box, Button, ButtonGroup, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, ListSubheader, useTheme } from "@mui/material";
 
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 
@@ -12,6 +12,10 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 
 import Settings from "./Settings";
 
@@ -25,6 +29,8 @@ const defaultWebSocketUri = import.meta.env.MODE === "production"
   ? `${protocol}//${window.location.host}/ws`
   : `${protocol}//${window.location.hostname}:8000/ws`
   ;
+
+const connectTo = localStorage.getItem("connectTo") || defaultWebSocketUri;
 
 
 const drawerWidth = 240;
@@ -83,7 +89,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const App = () => {
   return (
     <BrowserRouter>
-      <AppContextProvider uri={defaultWebSocketUri}>
+      <AppContextProvider uri={connectTo}>
         <AppContent />
       </AppContextProvider>
     </BrowserRouter>
@@ -157,9 +163,10 @@ const AppContent = memo(() => {
 })
 
 
-const DrawerItem = ({ handleDrawerClose }: { handleDrawerClose: Function }) => {
+const DrawerItem = ({ handleDrawerClose = () => {} }) => {
 
   const navigate = useNavigate();
+  const { themeMode, setThemeMode } = useContext(AppContext);
 
   const handleClickLink = useCallback((path: string) => {
     handleDrawerClose();
@@ -184,6 +191,21 @@ const DrawerItem = ({ handleDrawerClose }: { handleDrawerClose: Function }) => {
             </ListItemIcon>
             <ListItemText primary="Connection" />
           </ListItemButton>
+        </ListItem>
+      </List>
+      <List subheader={<ListSubheader component="div">Mode</ListSubheader>}>
+        <ListItem disablePadding>
+          <ButtonGroup fullWidth sx={{ paddingInline: 1 }}>
+            <Button variant={themeMode === "system" ? "contained" : "outlined"} onClick={() => { setThemeMode("system") }}>
+              <SettingsBrightnessIcon />
+            </Button>
+            <Button variant={themeMode === "light" ? "contained" : "outlined"} onClick={() => { setThemeMode("light") }}>
+              <LightModeIcon />
+            </Button>
+            <Button variant={themeMode === "dark" ? "contained" : "outlined"} onClick={() => { setThemeMode("dark") }}>
+              <DarkModeIcon />
+            </Button>
+          </ButtonGroup>
         </ListItem>
       </List>
     </>

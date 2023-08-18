@@ -4,16 +4,15 @@ import { pageProps } from "./interface";
 import { Box, Button, CircularProgress, Container, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
-import { Control } from "./Control";
-
 import { AppContext } from "./AppContext";
+import { Control } from "./Control";
 import { useSearchParams } from "react-router-dom";
 
 const Board = memo(() => {
 
   const { pages, webSocket } = useContext(AppContext);
 
-  let [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const page = Number(searchParams.get("page") || 1);
   const setPage = useCallback((page: number) => setSearchParams({ page: page.toString() }), [setSearchParams]);
