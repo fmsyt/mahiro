@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const CACHE_VERSION = "v1";
 const CACHE_NAME = `${registration.scope}!${CACHE_VERSION}`;
 
