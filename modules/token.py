@@ -38,15 +38,16 @@ def expire(token: str):
     db.remove(Query().token == token)
 
 def expire_all():
-    db.purge()
+    db.truncate()
 
 def cleanup():
-    db.purge()
-    # rows = db.search(Query().expire_at < time.time())
-    # for row in rows:
-    #     db.remove(Query().token == row["token"])
 
-    pass
+    db.remove(Query().is_expired == True)
+
+    rows = db.search(Query().expire_at != None)
+    for row in rows:
+        if row["expire_at"] < time.time():
+            db.remove(Query().token == row["token"])
 
 if __name__ == "__main__":
     cleanup()
