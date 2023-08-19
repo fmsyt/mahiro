@@ -94,7 +94,6 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
     }
 
     const handleClose = (e: CloseEvent) => {
-      console.log(e);
       setWsCloseCode(e.code);
     }
 

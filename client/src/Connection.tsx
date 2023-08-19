@@ -65,28 +65,31 @@ const Connection = memo(() => {
   }, [webSocket]);
 
   const handleVerify = () => {
-    if (!otpRef.current) {
+
+    if (!webSocket) {
       return;
     }
 
-    if (!hostnameRef.current) {
+    if (!otpRef.current?.value) {
       return;
     }
 
-    // const hostname = new URL(uriRef.current.value).hostname;
+    const protocol = protocolRef.current?.value || wsConditions.protocol;
+    const hostname = hostnameRef.current?.value || wsConditions.hostname;
+    const port = portRef.current?.value || wsConditions.port;
+
+
     const otp = otpRef.current.value;
 
     const fd = new FormData();
     fd.append("username", "hoge");
     fd.append("password", otp);
 
-    fetch(`http://localhost:8000/token`, {
-      method: "POST",
-      body: fd
-    })
+    const url = `${protocol === "ws" ? "http" : "https"}://${hostname}:${port}/token`;
+
+    fetch(url, { method: "POST", body: fd })
     .then((res) => res.json())
     .then((res) => {
-      console.log(res);
       const { access_token } = res;
 
       localStorage.setItem("wsToken", access_token);
@@ -101,8 +104,7 @@ const Connection = memo(() => {
 
   }
 
-  const showForm = typeof wsCloseCode === "number" && [1006, 1008].includes(wsCloseCode)
-  const otpRequesting = readyState === WebSocket.CLOSED && showForm;
+  const otpRequesting = readyState === WebSocket.CLOSED && wsCloseCode == 1008;
 
   return (
     <Stack direction="column" spacing={2} justifyContent="flex-start" alignItems="flex-start">
@@ -140,7 +142,7 @@ const Connection = memo(() => {
 
       <Button variant="contained" onClick={connect} disabled={otpRequesting}>Connect</Button>
 
-      {readyState === WebSocket.CLOSED && showForm && (
+      {otpRequesting && (
         <>
           <TextField
             label="OTP"
