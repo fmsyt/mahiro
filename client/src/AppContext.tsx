@@ -2,34 +2,20 @@ import React from "react";
 import { pageProps } from "./interface";
 import { Alert, Snackbar, createTheme, ThemeProvider, useMediaQuery } from "@mui/material";
 import { updateGeneral, updateSheets } from "./functions";
+import { createWebSocket, defaultWebSocketConditions, webSocketConditionsTypes } from "./webSocket";
 
-interface webSocketConditionsTypes {
-  protocol: "ws" | "wss",
-  hostname: string,
-  port?: number,
-  token?: string | null,
-}
 
-const defaultProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-const defaultPort = import.meta.env.MODE === "production" ? window.location.port : "8000";
-const defaultWebSocketToken = localStorage.getItem("wsToken");
 
-const defaultWebSocketConditions: webSocketConditionsTypes = {
-  protocol: defaultProtocol as "ws" | "wss",
-  hostname: window.location.hostname,
-  port: parseInt(defaultPort),
-  token: defaultWebSocketToken,
-}
 
 interface AppContextProps {
   webSocket: WebSocket | null,
   wsCloseCode: CloseEvent["code"] | null,
+  reConnect: () => void,
   pages: pageProps[],
   wsConditions: webSocketConditionsTypes,
-  uri: string | null,
   themeMode: "light" | "dark" | "system",
   setThemeMode: (themeMode: "light" | "dark" | "system") => void,
-  createWebSocket: (conditions: webSocketConditionsTypes) => void,
+  setWebSocketConditions: React.Dispatch<React.SetStateAction<webSocketConditionsTypes>>,
   hostname?: string,
 }
 
@@ -37,11 +23,11 @@ const AppContext = React.createContext<AppContextProps>({
   webSocket: null,
   wsCloseCode: null,
   wsConditions: defaultWebSocketConditions,
-  uri: null,
+  reConnect: () => {},
   pages: [],
   themeMode: "system",
   setThemeMode: () => {},
-  createWebSocket: () => {},
+  setWebSocketConditions: () => {},
 });
 
 interface AppContextProviderProps {
@@ -75,15 +61,9 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
   const [open, setOpen] = React.useState(false);
   const [pages, setPages] = React.useState<pageProps[]>([]);
 
-  const createWebSocket = React.useCallback((conditions: webSocketConditionsTypes) => {
-    setWebSocketConditions(conditions);
-  }, []);
+  const [webSocket, reConnect] = React.useMemo(() => {
 
-  const webSocket = React.useMemo(() => {
-    const { protocol, hostname, port, token } = wsConditions;
-
-    const urlString = `${protocol}://${hostname}${port ? `:${port}` : ""}/ws${token ? `?token=${token}` : ""}`;
-    const webSocket = new WebSocket(urlString);
+    const webSocket = createWebSocket(wsConditions);
 
     const handleOpen = () => {
       updateGeneral(webSocket);
@@ -118,11 +98,16 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
       setWsCloseCode(e.code);
     }
 
+    const reConnect = () => {
+      webSocket.close();
+      setWebSocketConditions((prev) => ({ ...prev }));
+    }
+
     webSocket.addEventListener("open", handleOpen);
     webSocket.addEventListener("message", handleMessage);
     webSocket.addEventListener("close", handleClose);
 
-    return webSocket;
+    return [webSocket, reConnect];
 
   }, [wsConditions]);
 
@@ -131,12 +116,12 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
     <AppContext.Provider value={{
         webSocket,
         wsCloseCode,
-        pages,
         wsConditions,
-        uri: "",
+        reConnect,
+        pages,
         hostname,
         themeMode,
-        createWebSocket,
+        setWebSocketConditions,
         setThemeMode: (themeMode: "light" | "dark" | "system") => {
           setThemeMode(themeMode);
           localStorage.setItem("themeMode", themeMode);

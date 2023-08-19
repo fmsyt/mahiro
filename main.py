@@ -75,11 +75,12 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], resp
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, token=Query(default=None)):
 
+    await manager.connect(websocket)
+
     if settings.get("require_token") and not verify(token):
         update_otp()
-        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
-
-    await manager.connect(websocket)
+        reason = "Token is required" if settings.get("require_token") else "Token is invalid or expired"
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION, reason=reason)
 
     try:
         while True:

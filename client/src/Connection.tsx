@@ -1,16 +1,16 @@
 import { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-import { Button, Container, TextField, Stack, useTheme, useMediaQuery, Select, MenuItem, Typography } from "@mui/material";
+import { Button, TextField, Stack, useTheme, useMediaQuery, Select, MenuItem, Typography } from "@mui/material";
 
 import { AppContext } from "./AppContext";
 import { updateSheets } from "./functions";
 
-const Settings = memo(() => {
+const Connection = memo(() => {
 
   const theme = useTheme();
   const matched = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { webSocket, wsConditions, createWebSocket, wsCloseCode } = useContext(AppContext);
+  const { webSocket, wsConditions, setWebSocketConditions: createWebSocket, wsCloseCode } = useContext(AppContext);
   const [readyState, setReadyState] = useState<WebSocket["readyState"]>(webSocket?.readyState || WebSocket.CLOSED);
 
   useEffect(() => {
@@ -64,7 +64,6 @@ const Settings = memo(() => {
 
   }, [webSocket]);
 
-  const showForm = wsCloseCode && [1006, 1008].includes(wsCloseCode)
   const handleVerify = () => {
     if (!otpRef.current) {
       return;
@@ -102,67 +101,64 @@ const Settings = memo(() => {
 
   }
 
+  const showForm = typeof wsCloseCode === "number" && [1006, 1008].includes(wsCloseCode)
+  const otpRequesting = readyState === WebSocket.CLOSED && showForm;
 
   return (
-    <Container>
-      <h1>Connection</h1>
+    <Stack direction="column" spacing={2} justifyContent="flex-start" alignItems="flex-start">
 
-      <Stack direction="column" spacing={2} justifyContent="flex-start" alignItems="flex-start">
+      <Stack direction={"row"} spacing={2} alignItems="center">
+        <Select
+          inputRef={protocolRef}
+          defaultValue={wsConditions.protocol || "ws"}
+          variant="standard"
+          label="Protocol"
+        >
+          <MenuItem value="ws">ws</MenuItem>
+          <MenuItem value="wss">wss</MenuItem>
+        </Select>
+        <Typography variant="body1">://</Typography>
+        <TextField
+          // label="Hostname"
+          variant="standard"
+          inputRef={hostnameRef}
+          defaultValue={wsConditions.hostname}
+          fullWidth={matched}
+          />
 
-        <Stack direction={"row"} spacing={2} alignItems="center">
-          <Select
-            inputRef={protocolRef}
-            defaultValue={wsConditions.protocol || "ws"}
-            variant="standard"
-            label="Protocol"
-          >
-            <MenuItem value="ws">ws</MenuItem>
-            <MenuItem value="wss">wss</MenuItem>
-          </Select>
-          <Typography variant="body1">://</Typography>
-          <TextField
-            // label="Hostname"
-            variant="standard"
-            inputRef={hostnameRef}
-            defaultValue={wsConditions.hostname}
-            fullWidth={matched}
-            />
+        <Typography variant="body1">:</Typography>
 
-          <Typography variant="body1">:</Typography>
+        <TextField
+          // label="Port"
+          variant="standard"
+          defaultValue={wsConditions.port || 80}
+          inputRef={portRef}
+          />
 
-          <TextField
-            // label="Port"
-            variant="standard"
-            defaultValue={wsConditions.port || 80}
-            inputRef={portRef}
-            />
-
-          <Typography variant="body1">/ws</Typography>
-        </Stack>
-
-        <Button variant="contained" onClick={connect}>Connect</Button>
-
-        {readyState === WebSocket.CLOSED && showForm && (
-          <>
-            <TextField
-              label="OTP"
-              variant="standard"
-              fullWidth={matched}
-              inputRef={otpRef}
-            />
-
-            <Button variant="contained" onClick={handleVerify}>verify</Button>
-          </>
-        )}
-
-        {readyState === WebSocket.OPEN && (
-          <Button onClick={reload}>Reload</Button>
-        )}
-
+        <Typography variant="body1">/ws</Typography>
       </Stack>
 
-    </Container>
+      <Button variant="contained" onClick={connect} disabled={otpRequesting}>Connect</Button>
+
+      {readyState === WebSocket.CLOSED && showForm && (
+        <>
+          <TextField
+            label="OTP"
+            variant="standard"
+            fullWidth={matched}
+            inputRef={otpRef}
+          />
+
+          <Button variant="contained" onClick={handleVerify}>verify</Button>
+        </>
+      )}
+
+      {readyState === WebSocket.OPEN && (
+        <Button onClick={reload}>Reload</Button>
+      )}
+
+    </Stack>
   )
 })
 
-export default Settings;
+export default Connection;

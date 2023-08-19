@@ -1,16 +1,18 @@
 import { memo, useCallback, useContext, useMemo, useState } from "react";
 import { pageProps } from "./interface";
 
-import { Box, Button, CircularProgress, Container, Pagination, Stack, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Container, Pagination, Stack } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
 import { AppContext } from "./AppContext";
 import { Control } from "./Control";
 import { useSearchParams } from "react-router-dom";
 
+import Connection from "./Connection";
+
 const Board = memo(() => {
 
-  const { pages, webSocket, wsCloseCode } = useContext(AppContext);
+  const { pages, webSocket } = useContext(AppContext);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -22,8 +24,12 @@ const Board = memo(() => {
   return (
     <Container>
       {
-        webSocket?.readyState === WebSocket.OPEN
+        !webSocket?.readyState || webSocket?.readyState === WebSocket.CONNECTING
         ? (
+          <Stack alignItems="center" justifyContent="center" height="80vh">
+            <CircularProgress />
+          </Stack>
+        ) : webSocket?.readyState === WebSocket.OPEN ? (
           <Box sx={{ display: "grid", gap: 2, gridTemplateRows: "1fr 32px", height: "calc(90vh - 88px)" }}>
             {pages.length > 0 && (
               <Page webSocket={webSocket} isEditMode={isEditMode} {...pages[page - 1]} />
@@ -40,11 +46,8 @@ const Board = memo(() => {
               </Stack>
             )}
           </Box>
-        ): (
-          <Stack alignItems="center" justifyContent="center" height="80vh">
-            <Typography variant="body1" color="text.secondary">{wsCloseCode}</Typography>
-            <CircularProgress />
-          </Stack>
+        ) : (
+          <Connection />
         )
       }
 
