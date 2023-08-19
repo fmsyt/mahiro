@@ -17,7 +17,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 
-import Connection from "./Connection";
+import Settings from "./Settings";
 import { AppContext, AppContextProvider } from "./AppContext";
 
 import "./App.css";
@@ -147,7 +147,7 @@ const AppContent = memo(() => {
 
         <Routes>
           <Route path="/" element={<Board />} />
-          <Route path="/settings" element={<Connection />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </Main>
     </Box>
