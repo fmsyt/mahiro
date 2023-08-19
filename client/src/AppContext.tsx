@@ -1,32 +1,56 @@
 import React from "react";
 import { pageProps } from "./interface";
-import { useWebSocket } from "./webSocket";
 import { Alert, Snackbar, createTheme, ThemeProvider, useMediaQuery } from "@mui/material";
 import { updateGeneral, updateSheets } from "./functions";
 
+interface webSocketConditionsTypes {
+  protocol: "ws" | "wss",
+  hostname: string,
+  port?: number,
+  token?: string | null,
+}
+
+const defaultProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+const defaultPort = import.meta.env.MODE === "production" ? window.location.port : "8000";
+const defaultWebSocketToken = localStorage.getItem("wsToken");
+
+const defaultWebSocketConditions: webSocketConditionsTypes = {
+  protocol: defaultProtocol as "ws" | "wss",
+  hostname: window.location.hostname,
+  port: parseInt(defaultPort),
+  token: defaultWebSocketToken,
+}
+
 interface AppContextProps {
   webSocket: WebSocket | null,
+  wsCloseCode: CloseEvent["code"] | null,
   pages: pageProps[],
+  wsConditions: webSocketConditionsTypes,
+  uri: string | null,
   themeMode: "light" | "dark" | "system",
   setThemeMode: (themeMode: "light" | "dark" | "system") => void,
-  uri: string | null,
-  setUri: React.Dispatch<React.SetStateAction<string>>,
+  createWebSocket: (conditions: webSocketConditionsTypes) => void,
   hostname?: string,
 }
 
 const AppContext = React.createContext<AppContextProps>({
   webSocket: null,
+  wsCloseCode: null,
+  wsConditions: defaultWebSocketConditions,
+  uri: null,
   pages: [],
   themeMode: "system",
-  uri: null,
-  setUri: () => {},
   setThemeMode: () => {},
+  createWebSocket: () => {},
 });
 
 interface AppContextProviderProps {
-  uri: string,
   children: React.ReactNode,
 }
+
+
+
+
 
 const initialThemeMode = localStorage.getItem("themeMode") as "light" | "dark" | "system" | null;
 
@@ -41,21 +65,27 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
     }
   }), [prefersDarkMode, themeMode]);
 
-  const { uri: defaultUri, children } = props;
-  const [uri, setUri] = React.useState(defaultUri);
+  const { children } = props;
+
   const [hostname, setHostname] = React.useState<string | undefined>(undefined);
 
-  const webSocket = useWebSocket(uri);
+  const [wsConditions, setWebSocketConditions] = React.useState<webSocketConditionsTypes>(defaultWebSocketConditions);
+  const [wsCloseCode, setWsCloseCode] = React.useState<CloseEvent["code"] | null>(null);
 
   const [open, setOpen] = React.useState(false);
   const [pages, setPages] = React.useState<pageProps[]>([]);
 
-  React.useEffect(() => {
-    if (!webSocket) return;
+  const createWebSocket = React.useCallback((conditions: webSocketConditionsTypes) => {
+    setWebSocketConditions(conditions);
+  }, []);
+
+  const webSocket = React.useMemo(() => {
+    const { protocol, hostname, port, token } = wsConditions;
+
+    const urlString = `${protocol}://${hostname}${port ? `:${port}` : ""}/ws${token ? `?token=${token}` : ""}`;
+    const webSocket = new WebSocket(urlString);
 
     const handleOpen = () => {
-      localStorage.setItem("connectTo", uri);
-
       updateGeneral(webSocket);
       updateSheets(webSocket);
     }
@@ -83,29 +113,35 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
       }
     }
 
-    webSocket?.addEventListener("open", handleOpen);
-    webSocket?.addEventListener("message", handleMessage);
-
-    return () => {
-      webSocket?.removeEventListener("message", handleMessage);
+    const handleClose = (e: CloseEvent) => {
+      console.log(e);
+      setWsCloseCode(e.code);
     }
-  }, [webSocket, uri]);
 
-  const value = {
-    webSocket,
-    pages,
-    uri,
-    setUri,
-    hostname,
-    themeMode,
-    setThemeMode: (themeMode: "light" | "dark" | "system") => {
-      setThemeMode(themeMode);
-      localStorage.setItem("themeMode", themeMode);
-    },
-  }
+    webSocket.addEventListener("open", handleOpen);
+    webSocket.addEventListener("message", handleMessage);
+    webSocket.addEventListener("close", handleClose);
+
+    return webSocket;
+
+  }, [wsConditions]);
+
 
   return (
-    <AppContext.Provider value={value}>
+    <AppContext.Provider value={{
+        webSocket,
+        wsCloseCode,
+        pages,
+        wsConditions,
+        uri: "",
+        hostname,
+        themeMode,
+        createWebSocket,
+        setThemeMode: (themeMode: "light" | "dark" | "system") => {
+          setThemeMode(themeMode);
+          localStorage.setItem("themeMode", themeMode);
+        },
+      }}>
       <ThemeProvider theme={theme}>
         {children}
 

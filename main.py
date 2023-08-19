@@ -1,13 +1,15 @@
 import random
 import string
 import time
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 import uvicorn
 import os
 from uuid import uuid4
 
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Response, status, WebSocket, WebSocketDisconnect, WebSocketException
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status, WebSocket, WebSocketDisconnect, WebSocketException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -24,7 +26,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.get("origins"),
     allow_credentials=True,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -37,6 +39,13 @@ def update_otp():
     global otp
     otp = "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
     print(f"New OTP: {otp}")
+
+update_otp()
+
+@app.exception_handler(RequestValidationError)
+async def handler(request: Request, exc: RequestValidationError):
+    print(exc)
+    return JSONResponse(content={}, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 @app.post("/token")

@@ -1,6 +1,6 @@
 import { memo, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-import { Button, Container, TextField, Stack, useTheme, useMediaQuery } from "@mui/material";
+import { Button, Container, TextField, Stack, useTheme, useMediaQuery, Select, MenuItem, Typography } from "@mui/material";
 
 import { AppContext } from "./AppContext";
 import { updateSheets } from "./functions";
@@ -10,8 +10,7 @@ const Settings = memo(() => {
   const theme = useTheme();
   const matched = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { webSocket, uri, setUri } = useContext(AppContext);
-
+  const { webSocket, wsConditions, createWebSocket, wsCloseCode } = useContext(AppContext);
   const [readyState, setReadyState] = useState<WebSocket["readyState"]>(webSocket?.readyState || WebSocket.CLOSED);
 
   useEffect(() => {
@@ -25,12 +24,7 @@ const Settings = memo(() => {
       setReadyState(WebSocket.OPEN);
     }
 
-    const onClose = () => {
-      setReadyState(WebSocket.CLOSED);
-    }
-
     webSocket.addEventListener("open", onOpen);
-    webSocket.addEventListener("close", onClose);
 
     const updateReadyState = () => {
       setReadyState(webSocket.readyState || WebSocket.CLOSED);
@@ -40,23 +34,26 @@ const Settings = memo(() => {
 
     return () => {
       webSocket.removeEventListener("open", onOpen);
-      webSocket.removeEventListener("close", onClose);
-
       clearInterval(interval);
     }
 
   }, [webSocket]);
 
 
-  const ref = useRef<HTMLInputElement>(null);
+  const protocolRef = useRef<HTMLInputElement>(null);
+  const hostnameRef = useRef<HTMLInputElement>(null);
+  const portRef = useRef<HTMLInputElement>(null);
 
-  const connect = useCallback(() => {
-    if (!ref.current) {
-      return;
-    }
+  const otpRef = useRef<HTMLInputElement>(null);
 
-    setUri(ref.current.value);
-  }, [ref, setUri]);
+  const connect = () => {
+    createWebSocket({
+      ...wsConditions,
+      protocol: (protocolRef.current?.value || "ws") as "ws" | "wss",
+      hostname: hostnameRef.current?.value || "localhost",
+      port: Number(portRef.current?.value || 80),
+    });
+  }
 
   const reload = useCallback(() => {
     if (!webSocket) {
@@ -67,23 +64,96 @@ const Settings = memo(() => {
 
   }, [webSocket]);
 
+  const showForm = wsCloseCode && [1006, 1008].includes(wsCloseCode)
+  const handleVerify = () => {
+    if (!otpRef.current) {
+      return;
+    }
+
+    if (!hostnameRef.current) {
+      return;
+    }
+
+    // const hostname = new URL(uriRef.current.value).hostname;
+    const otp = otpRef.current.value;
+
+    const fd = new FormData();
+    fd.append("username", "hoge");
+    fd.append("password", otp);
+
+    fetch(`http://localhost:8000/token`, {
+      method: "POST",
+      body: fd
+    })
+    .then((res) => res.json())
+    .then((res) => {
+      console.log(res);
+      const { access_token } = res;
+
+      localStorage.setItem("wsToken", access_token);
+      createWebSocket({
+        ...wsConditions,
+        protocol: (protocolRef.current?.value || "ws") as "ws" | "wss",
+        hostname: hostnameRef.current?.value || "localhost",
+        port: Number(portRef.current?.value || 80),
+        token: access_token,
+      });
+    })
+
+  }
+
 
   return (
     <Container>
       <h1>Connection</h1>
 
       <Stack direction="column" spacing={2} justifyContent="flex-start" alignItems="flex-start">
-        <TextField
-          label="URL"
-          variant="standard"
-          inputRef={ref}
-          defaultValue={uri || ""}
-          color={readyState === WebSocket.OPEN ? "success" : "primary"}
-          fullWidth={matched}
-          focused
-          />
+
+        <Stack direction={"row"} spacing={2} alignItems="center">
+          <Select
+            inputRef={protocolRef}
+            defaultValue={wsConditions.protocol || "ws"}
+            variant="standard"
+            label="Protocol"
+          >
+            <MenuItem value="ws">ws</MenuItem>
+            <MenuItem value="wss">wss</MenuItem>
+          </Select>
+          <Typography variant="body1">://</Typography>
+          <TextField
+            // label="Hostname"
+            variant="standard"
+            inputRef={hostnameRef}
+            defaultValue={wsConditions.hostname}
+            fullWidth={matched}
+            />
+
+          <Typography variant="body1">:</Typography>
+
+          <TextField
+            // label="Port"
+            variant="standard"
+            defaultValue={wsConditions.port || 80}
+            inputRef={portRef}
+            />
+
+          <Typography variant="body1">/ws</Typography>
+        </Stack>
 
         <Button variant="contained" onClick={connect}>Connect</Button>
+
+        {readyState === WebSocket.CLOSED && showForm && (
+          <>
+            <TextField
+              label="OTP"
+              variant="standard"
+              fullWidth={matched}
+              inputRef={otpRef}
+            />
+
+            <Button variant="contained" onClick={handleVerify}>verify</Button>
+          </>
+        )}
 
         {readyState === WebSocket.OPEN && (
           <Button onClick={reload}>Reload</Button>

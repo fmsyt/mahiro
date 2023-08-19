@@ -23,14 +23,7 @@ import { AppContext, AppContextProvider } from "./AppContext";
 
 import "./App.css";
 
-const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 
-const defaultWebSocketUri = import.meta.env.MODE === "production"
-  ? `${protocol}//${window.location.host}/ws`
-  : `${protocol}//${window.location.hostname}:8000/ws`
-  ;
-
-const connectTo = localStorage.getItem("connectTo") || defaultWebSocketUri;
 
 
 const drawerWidth = 240;
@@ -89,7 +82,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const App = () => {
   return (
     <BrowserRouter>
-      <AppContextProvider uri={connectTo}>
+      <AppContextProvider>
         <AppContent />
       </AppContextProvider>
     </BrowserRouter>

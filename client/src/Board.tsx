@@ -1,7 +1,7 @@
 import { memo, useCallback, useContext, useMemo, useState } from "react";
 import { pageProps } from "./interface";
 
-import { Box, Button, CircularProgress, Container, Pagination, Stack } from "@mui/material";
+import { Box, Button, CircularProgress, Container, Pagination, Stack, Typography } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
 import { AppContext } from "./AppContext";
@@ -10,7 +10,7 @@ import { useSearchParams } from "react-router-dom";
 
 const Board = memo(() => {
 
-  const { pages, webSocket } = useContext(AppContext);
+  const { pages, webSocket, wsCloseCode } = useContext(AppContext);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -42,6 +42,7 @@ const Board = memo(() => {
           </Box>
         ): (
           <Stack alignItems="center" justifyContent="center" height="80vh">
+            <Typography variant="body1" color="text.secondary">{wsCloseCode}</Typography>
             <CircularProgress />
           </Stack>
         )

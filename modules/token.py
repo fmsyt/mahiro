@@ -10,7 +10,11 @@ def register(token: str, expiration: int | None = None):
 
     db.insert({"token": token, "expire_at": expire_at, "is_expired": False })
 
-def verify(token: str):
+def verify(token):
+
+    if token is None:
+        return False
+
     rows = db.search(Query().token == token)
     if len(rows) == 0:
         return False
@@ -37,6 +41,12 @@ def expire_all():
     db.purge()
 
 def cleanup():
-    rows = db.search(Query().expire_at < time.time())
-    for row in rows:
-        db.remove(Query().token == row["token"])
+    db.purge()
+    # rows = db.search(Query().expire_at < time.time())
+    # for row in rows:
+    #     db.remove(Query().token == row["token"])
+
+    pass
+
+if __name__ == "__main__":
+    cleanup()
