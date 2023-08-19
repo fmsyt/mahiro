@@ -1,18 +1,20 @@
 export interface webSocketConditionsTypes {
   protocol: "ws" | "wss",
   hostname: string,
-  port?: number,
+  port: number,
   token?: string | null,
 }
 
 const defaultProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-const defaultPort = import.meta.env.MODE === "production" ? window.location.port : "8000";
+const defaultPort = import.meta.env.MODE === "production"
+  ? (window.location.port || (defaultProtocol === "ws" ? 80 : 443))
+  : 8000;
 const defaultWebSocketToken = localStorage.getItem("wsToken");
 
 export const defaultWebSocketConditions: webSocketConditionsTypes = {
   protocol: defaultProtocol as "ws" | "wss",
   hostname: window.location.hostname,
-  port: parseInt(defaultPort),
+  port: Number(defaultPort),
   token: defaultWebSocketToken,
 }
 
