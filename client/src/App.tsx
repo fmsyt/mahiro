@@ -1,7 +1,7 @@
 import { memo, useCallback, useContext, useState } from "react"
 import Board from "./Board"
 
-import { Route, Routes, BrowserRouter, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, MemoryRouter } from "react-router-dom";
 import { Box, Button, ButtonGroup, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, ListSubheader, useTheme } from "@mui/material";
 
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
@@ -80,11 +80,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const App = () => {
   return (
-    <BrowserRouter>
+    <MemoryRouter>
       <AppContextProvider>
         <AppContent />
       </AppContextProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   )
 }
 
