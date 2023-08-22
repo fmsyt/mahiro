@@ -6,7 +6,7 @@ export interface webSocketConditionsTypes {
 }
 
 const defaultProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-const defaultPort = import.meta.env.MODE === "production"
+const defaultPort = import.meta.env.PROD
   ? (window.location.port || (defaultProtocol === "ws" ? 80 : 443))
   : 8000;
 const defaultWebSocketToken = localStorage.getItem("wsToken");
