@@ -16,7 +16,7 @@
 			"linux": {
 				"command": "${workspaceFolder}/venv/bin/python",
 			},
-			"args": ["main.py"]
+			"args": ["server.py"]
 		},
 		{
 			"type": "npm",
