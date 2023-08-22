@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "mahiro-client",
+    "productName": "mahiro",
     "version": "0.0.0"
   },
   "tauri": {
@@ -37,7 +37,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "mahiro-client",
+        "title": "mahiro",
         "width": 800,
         "height": 600
       }
