@@ -2,7 +2,7 @@ import { memo, useCallback, useContext, useState } from "react"
 import Board from "./Board"
 
 import { Route, Routes, useNavigate, MemoryRouter } from "react-router-dom";
-import { Box, Button, ButtonGroup, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, ListSubheader, useTheme } from "@mui/material";
+import { Box, Button, ButtonGroup, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, ListSubheader, useTheme, Stack, Container } from "@mui/material";
 
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 
@@ -26,6 +26,7 @@ import "./App.css";
 
 
 const drawerWidth = 240;
+const WORK_ON_DESKTOP = !!import.meta.env.TAURI_PLATFORM_VERSION;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
@@ -82,13 +83,35 @@ const App = () => {
   return (
     <MemoryRouter>
       <AppContextProvider>
-        <AppContent />
+        <CssBaseline />
+        {!WORK_ON_DESKTOP ? (
+          <AppDrawer>
+            <Container>
+              <Box height="calc(100vh - 64px - 48px)">
+                <AppContent />
+              </Box>
+            </Container>
+          </AppDrawer>
+        ) : (
+          <Stack padding={2} height="100vh">
+            <AppContent />
+          </Stack>
+        )}
       </AppContextProvider>
     </MemoryRouter>
   )
 }
 
 const AppContent = memo(() => {
+  return (
+    <Routes>
+      <Route path="/" element={<Board />} />
+      <Route path="/settings" element={<Settings />} />
+    </Routes>
+  )
+})
+
+const AppDrawer = memo(({ children } : { children: React.ReactNode }) => {
 
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -105,7 +128,6 @@ const AppContent = memo(() => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
@@ -144,11 +166,7 @@ const AppContent = memo(() => {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-
-        <Routes>
-          <Route path="/" element={<Board />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
+        { children }
       </Main>
     </Box>
   )

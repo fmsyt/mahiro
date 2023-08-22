@@ -21,37 +21,30 @@ const Board = memo(() => {
 
   const [isEditMode] = useState(false);
 
-  return (
-    <Container>
-      {
-        !webSocket?.readyState || webSocket?.readyState === WebSocket.CONNECTING
-        ? (
-          <Stack alignItems="center" justifyContent="center" height="80vh">
-            <CircularProgress />
-          </Stack>
-        ) : webSocket?.readyState === WebSocket.OPEN ? (
-          <Box sx={{ display: "grid", gap: 2, gridTemplateRows: "1fr 32px", height: "calc(90vh - 88px)" }}>
-            {pages.length > 0 && (
-              <Page webSocket={webSocket} isEditMode={isEditMode} {...pages[page - 1]} />
-            )}
+  return !webSocket?.readyState || webSocket?.readyState === WebSocket.CONNECTING
+  ? (
+    <Stack alignItems="center" justifyContent="center" height="80vh">
+      <CircularProgress />
+    </Stack>
+  ) : webSocket?.readyState === WebSocket.OPEN ? (
+    <Box sx={{ display: "grid", gap: 2, gridTemplateRows: "1fr 32px", height: "100%" }}>
+      {pages.length > 0 && (
+        <Page webSocket={webSocket} isEditMode={isEditMode} {...pages[page - 1]} />
+      )}
 
-            {pages.length > 1 && (
-              <Stack alignItems="center">
-                <Pagination
-                  count={pages.length}
-                  color="primary"
-                  onChange={(e, page) => setPage(page)}
-                  page={page}
-                  />
-              </Stack>
-            )}
-          </Box>
-        ) : (
-          <Connection />
-        )
-      }
-
-    </Container>
+      {pages.length > 1 && (
+        <Stack alignItems="center">
+          <Pagination
+            count={pages.length}
+            color="primary"
+            onChange={(e, page) => setPage(page)}
+            page={page}
+            />
+        </Stack>
+      )}
+    </Box>
+  ) : (
+    <Connection />
   )
 })
 

@@ -45,4 +45,5 @@ export default defineConfig({
     strictPort: true,
   },
   envPrefix: ["VITE_", "TAURI_"],
+  envDir: '../',
 })
