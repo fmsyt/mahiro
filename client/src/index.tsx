@@ -14,8 +14,10 @@ root.render(
 );
 
 
-window.addEventListener('load', () => {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./serviceWorker.js");
-  }
-});
+if (import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./serviceWorker.js");
+    }
+  });
+}
