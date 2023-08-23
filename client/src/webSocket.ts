@@ -5,15 +5,19 @@ export interface webSocketConditionsTypes {
   token?: string | null,
 }
 
-const defaultProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-const defaultPort = import.meta.env.PROD
-  ? (window.location.port || (defaultProtocol === "ws" ? 80 : 443))
-  : 8000;
+const defaultProtocol = localStorage.getItem("lastConnectedProtocol")
+  || (window.location.protocol === "https:" ? "wss" : "ws");
+const defaultPort = localStorage.getItem("lastConnectedPort")
+  || (import.meta.env.PROD
+    ? (window.location.port || (defaultProtocol === "ws" ? 80 : 443))
+    : 8000);
+
+const defaultHost = localStorage.getItem("lastConnectedHost") || window.location.hostname;
 const defaultWebSocketToken = localStorage.getItem("wsToken");
 
 export const defaultWebSocketConditions: webSocketConditionsTypes = {
   protocol: defaultProtocol as "ws" | "wss",
-  hostname: window.location.hostname,
+  hostname: defaultHost,
   port: Number(defaultPort),
   token: defaultWebSocketToken,
 }
@@ -21,6 +25,12 @@ export const defaultWebSocketConditions: webSocketConditionsTypes = {
 export function createWebSocket(conditions: webSocketConditionsTypes): WebSocket {
   const { protocol, hostname, port, token } = conditions;
   const ws = new WebSocket(`${protocol}://${hostname}:${port}/ws?token=${token}`);
+
+  ws.addEventListener("open", () => {
+    localStorage.setItem("lastConnectedProtocol", protocol);
+    localStorage.setItem("lastConnectedHost", hostname);
+    localStorage.setItem("lastConnectedPort", port.toString());
+  });
 
   return ws;
 }
