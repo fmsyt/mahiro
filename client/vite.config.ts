@@ -11,6 +11,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
+        tauri: resolve(__dirname, 'tauri.html'),
         config: resolve(__dirname, 'config.html'),
       }
     },

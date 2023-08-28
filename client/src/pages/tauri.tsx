@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { Stack } from '@mui/material';
-import Board from '../Board';
+import App from '../App';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -10,8 +9,6 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <Stack padding={2} height="100vh">
-      <Board />
-    </Stack>
+    <App enableDrawer={false} />
   </React.StrictMode>
 );

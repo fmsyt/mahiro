@@ -39,7 +39,8 @@
         "resizable": true,
         "title": "mahiro",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "url": "tauri.html"
       }
     ]
   }

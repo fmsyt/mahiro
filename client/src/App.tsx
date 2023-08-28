@@ -2,7 +2,7 @@ import { memo, useCallback, useContext, useState } from "react"
 import Board from "./Board"
 
 import { Route, Routes, useNavigate, MemoryRouter } from "react-router-dom";
-import { Box, Button, ButtonGroup, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, ListSubheader, useTheme, Container } from "@mui/material";
+import { Box, Button, ButtonGroup, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, ListSubheader, useTheme, Container, Stack } from "@mui/material";
 
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 
@@ -76,25 +76,37 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 
 
-const App = () => {
+const App = ({ enableDrawer = true }: { enableDrawer: boolean }) => {
   return (
     <MemoryRouter>
       <AppContextProvider>
         <CssBaseline />
-        <AppDrawer>
-          <Container>
-            <Box height="calc(100vh - 64px - 48px)">
-              <Routes>
-                <Route path="/" element={<Board />} />
-                <Route path="/connection" element={<Connection />} />
-              </Routes>
-            </Box>
-          </Container>
-        </AppDrawer>
+        <Container>
+          { enableDrawer ? (
+            <AppDrawer>
+              <Box height="calc(100vh - 64px - 48px)">
+                <AppContent />
+              </Box>
+            </AppDrawer>
+          ) : (
+            <Stack padding={2} height="100vh">
+              <AppContent />
+            </Stack>
+          )}
+        </Container>
       </AppContextProvider>
     </MemoryRouter>
   )
 }
+
+const AppContent = memo(() => {
+  return (
+    <Routes>
+      <Route path="/" element={<Board />} />
+      <Route path="/connection" element={<Connection />} />
+    </Routes>
+  )
+})
 
 
 const AppDrawer = memo(({ children } : { children: React.ReactNode }) => {
