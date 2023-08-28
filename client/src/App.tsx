@@ -76,13 +76,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 
 
-const App = ({ enableDrawer = true }: { enableDrawer: boolean }) => {
+const App = ({ disableDrawer = false }: { disableDrawer?: boolean }) => {
   return (
     <MemoryRouter>
       <AppContextProvider>
         <CssBaseline />
         <Container>
-          { enableDrawer ? (
+          { !disableDrawer ? (
             <AppDrawer>
               <Box height="calc(100vh - 64px - 48px)">
                 <AppContent />
