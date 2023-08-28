@@ -9,6 +9,7 @@ import { Control } from "./Control";
 import { useSearchParams } from "react-router-dom";
 
 import Connection from "./Connection";
+import "./board.css"
 
 const Board = memo(() => {
 

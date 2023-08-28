@@ -3,7 +3,7 @@ import { Container, Typography } from "@mui/material";
 
 import Connection from "./Connection";
 
-const Settings = memo(() => {
+const Config = memo(() => {
   return (
     <Container>
       <Typography variant="h5">Connection</Typography>
@@ -12,4 +12,4 @@ const Settings = memo(() => {
   )
 });
 
-export default Settings;
+export default Config;

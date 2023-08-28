@@ -2,7 +2,7 @@ import { memo, useCallback, useContext, useState } from "react"
 import Board from "./Board"
 
 import { Route, Routes, useNavigate, MemoryRouter } from "react-router-dom";
-import { Box, Button, ButtonGroup, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, ListSubheader, useTheme, Stack, Container } from "@mui/material";
+import { Box, Button, ButtonGroup, CssBaseline, Drawer, Divider, List, ListItem, Toolbar, Typography, styled, ListItemButton, ListItemIcon, ListItemText, ListSubheader, useTheme, Container } from "@mui/material";
 
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 
@@ -17,16 +17,13 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 
-import Settings from "./Settings";
 import { AppContext, AppContextProvider } from "./AppContext";
 
+import Connection from "./Connection";
 import "./App.css";
 
 
-
-
 const drawerWidth = 240;
-const WORK_ON_DESKTOP = !!import.meta.env.TAURI_PLATFORM_VERSION;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
@@ -84,32 +81,21 @@ const App = () => {
     <MemoryRouter>
       <AppContextProvider>
         <CssBaseline />
-        {!WORK_ON_DESKTOP ? (
-          <AppDrawer>
-            <Container>
-              <Box height="calc(100vh - 64px - 48px)">
-                <AppContent />
-              </Box>
-            </Container>
-          </AppDrawer>
-        ) : (
-          <Stack padding={2} height="100vh">
-            <AppContent />
-          </Stack>
-        )}
+        <AppDrawer>
+          <Container>
+            <Box height="calc(100vh - 64px - 48px)">
+              <Routes>
+                <Route path="/" element={<Board />} />
+                <Route path="/connection" element={<Connection />} />
+              </Routes>
+            </Box>
+          </Container>
+        </AppDrawer>
       </AppContextProvider>
     </MemoryRouter>
   )
 }
 
-const AppContent = memo(() => {
-  return (
-    <Routes>
-      <Route path="/" element={<Board />} />
-      <Route path="/settings" element={<Settings />} />
-    </Routes>
-  )
-})
 
 const AppDrawer = memo(({ children } : { children: React.ReactNode }) => {
 
@@ -195,7 +181,7 @@ const DrawerItem = ({ handleDrawerClose = () => {} }) => {
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => { handleClickLink("/settings") }}>
+          <ListItemButton onClick={() => { handleClickLink("/connection") }}>
             <ListItemIcon>
               <CastConnectedIcon />
             </ListItemIcon>
