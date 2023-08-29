@@ -35,12 +35,22 @@
     },
     "windows": [
       {
+        "label": "main",
         "fullscreen": false,
         "resizable": true,
         "title": "mahiro",
         "width": 800,
         "height": 600,
         "url": "tauri.html"
+      },
+      {
+        "label": "config",
+        "fullscreen": false,
+        "resizable": true,
+        "title": "Config - mahiro",
+        "width": 800,
+        "height": 600,
+        "url": "config.html"
       }
     ]
   }
