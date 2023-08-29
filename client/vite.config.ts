@@ -11,8 +11,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        tauri: resolve(__dirname, 'tauri.html'),
-        config: resolve(__dirname, 'config.html'),
       }
     },
     emptyOutDir: true
@@ -52,5 +50,6 @@ export default defineConfig({
   server: {
     port: 1420,
     strictPort: true,
-  }
+  },
+  envPrefix: ["VITE_"],
 })
