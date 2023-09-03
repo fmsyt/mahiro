@@ -52,6 +52,10 @@
         "height": 600,
         "url": "config.html"
       }
-    ]
+    ],
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    }
   }
 }
