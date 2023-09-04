@@ -1,11 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{Menu, Wry, SystemTray, SystemTrayMenu, SystemTrayMenuItem, AppHandle, SystemTrayEvent, Manager};
+use tauri::{
+    AppHandle, Manager, Menu, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
+};
 
-mod ws;
 mod control;
-
+mod ws;
 
 // reference: https://qiita.com/namn1125/items/8ed4d91d3d00af8750f8
 
@@ -15,8 +16,7 @@ fn create_menu() -> Menu {
 
     let submenu = tauri::Submenu::new("File", Menu::new().add_item(quit).add_item(close));
 
-    let menu = Menu::new()
-        .add_submenu(submenu);
+    let menu = Menu::new().add_submenu(submenu);
 
     menu
 }
@@ -29,7 +29,6 @@ fn handle_menu(event: tauri::WindowMenuEvent<Wry>) {
 }
 
 fn create_systemtray() -> SystemTray {
-
     let open_config = tauri::CustomMenuItem::new("open_config".to_string(), "Config");
     let quit = tauri::CustomMenuItem::new("quit".to_string(), "Quit");
 
@@ -45,27 +44,21 @@ fn create_systemtray() -> SystemTray {
 
 fn handle_systemtray(app: &AppHandle<Wry>, event: SystemTrayEvent) {
     match event {
-        SystemTrayEvent::MenuItemClick { id, .. } => {
-            match id.as_str() {
-                "open_config" => {
-                    let window = app.get_window("config").unwrap();
-                    window.show().unwrap();
-                }
-                "quit" => {
-                    std::process::exit(0);
-                }
-                _ => {}
+        SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
+            "open_config" => {
+                let window = app.get_window("config").unwrap();
+                window.show().unwrap();
             }
-        }
+            "quit" => {
+                std::process::exit(0);
+            }
+            _ => {}
+        },
         _ => {}
     }
 }
 
 fn main() {
-
-    control::load_controls();
-
-    tauri::async_runtime::spawn(ws::start_server());
     tauri::Builder::default()
         .plugin(tauri_plugin_websocket::init())
         .menu(create_menu())
@@ -78,6 +71,17 @@ fn main() {
 
             let config_window = app.get_window("config").unwrap();
             config_window.hide().unwrap();
+
+            let config_file_path = app
+                .path_resolver()
+                .app_config_dir()
+                .unwrap()
+                .join("config.json")
+                .to_str()
+                .unwrap()
+                .to_string();
+
+            tauri::async_runtime::spawn(ws::start_server(config_file_path));
 
             Ok(())
         })

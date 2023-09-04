@@ -2,21 +2,26 @@ use futures_util::{StreamExt, SinkExt};
 use tokio_tungstenite::{accept_async, tungstenite::Message};
 use tokio::net::{TcpListener, TcpStream};
 
-pub async fn start_server() {
-    let addr = "0.0.0.0:8080".to_string();
+use crate::control::{Control, Sheet, self};
 
-    let try_socket = TcpListener::bind(&addr).await;
-    let listener = try_socket.expect("Failed to bind");
-
+pub async fn start_server(config_file_path: String) {
+    let addr: String = "0.0.0.0:8080".to_string();
     println!("Listening on: {}", addr);
 
+    let try_socket: Result<TcpListener, std::io::Error> = TcpListener::bind(addr).await;
+    let listener: TcpListener = try_socket.expect("Failed to bind");
+
+
     while let Ok((stream, _)) = listener.accept().await {
-        tokio::spawn(handle_client(stream));
+        let controls: Vec<Control> = control::load_controls(config_file_path.clone());
+        let sheets: Vec<Sheet> = control::load_sheets(config_file_path.clone());
+
+        tokio::spawn(handle_client(stream, controls, sheets));
     }
 }
 
-async fn handle_client(stream: TcpStream) {
-    let ws_stream = accept_async(stream).await.expect("Failed to accept");
+async fn handle_client(stream: TcpStream, _: Vec<Control>, _: Vec<Sheet>) {
+    let ws_stream: tokio_tungstenite::WebSocketStream<TcpStream> = accept_async(stream).await.expect("Failed to accept");
 
     let (mut write, mut read) = ws_stream.split();
 

@@ -1,10 +1,8 @@
-use std::fs::{File, read_to_string};
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use serde_json::{Result, Value};
 
-#[derive(Serialize, Deserialize)]
-struct Control {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Control {
     id: String,
     r#type: String,
     style: Option<String>,
@@ -22,49 +20,47 @@ struct Control {
     sync: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Sheet {
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Sheet {
     columns: u32,
     items: Vec<Control>,
 }
 
+pub fn load_controls(path: String) -> Vec<Control> {
 
-pub fn load_controls() {
-    let config = tauri::Config::default();
+    let config = std::fs::read_to_string(path);
 
-    println!("config: {:?}", config);
+    match config {
+        Ok(config) => {
+            let controls = serde_json::from_str::<Vec<Control>>(&config).unwrap();
+            controls
+        }
+        Err(e) => {
+            println!("Error: {}", e);
+            vec![]
+        }
+    }
+}
 
+pub fn load_sheets(path: String) -> Vec<Sheet> {
+
+    let config = std::fs::read_to_string(path);
+
+    match config {
+        Ok(config) => {
+            let sheets = serde_json::from_str::<Vec<Sheet>>(&config).unwrap();
+            sheets
+        }
+        Err(e) => {
+            println!("Error: {}", e);
+            vec![]
+        }
+    }
 }
 
 
-
-pub fn emit(control_id: String) -> Result<()> {
-    let control = Control {
-        id: "button".to_string(),
-        r#type: "button".to_string(),
-        style: None,
-        label: "Button".to_string(),
-        disabled: false,
-        default: "Button".to_string(),
-        props: HashMap::new(),
-        platform: None,
-
-        url: None,
-        command: None,
-        commands: None,
-        hotkey: None,
-        hotkeys: None,
-        sync: None,
-    };
-
-    let sheet = Sheet {
-        columns: 1,
-        items: vec![control],
-    };
-
-    let json = serde_json::to_string(&sheet)?;
-
-    println!("{}", json);
-
-    Ok(())
+pub trait Controller {
+    fn emit(&self, control: Control) {
+        println!("emit: {:?}", control);
+    }
 }
