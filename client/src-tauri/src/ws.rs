@@ -1,5 +1,5 @@
-use futures_util::StreamExt;
-use tokio_tungstenite::accept_async;
+use futures_util::{StreamExt, SinkExt};
+use tokio_tungstenite::{accept_async, tungstenite::Message};
 use tokio::net::{TcpListener, TcpStream};
 
 pub async fn start_server() {
@@ -11,16 +11,38 @@ pub async fn start_server() {
     println!("Listening on: {}", addr);
 
     while let Ok((stream, _)) = listener.accept().await {
-        tokio::spawn(accept_connection(stream));
+        tokio::spawn(handle_client(stream));
     }
 }
 
-async fn accept_connection(stream: TcpStream) {
+async fn handle_client(stream: TcpStream) {
     let ws_stream = accept_async(stream).await.expect("Failed to accept");
 
-    let (write, read) = ws_stream.split();
+    let (mut write, mut read) = ws_stream.split();
 
-    if let Err(e) = read.forward(write).await {
-        eprintln!("Error: {}", e);
+    while let Some(message) = read.next().await {
+        println!("Received a message: {:?}", message);
+
+        match message {
+            Ok(Message::Text(text)) => {
+                // メッセージを加工（大文字に変換）する例
+                let response_text = text.to_uppercase();
+
+                // 加工されたメッセージをクライアントに送信
+                if let Err(e) = write.send(Message::Text(response_text)).await {
+                    eprintln!("Failed to send response: {}", e);
+                    break;
+                }
+            }
+            Ok(_) => {
+                // テキスト以外のメッセージは無視する（オプション）
+            }
+            Err(e) => {
+                eprintln!("Error while handling message: {}", e);
+                break;
+            }
+        }
+
     }
+
 }
