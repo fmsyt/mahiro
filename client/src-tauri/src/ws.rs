@@ -62,6 +62,14 @@ async fn handle_client(stream: TcpStream) {
                 let message: ReceivedMessage = serde_json::from_str(&text).expect("Failed to parse config on load_sheets");
                 println!("message: {:?}", message);
 
+                match message.method.as_str() {
+                    "emit" => {
+                        let data: ReceivedEmitMessage = message.data.expect("Failed to parse config on load_sheets");
+                        println!("data: {:?}", data);
+                    }
+                    _ => {}
+                }
+
             }
             Ok(_) => {
                 // テキスト以外のメッセージは無視する（オプション）
