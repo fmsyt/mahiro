@@ -32,7 +32,7 @@ pub fn load_controls(path: String) -> Vec<Control> {
 
     match config {
         Ok(config) => {
-            let controls = serde_json::from_str::<Vec<Control>>(&config).unwrap();
+            let controls: Vec<Control> = serde_json::from_str(&config).expect("Failed to parse config on load_controls");
             controls
         }
         Err(e) => {
@@ -48,7 +48,7 @@ pub fn load_sheets(path: String) -> Vec<Sheet> {
 
     match config {
         Ok(config) => {
-            let sheets = serde_json::from_str::<Vec<Sheet>>(&config).unwrap();
+            let sheets: Vec<Sheet> = serde_json::from_str(&config).expect("Failed to parse config on load_sheets");
             sheets
         }
         Err(e) => {
@@ -58,6 +58,35 @@ pub fn load_sheets(path: String) -> Vec<Sheet> {
     }
 }
 
+trait ConfigFile<T> {
+    fn load(&self, path: String) -> T;
+}
+
+impl ConfigFile for Sheet {
+    fn load(&self, path: String) -> Sheet {
+        let config = std::fs::read_to_string(path);
+
+        match config {
+            Ok(config) => {
+                let sheets: Vec<Sheet> = serde_json::from_str(&config).expect("Failed to parse config on load_sheets");
+                sheets
+            }
+            Err(e) => {
+                println!("Error: {}", e);
+                vec![]
+            }
+        }
+    }
+}
+
+impl ConfigFile for Control {
+    fn load(&self, path: String) -> Control {
+        let config = std::fs::read_to_string(path);
+        let control: Control = serde_json::from_str(&config).expect("Failed to parse config on load_controls");
+
+        control
+    }
+}
 
 pub trait Controller {
     fn emit(&self, control: Control) {

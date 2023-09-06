@@ -5,7 +5,6 @@ use tauri::{
     AppHandle, Manager, Menu, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
 };
 
-mod control;
 mod ws;
 
 // reference: https://qiita.com/namn1125/items/8ed4d91d3d00af8750f8
@@ -72,16 +71,15 @@ fn main() {
             let config_window = app.get_window("config").unwrap();
             config_window.hide().unwrap();
 
-            let config_file_path = app
+            let _config_directory_path = app
                 .path_resolver()
                 .app_config_dir()
                 .unwrap()
-                .join("config.json")
                 .to_str()
                 .unwrap()
                 .to_string();
 
-            tauri::async_runtime::spawn(ws::start_server(config_file_path));
+            tauri::async_runtime::spawn(ws::start_server(_config_directory_path));
 
             Ok(())
         })

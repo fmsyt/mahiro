@@ -1,10 +1,32 @@
+
+use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+
+
 use futures_util::{StreamExt, SinkExt};
 use tokio_tungstenite::{accept_async, tungstenite::Message};
 use tokio::net::{TcpListener, TcpStream};
 
-use crate::control::{Control, Sheet, self};
+// union ReceivedMessageDataUnion {
+//     method: String,
+//     data: ReceivedEmitMessage,
+// }
 
-pub async fn start_server(config_file_path: String) {
+#[derive(Serialize, Deserialize, Debug)]
+struct ReceivedMessage {
+    method: String,
+    data: Option<ReceivedEmitMessage>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ReceivedEmitMessage {
+    control_id: String,
+    event_name: String,
+    data: Option<HashMap<String, String>>,
+}
+
+pub async fn start_server(_config_directory_path: String) {
     let addr: String = "0.0.0.0:8080".to_string();
     println!("Listening on: {}", addr);
 
@@ -13,14 +35,11 @@ pub async fn start_server(config_file_path: String) {
 
 
     while let Ok((stream, _)) = listener.accept().await {
-        let controls: Vec<Control> = control::load_controls(config_file_path.clone());
-        let sheets: Vec<Sheet> = control::load_sheets(config_file_path.clone());
-
-        tokio::spawn(handle_client(stream, controls, sheets));
+        tokio::spawn(handle_client(stream));
     }
 }
 
-async fn handle_client(stream: TcpStream, _: Vec<Control>, _: Vec<Sheet>) {
+async fn handle_client(stream: TcpStream) {
     let ws_stream: tokio_tungstenite::WebSocketStream<TcpStream> = accept_async(stream).await.expect("Failed to accept");
 
     let (mut write, mut read) = ws_stream.split();
@@ -38,6 +57,11 @@ async fn handle_client(stream: TcpStream, _: Vec<Control>, _: Vec<Sheet>) {
                     eprintln!("Failed to send response: {}", e);
                     break;
                 }
+
+
+                let message: ReceivedMessage = serde_json::from_str(&text).expect("Failed to parse config on load_sheets");
+                println!("message: {:?}", message);
+
             }
             Ok(_) => {
                 // テキスト以外のメッセージは無視する（オプション）
