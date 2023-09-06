@@ -58,18 +58,38 @@ async fn handle_client(stream: TcpStream) {
                     break;
                 }
 
+                match serde_json::from_str::<ReceivedMessage>(&text) {
+                    Ok(message) => {
+                        println!("message: {:?}", message);
 
-                let message: ReceivedMessage = serde_json::from_str(&text).expect("Failed to parse config on load_sheets");
-                println!("message: {:?}", message);
+                        match message.method.as_str() {
+                            "emit" => {
+                                match message.data {
+                                    Some(data) => {
+                                        println!("data: {:?}", data);
 
-                match message.method.as_str() {
-                    "emit" => {
-                        let data: ReceivedEmitMessage = message.data.expect("Failed to parse config on load_sheets");
-                        println!("data: {:?}", data);
+                                        match base64::decode(data.control_id) {
+                                            Ok(control_file_path) => {
+                                                println!("control_id: {:?}", control_file_path);
+                                            }
+                                            Err(e) => {
+                                                eprintln!("Warn: {}", e);
+                                            }
+                                        }
+
+                                    }
+                                    None => {
+                                        eprintln!("Warn: Invalid emit message")
+                                    }
+                                }
+                            }
+                            _ => {}
+                        }
                     }
-                    _ => {}
+                    Err(e) => {
+                        eprintln!("Warn: {}", e);
+                    }
                 }
-
             }
             Ok(_) => {
                 // テキスト以外のメッセージは無視する（オプション）
