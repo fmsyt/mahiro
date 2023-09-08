@@ -1,5 +1,5 @@
 
-use std::collections::HashMap;
+use std::{collections::HashMap};
 
 use serde::{Deserialize, Serialize};
 
@@ -47,59 +47,49 @@ async fn handle_client(stream: TcpStream) {
     while let Some(message) = read.next().await {
         println!("Received a message: {:?}", message);
 
-        match message {
-            Ok(Message::Text(text)) => {
-                // メッセージを加工（大文字に変換）する例
-                let response_text = text.to_uppercase();
-
-                // 加工されたメッセージをクライアントに送信
-                if let Err(e) = write.send(Message::Text(response_text)).await {
-                    eprintln!("Failed to send response: {}", e);
-                    break;
-                }
-
-                match serde_json::from_str::<ReceivedMessage>(&text) {
-                    Ok(message) => {
-                        println!("message: {:?}", message);
-
-                        match message.method.as_str() {
-                            "emit" => {
-                                match message.data {
-                                    Some(data) => {
-                                        println!("data: {:?}", data);
-
-                                        match base64::decode(data.control_id) {
-                                            Ok(control_file_path) => {
-                                                println!("control_id: {:?}", control_file_path);
-                                            }
-                                            Err(e) => {
-                                                eprintln!("Warn: {}", e);
-                                            }
-                                        }
-
-                                    }
-                                    None => {
-                                        eprintln!("Warn: Invalid emit message")
-                                    }
-                                }
-                            }
-                            _ => {}
-                        }
-                    }
-                    Err(e) => {
-                        eprintln!("Warn: {}", e);
-                    }
-                }
-            }
-            Ok(_) => {
-                // テキスト以外のメッセージは無視する（オプション）
-            }
-            Err(e) => {
-                eprintln!("Error while handling message: {}", e);
-                break;
-            }
+        if let Err(e) = message {
+            eprintln!("Error during receive: {}", e);
+            break;
         }
 
+        if let Ok(Message::Text(text)) = message {
+
+            if text == "" {
+                continue;
+            }
+
+            println!("Received a text message: {:?}", text);
+
+            // メッセージを加工（大文字に変換）する例
+            let response_text = text.to_uppercase();
+
+            // 加工されたメッセージをクライアントに送信
+            if let Err(e) = write.send(Message::Text(response_text)).await {
+                eprintln!("Failed to send response: {}", e);
+            }
+
+            if let Ok(message) = serde_json::from_str::<ReceivedMessage>(&text) {
+                println!("message: {:?}", message);
+
+                match message.method.as_str() {
+                    "emit" => {
+
+                        if let Some(data) = message.data {
+                            println!("data: {:?}", data);
+
+                            if let Ok(control_file_path) = base64::decode(data.control_id) {
+                                println!("control_id: {:?}", control_file_path);
+                            }
+
+                        } else {
+                            eprintln!("Warn: Invalid emit message")
+                        }
+
+                    }
+                    _ => {}
+                }
+            }
+        }
     }
 
 }

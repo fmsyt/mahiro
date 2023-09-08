@@ -3,27 +3,26 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Control {
-    id: String,
-    r#type: String,
-    style: Option<String>,
-    label: String,
-    disabled: bool,
-    default: String,
-    props: HashMap<String, String>,
-    platform: Option<String>,
-
-    url: Option<String>,
-    command: Option<String>,
-    commands: Option<Vec<String>>,
-    hotkey: Option<String>,
-    hotkeys: Option<Vec<String>>,
-    sync: Option<bool>,
+    pub id: String,
+    pub r#type: String,
+    pub style: Option<String>,
+    pub label: String,
+    pub disabled: bool,
+    pub default: String,
+    pub props: HashMap<String, String>,
+    pub platform: Option<String>,
+    pub url: Option<String>,
+    pub command: Option<String>,
+    pub commands: Option<Vec<String>>,
+    pub hotkey: Option<String>,
+    pub hotkeys: Option<Vec<String>>,
+    pub sync: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Sheet {
-    columns: u32,
-    items: Vec<Control>,
+    pub columns: u32,
+    pub items: Vec<Control>,
 }
 
 pub fn load_controls(path: String) -> Vec<Control> {
@@ -80,16 +79,20 @@ impl ConfigFile for Sheet {
 }
 
 impl ConfigFile for Control {
-    fn load(&self, path: String) -> Control {
+    fn load(&self, path: String) -> Result<Control, String> {
         let config = std::fs::read_to_string(path);
         let control: Control = serde_json::from_str(&config).expect("Failed to parse config on load_controls");
 
-        control
+        Ok(control)
     }
 }
 
 pub trait Controller {
-    fn emit(&self, control: Control) {
-        println!("emit: {:?}", control);
+    fn emit(&self) -> Result<(), String>;
+}
+
+impl Controller for Control {
+    fn emit(&self) -> Result<(), String> {
+        Ok(())
     }
 }
