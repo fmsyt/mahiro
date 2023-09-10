@@ -1,7 +1,7 @@
 import { memo, useCallback, useContext, useMemo, useState } from "react";
 import { pageProps } from "./interface";
 
-import { Box, Button, CircularProgress, Pagination, Stack } from "@mui/material";
+import { Box, Button, CircularProgress, Pagination, Stack, Typography } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
 import { AppContext } from "./AppContext";
@@ -24,7 +24,8 @@ const Board = memo(() => {
 
   return !webSocket?.readyState || webSocket?.readyState === WebSocket.CONNECTING
   ? (
-    <Stack alignItems="center" justifyContent="center" height="80vh">
+    <Stack alignItems="center" justifyContent="center" gap={2} height="80vh">
+      <Typography variant="body1">Connecting...</Typography>
       <CircularProgress />
     </Stack>
   ) : webSocket?.readyState === WebSocket.OPEN ? (

@@ -9,6 +9,7 @@ import { createWebSocket, defaultWebSocketConditions, webSocketConditionsTypes }
 
 interface AppContextProps {
   webSocket: WebSocket | null,
+  wsState: WebSocket["readyState"] | null,
   wsCloseCode: CloseEvent["code"] | null,
   reConnect: () => void,
   pages: pageProps[],
@@ -21,6 +22,7 @@ interface AppContextProps {
 
 const AppContext = React.createContext<AppContextProps>({
   webSocket: null,
+  wsState: null,
   wsCloseCode: null,
   wsConditions: defaultWebSocketConditions,
   reConnect: () => {},
@@ -61,11 +63,14 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
   const [open, setOpen] = React.useState(false);
   const [pages, setPages] = React.useState<pageProps[]>([]);
 
+  const [wsState, setWsState] = React.useState<WebSocket["readyState"] | null>(null);
+
   const [webSocket, reConnect] = React.useMemo(() => {
 
     const webSocket = createWebSocket(wsConditions);
 
     const handleOpen = () => {
+      setWsState(webSocket.OPEN);
       updateGeneral(webSocket);
       updateSheets(webSocket);
     }
@@ -114,6 +119,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
   return (
     <AppContext.Provider value={{
         webSocket,
+
         wsCloseCode,
         wsConditions,
         reConnect,

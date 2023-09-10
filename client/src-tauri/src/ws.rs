@@ -39,14 +39,6 @@ async fn handle_client(stream: TcpStream, client_state: ClientState) {
 
             println!("Received a text message: {:?}", text);
 
-            // メッセージを加工（大文字に変換）する例
-            let response_text = text.to_uppercase();
-
-            // 加工されたメッセージをクライアントに送信
-            if let Err(e) = write.send(Message::Text(response_text)).await {
-                eprintln!("Failed to send response: {}", e);
-            }
-
             if let Ok(message) = serde_json::from_str::<ReceivedMessage>(&text) {
                 println!("message: {:?}", message);
 
