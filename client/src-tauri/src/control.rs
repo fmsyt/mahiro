@@ -1,6 +1,18 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
+// pub enum ControlType {
+//     Command(String),
+//     Browser(String),
+//     Hotkey(String),
+// }
+
+// pub enum ControlPlatform {
+//     Windows(String),
+//     Macos(String),
+//     Linux(String),
+// }
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Control {
     pub id: String,
@@ -19,80 +31,35 @@ pub struct Control {
     pub sync: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+
+
+// pub enum SheetItemType {
+//     Button(String),
+//     Slider(String),
+//     Empty(String),
+// }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SheetItem {
+    pub control_id: String,
+    pub label: Option<String>,
+    pub r#type: Option<String>,
+}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Sheet {
     pub columns: u32,
-    pub items: Vec<Control>,
+    pub items: Vec<SheetItem>,
 }
 
-pub fn load_controls(path: String) -> Vec<Control> {
-
-    let config = std::fs::read_to_string(path);
-
-    match config {
-        Ok(config) => {
-            let controls: Vec<Control> = serde_json::from_str(&config).expect("Failed to parse config on load_controls");
-            controls
-        }
-        Err(e) => {
-            println!("Error: {}", e);
-            vec![]
-        }
-    }
+pub trait EmitHandler {
+    fn emit(&self, event_name: String) -> Result<(), String>;
 }
 
-pub fn load_sheets(path: String) -> Vec<Sheet> {
-
-    let config = std::fs::read_to_string(path);
-
-    match config {
-        Ok(config) => {
-            let sheets: Vec<Sheet> = serde_json::from_str(&config).expect("Failed to parse config on load_sheets");
-            sheets
-        }
-        Err(e) => {
-            println!("Error: {}", e);
-            vec![]
-        }
-    }
-}
-
-trait ConfigFile<T> {
-    fn load(&self, path: String) -> T;
-}
-
-impl ConfigFile for Sheet {
-    fn load(&self, path: String) -> Sheet {
-        let config = std::fs::read_to_string(path);
-
-        match config {
-            Ok(config) => {
-                let sheets: Vec<Sheet> = serde_json::from_str(&config).expect("Failed to parse config on load_sheets");
-                sheets
-            }
-            Err(e) => {
-                println!("Error: {}", e);
-                vec![]
-            }
-        }
-    }
-}
-
-impl ConfigFile for Control {
-    fn load(&self, path: String) -> Result<Control, String> {
-        let config = std::fs::read_to_string(path);
-        let control: Control = serde_json::from_str(&config).expect("Failed to parse config on load_controls");
-
-        Ok(control)
-    }
-}
-
-pub trait Controller {
-    fn emit(&self) -> Result<(), String>;
-}
-
-impl Controller for Control {
-    fn emit(&self) -> Result<(), String> {
+impl EmitHandler for Control {
+    fn emit(&self, event_name: String) -> Result<(), String> {
+        println!("emit: {:?}", event_name);
         Ok(())
     }
 }

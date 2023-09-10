@@ -6,6 +6,8 @@ use tauri::{
 };
 
 mod ws;
+mod client;
+mod control;
 
 // reference: https://qiita.com/namn1125/items/8ed4d91d3d00af8750f8
 
@@ -64,7 +66,7 @@ fn main() {
         .on_menu_event(handle_menu)
         .system_tray(create_systemtray())
         .on_system_tray_event(handle_systemtray)
-        .setup(|app| {
+        .setup(|app: &mut tauri::App| {
             let window = app.get_window("main").unwrap();
             window.show().unwrap();
 
