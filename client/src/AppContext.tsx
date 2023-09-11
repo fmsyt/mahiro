@@ -1,5 +1,5 @@
 import React from "react";
-import { pageProps } from "./interface";
+import { isTypeOfPageProps, pageProps } from "./interface";
 import { Alert, Snackbar, createTheme, ThemeProvider, useMediaQuery } from "@mui/material";
 import { updateGeneral, updateSheets } from "./functions";
 import { createWebSocket, defaultWebSocketConditions, webSocketConditionsTypes } from "./webSocket";
@@ -9,7 +9,7 @@ interface AppContextProps {
   webSocket: WebSocket | null,
   wsCloseCode: CloseEvent["code"] | null,
   reConnect: () => void,
-  pages: pageProps[],
+  pages: pageProps[] | null,
   wsConditions: webSocketConditionsTypes,
   themeMode: "light" | "dark" | "system",
   setThemeMode: (themeMode: "light" | "dark" | "system") => void,
@@ -22,7 +22,7 @@ const AppContext = React.createContext<AppContextProps>({
   wsCloseCode: null,
   wsConditions: defaultWebSocketConditions,
   reConnect: () => {},
-  pages: [],
+  pages: null,
   themeMode: "system",
   setThemeMode: () => {},
   setWebSocketConditions: () => {},
@@ -57,7 +57,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
   const [wsCloseCode, setWsCloseCode] = React.useState<CloseEvent["code"] | null>(null);
 
   const [open, setOpen] = React.useState(false);
-  const [pages, setPages] = React.useState<pageProps[]>([]);
+  const [pages, setPages] = React.useState<pageProps[] | null>(null);
 
   const [webSocket, reConnect] = React.useMemo(() => {
 
@@ -72,7 +72,6 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
       try {
         const obj = JSON.parse(event.data);
-        console.debug(obj);
 
         switch (obj?.method) {
           default: break;
@@ -82,7 +81,11 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
             break;
 
           case "sheets.update":
-            setPages(obj?.data);
+            if (Array.isArray(obj?.data)) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const receivedPages = obj.data as Array<any>;
+              receivedPages.every(isTypeOfPageProps) && setPages(receivedPages);
+            }
             break;
         }
       }

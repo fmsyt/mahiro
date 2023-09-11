@@ -2,7 +2,7 @@ use futures_util::{StreamExt, SinkExt};
 use tokio_tungstenite::{accept_async, tungstenite::Message};
 use tokio::net::{TcpListener, TcpStream};
 
-use crate::client::{ReceivedMessage, load_state, State as ClientState, SendWebSocketClientMessage};
+use crate::client::{ReceivedMessage, load_state, State as ClientState, SendWebSocketClientMessage, ReceiveWebSocketClientMessage};
 
 pub async fn start_server(_config_directory_path: String) {
     let addr: String = "0.0.0.0:8080".to_string();
@@ -43,10 +43,8 @@ async fn handle_client(stream: TcpStream, client_state: ClientState) {
                     "emit" => {
 
                         if let Some(data) = message.data {
-                            println!("data: {:?}", data);
-
-                            if let Ok(control_file_path) = base64::decode(data.control_id) {
-                                println!("control_id: {:?}", control_file_path);
+                            if let Err(e) = client_state.emit(data.action, data.event) {
+                                eprintln!("Error: {}", e);
                             }
 
                         } else {
@@ -55,7 +53,6 @@ async fn handle_client(stream: TcpStream, client_state: ClientState) {
 
                     }
                     "general.update" => {
-                        println!("general.update");
                     }
                     "sheets.update" => {
                         println!("sheets.update");

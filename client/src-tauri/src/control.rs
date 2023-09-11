@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path, process::Command, fmt::format};
 use serde::{Deserialize, Serialize};
 
-// pub enum ControlType {
-//     Command(String),
-//     Browser(String),
-//     Hotkey(String),
-// }
+pub enum ControlType {
+    Command(String),
+    Browser(String),
+    Hotkey(String),
+}
 
 // pub enum ControlPlatform {
 //     Windows(String),
@@ -77,8 +77,104 @@ pub trait EmitHandler {
 }
 
 impl EmitHandler for Control {
-    fn emit(&self, event_name: String) -> Result<(), String> {
-        println!("emit: {:?}", event_name);
+    fn emit(&self, _event: String) -> Result<(), String> {
+
+        match self.r#type.as_str() {
+            "command" => {
+                if let Some(command) = &self.command {
+                    println!("command: {}", command);
+                    if let Err(e) = Command::new(command).spawn() {
+                        eprintln!("Error: {}", e);
+                    }
+
+                } else if let Some(commands) = &self.commands {
+                    println!("commands: {:?}", commands);
+                    let first = commands.first();
+                    let args = &commands[1..];
+
+                    if let Err(e) = Command::new(first.unwrap()).args(args).spawn() {
+                        eprintln!("Error: {}", e);
+                    }
+
+                } else {
+                    eprintln!("Error: Invalid command control: {}", self.id);
+                }
+            }
+            "browser" => {
+                println!("browser");
+                if let Some(url) = &self.url {
+                    println!("url: {}", url);
+                    if let Err(e) = Command::new("cmd.exe").args(["/c", "start", url]).spawn() {
+                        eprintln!("Error: {}", e);
+                    }
+                } else {
+                    eprintln!("Error: Invalid browser control: {}", self.id);
+                }
+            }
+            "hotkey" => {
+                println!("hotkey");
+            }
+            "keyboard" => {
+                println!("keyboard");
+            }
+            _ => {
+                eprintln!("Error: Invalid control type: {}", self.r#type)
+            }
+        }
+
         Ok(())
     }
+}
+
+
+
+
+
+pub fn get_control_list(config_dir: String) -> Vec<Control> {
+    let control_file_path_str = format!("{}{}{}", config_dir, path::MAIN_SEPARATOR, "controls.json");
+
+    let control_config = std::fs::read_to_string(control_file_path_str.clone());
+    let controls: Vec<Control> = match control_config {
+        Ok(config) => {
+            let c: Result<Vec<Control>, serde_json::Error> = serde_json::from_str(&config);
+            match c {
+                Ok(controls) => controls,
+                Err(e) => {
+                    println!("Error: {}: {}", e, control_file_path_str);
+                    vec![]
+                }
+            }
+        }
+        Err(e) => {
+            println!("Error: {}: {}", e, control_file_path_str);
+            vec![]
+        }
+    };
+
+    controls
+}
+
+
+pub fn get_sheet_list(config_dir: String) -> Vec<Sheet> {
+    let sheet_file_path_str = format!("{}{}{}", config_dir, path::MAIN_SEPARATOR, "sheets.json");
+
+    let sheet_config = std::fs::read_to_string(sheet_file_path_str.clone());
+    let sheets: Vec<Sheet> = match sheet_config {
+        Ok(config) => {
+            let s: Result<Vec<Sheet>, serde_json::Error> = serde_json::from_str(&config);
+            match s {
+                Ok(sheets) => sheets,
+                Err(e) => {
+                    println!("Error: {}: {}", e, sheet_file_path_str);
+                    vec![]
+                }
+            }
+        }
+        Err(e) => {
+            println!("Error: {}: {}", e, sheet_file_path_str);
+            vec![]
+        }
+    };
+
+    sheets
 }

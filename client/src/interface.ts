@@ -1,15 +1,14 @@
 export interface controlProps {
-  id: string
-  label: string
-  icon: string
-
-  style: "button" | "slider" | "empty"
-  current?: number | string
+  style: "button" | "slider" | "empty";
+  control_id?: string | null;
+  label?: string | null;
+  icon?: string | null;
+  default?: number | string | boolean | null;
   props?: {
-    [key: string]: number | string | boolean | null
+    [key: string]: number | string | boolean | null;
   }
-  disabled?: boolean
-  [key: string]: unknown
+  disabled?: boolean | null;
+  [key: string]: unknown;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,12 +17,15 @@ export function isTypeOfControlProps(data: any): data is controlProps {
     return false;
   }
 
-  return typeof data.id === "number"
-    && typeof data.label === "string"
-    && typeof data.icon === "string"
-    && ["button", "slider"].includes(data.style)
-    && (typeof data.current === "undefined" || typeof data.current === "string")
-    ;
+  const styleIsValid = data.style === "button" || data.style === "slider" || data.style === "empty";
+  const controlIdIsValid = typeof data.control_id === "string" || data.control_id == null;
+  const labelIsValid = typeof data.label === "string" || data.label == null;
+  const iconIsValid = typeof data.icon === "string" || data.icon == null;
+  const defaultIsValid = typeof data.default === "number" || typeof data.default === "string" || typeof data.default === "boolean" || data.default == null;
+  const propsIsValid = typeof data.props === "object" || data.props == null;
+  const disabledIsValid = typeof data.disabled === "boolean" || data.disabled == null;
+
+  return styleIsValid && controlIdIsValid && labelIsValid && iconIsValid && defaultIsValid && propsIsValid && disabledIsValid;
 }
 
 export interface pageProps {
@@ -35,6 +37,7 @@ export interface pageProps {
 export function isTypeOfPageProps(data: any): data is pageProps {
 
   if (typeof data !== "object") {
+    console.debug("data is not object");
     return false;
   }
 
@@ -42,10 +45,12 @@ export function isTypeOfPageProps(data: any): data is pageProps {
     && typeof data.items === "object" && Array.isArray(data.items)
 
   if (!passed) {
+    console.debug("data is not pageProps");
     return false;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const items = data.items as Array<any>;
-  return items.every((item) => isTypeOfControlProps(item));
+  const allPassed = items.every(isTypeOfControlProps);
+  return allPassed;
 }

@@ -81,7 +81,7 @@ const Slider = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
         {/* <VolumeDown /> */}
         <BoldSlider
           aria-label="Volume"
-          defaultValue={Number(controlProps.current || 0)}
+          defaultValue={Number(controlProps.default || 0)}
           disabled={disabled}
           orientation="vertical"
           sx={{ width: "100%", height: "100%" }}

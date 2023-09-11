@@ -8,7 +8,6 @@ import { AppContext } from "./AppContext";
 import { Control } from "./Control";
 import { useSearchParams } from "react-router-dom";
 
-import Connection from "./Connection";
 import "./board.css"
 
 const Board = memo(() => {
@@ -22,13 +21,13 @@ const Board = memo(() => {
 
   const [isEditMode] = useState(false);
 
-  return !webSocket?.readyState || webSocket?.readyState === WebSocket.CONNECTING
+  return !webSocket || !pages
   ? (
     <Stack alignItems="center" justifyContent="center" gap={2} height="80vh">
       <Typography variant="body1">Connecting...</Typography>
       <CircularProgress />
     </Stack>
-  ) : webSocket?.readyState === WebSocket.OPEN ? (
+  ) : (
     <Box sx={{ display: "grid", gap: 2, gridTemplateRows: "1fr 32px", height: "100%" }}>
       {pages.length > 0 && (
         <Page webSocket={webSocket} isEditMode={isEditMode} {...pages[page - 1]} />
@@ -45,8 +44,6 @@ const Board = memo(() => {
         </Stack>
       )}
     </Box>
-  ) : (
-    <Connection />
   )
 })
 

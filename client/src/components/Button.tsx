@@ -20,7 +20,7 @@ const Button = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
     }
 
     return {
-      onMouseUp: () => emit(ws, { action: controlProps.id, event: Events.keyUp }),
+      onMouseUp: () => emit(ws, { action: controlProps.control_id || "", event: Events.keyUp }),
     }
 
   }, [ws, controlProps, disabled]);
