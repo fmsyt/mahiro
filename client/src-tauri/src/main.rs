@@ -75,11 +75,13 @@ fn main() {
 
             let _config_directory_path = app
                 .path_resolver()
-                .app_config_dir()
+                .app_local_data_dir()
                 .unwrap()
                 .to_str()
                 .unwrap()
                 .to_string();
+
+            println!("config_directory_path: {:?}", _config_directory_path.clone());
 
             tauri::async_runtime::spawn(ws::start_server(_config_directory_path));
 

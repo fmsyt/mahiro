@@ -82,7 +82,16 @@ pub fn load_state(config_dir: String) -> State {
 
     let sheet_config = std::fs::read_to_string(sheet_file_path_str.clone());
     let sheets: Vec<Sheet> = match sheet_config {
-        Ok(config) => serde_json::from_str(&config).expect("Failed to parse config on load_sheets"),
+        Ok(config) => {
+            let s: Result<Vec<Sheet>, serde_json::Error> = serde_json::from_str(&config);
+            match s {
+                Ok(sheets) => sheets,
+                Err(e) => {
+                    println!("Error: {}: {}", e, sheet_file_path_str);
+                    vec![]
+                }
+            }
+        }
         Err(e) => {
             println!("Error: {}: {}", e, sheet_file_path_str);
             vec![]
@@ -94,7 +103,16 @@ pub fn load_state(config_dir: String) -> State {
 
     let control_config = std::fs::read_to_string(control_file_path_str.clone());
     let controls: Vec<Control> = match control_config {
-        Ok(config) => serde_json::from_str(&config).expect("Failed to parse config on load_controls"),
+        Ok(config) => {
+            let c: Result<Vec<Control>, serde_json::Error> = serde_json::from_str(&config);
+            match c {
+                Ok(controls) => controls,
+                Err(e) => {
+                    println!("Error: {}: {}", e, control_file_path_str);
+                    vec![]
+                }
+            }
+        }
         Err(e) => {
             println!("Error: {}: {}", e, control_file_path_str);
             vec![]

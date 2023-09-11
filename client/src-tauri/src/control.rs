@@ -18,9 +18,9 @@ pub struct Control {
     pub id: String,
     pub r#type: String,
     pub style: Option<String>,
-    pub label: String,
-    pub disabled: bool,
-    pub default: String,
+    pub label: Option<String>,
+    pub disabled: Option<bool>,
+    pub default: Option<String>,
     pub props: HashMap<String, String>,
     pub platform: Option<String>,
     pub url: Option<String>,
@@ -42,14 +42,14 @@ pub struct Control {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SheetItem {
     pub control_id: String,
-    pub label: Option<String>,
-    pub r#type: Option<String>,
+    pub label: String,
+    pub r#type: String,
 }
 
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Sheet {
-    pub columns: u32,
+    pub columns: i32,
     pub items: Vec<SheetItem>,
 }
 
