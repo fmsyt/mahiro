@@ -57,15 +57,15 @@ class SheetItem:
 
 @dataclass
 class Sheet:
-    def __init__(self, columns: int, controls: list[SheetItem] = []) -> None:
+    def __init__(self, columns: int, items: list[SheetItem] = []) -> None:
         self.columns = columns
-        self.controls = controls
+        self.items = items
 
 class Control:
     def __init__(
             self,
             action_type: str,
-            control_id: str | None = None,
+            id: str | None = None,
             style: str = "empty",
             platform: str | list[str] | None = None,
             props: dict | None = None,
@@ -75,7 +75,7 @@ class Control:
 
         self.kwargs = kwargs
 
-        self.control_id = control_id
+        self.id = kwargs["id"] if "id" in kwargs else id
         self.action_type = action_type
         self.style = style
         self.props = props
@@ -93,7 +93,7 @@ class Control:
 
     def to_sheet_item(self, label: str):
         return SheetItem(
-            control_id=self.control_id,
+            id=self.id,
             label=label,
             style=self.style,
             disabled=self.disabled,
@@ -160,11 +160,11 @@ class Control:
 
 class EmptyControl(Control):
     def __init__(self, style: str = "empty", **kwargs) -> None:
-        super().__init__(control_id=None, action_type="empty", style=style, **kwargs)
+        super().__init__(id=None, action_type="empty", style=style, **kwargs)
 
 class CommandControl(Control):
-    def __init__(self, control_id: str, command: str | list[str], style: str = "button", sync: bool = True, **kwargs) -> None:
-        super().__init__(control_id=control_id, action_type="command", style=style, **kwargs)
+    def __init__(self, id: str, command: str | list[str], style: str = "button", sync: bool = True, **kwargs) -> None:
+        super().__init__(id=id, action_type="command", style=style, **kwargs)
 
         self.command = command
         self.sync = sync
@@ -188,8 +188,8 @@ class CommandControl(Control):
 
 
 class BrowserControl(Control):
-    def __init__(self, control_id: str, url: str, style: str = "button", **kwargs) -> None:
-        super().__init__(control_id=control_id, action_type="browser", style=style, **kwargs)
+    def __init__(self, id: str, url: str, style: str = "button", **kwargs) -> None:
+        super().__init__(id=id, action_type="browser", style=style, **kwargs)
 
         self.url = url
 
@@ -207,8 +207,8 @@ class KeyState:
 _keyboard = KeyboardController()
 
 class KeyboardControl(Control):
-    def __init__(self, control_id: str, text: str, style: str = "button", **kwargs) -> None:
-        super().__init__(control_id=control_id, action_type="keyboard", style=style, **kwargs)
+    def __init__(self, id: str, text: str, style: str = "button", **kwargs) -> None:
+        super().__init__(id=id, action_type="keyboard", style=style, **kwargs)
 
         self.text = text
 
@@ -216,8 +216,8 @@ class KeyboardControl(Control):
         _keyboard.type(self.text)
 
 class HotKeyControl(Control):
-    def __init__(self, control_id: str, hotkey: str, style: str = "button", **kwargs) -> None:
-        super().__init__(control_id=control_id, action_type="hotkey", style=style, **kwargs)
+    def __init__(self, id: str, hotkey: str, style: str = "button", **kwargs) -> None:
+        super().__init__(id=id, action_type="hotkey", style=style, **kwargs)
 
         self.hotkey = hotkey
 
@@ -311,7 +311,7 @@ class Controller:
         if control_id is None:
             return EmptyControl()
 
-        control = next(filter(lambda control: control.control_id == control_id, self.controls), EmptyControl()) # type: ignore
+        control = next(filter(lambda control: control.id == control_id, self.controls), EmptyControl()) # type: ignore
         return control
 
     async def emit(self, control_id: str, event_name: str, data: dict | None = None):
@@ -324,11 +324,11 @@ class Controller:
 
     def sheets_json(self):
 
-        sheets = list(map(lambda sheet: Sheet(columns=sheet["columns"], controls=list(map(lambda sheet_control: self.get_control(sheet_control["control_id"] if "control_id" in sheet_control else None).to_sheet_item(sheet_control["label"] if "label" in sheet_control else None), sheet["items"]))), self.sheets_raw)) # type: ignore
+        sheets = list(map(lambda sheet: Sheet(columns=sheet["columns"], items=list(map(lambda sheet_control: self.get_control(sheet_control["control_id"] if "control_id" in sheet_control else None).to_sheet_item(sheet_control["label"] if "label" in sheet_control else None), sheet["items"]))), self.sheets_raw)) # type: ignore
 
         result = list(map(lambda sheet: dict(
             columns=sheet.columns,
-            controls=list(map(lambda item: None if item is None else item.__dict__, sheet.controls))
+            items=list(map(lambda item: None if item is None else item.__dict__, sheet.items))
         ), sheets))
 
         return result
