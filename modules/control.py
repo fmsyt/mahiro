@@ -324,7 +324,7 @@ class Controller:
 
     def sheets_json(self):
 
-        sheets = list(map(lambda sheet: Sheet(columns=sheet["columns"], controls=list(map(lambda sheet_control: self.get_control(sheet_control["control_id"] if "control_id" in sheet_control else None).to_sheet_item(sheet_control["label"] if "label" in sheet_control else None), sheet["controls"]))), self.sheets_raw)) # type: ignore
+        sheets = list(map(lambda sheet: Sheet(columns=sheet["columns"], controls=list(map(lambda sheet_control: self.get_control(sheet_control["control_id"] if "control_id" in sheet_control else None).to_sheet_item(sheet_control["label"] if "label" in sheet_control else None), sheet["items"]))), self.sheets_raw)) # type: ignore
 
         result = list(map(lambda sheet: dict(
             columns=sheet.columns,

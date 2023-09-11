@@ -57,7 +57,7 @@ interface PageProps extends pageProps {
 
 const Page = (props: PageProps) => {
 
-  const { controls, webSocket, columns, isEditMode } = props;
+  const { items: controls, webSocket, columns, isEditMode } = props;
 
   const gridTemplateColumns = useMemo(() => `repeat(${columns}, 1fr)`, [columns]);
   const gridTemplateRows = useMemo(() => `repeat(${Math.ceil(controls.length / columns)}, 1fr)`, [controls, columns]);

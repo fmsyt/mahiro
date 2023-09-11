@@ -37,10 +37,7 @@ async fn handle_client(stream: TcpStream, client_state: ClientState) {
                 continue;
             }
 
-            println!("Received a text message: {:?}", text);
-
             if let Ok(message) = serde_json::from_str::<ReceivedMessage>(&text) {
-                println!("message: {:?}", message);
 
                 match message.method.as_str() {
                     "emit" => {

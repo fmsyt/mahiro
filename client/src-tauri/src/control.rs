@@ -14,14 +14,33 @@ use serde::{Deserialize, Serialize};
 // }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub enum ControlPropsType {
+    Number(i32),
+    String(String),
+}
+
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum ControlDefaultValueType {
+    Number(i32),
+    String(String),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ControlDefault {
+    pub command: Option<String>,
+    pub value: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Control {
     pub id: String,
     pub r#type: String,
     pub style: Option<String>,
     pub label: Option<String>,
     pub disabled: Option<bool>,
-    pub default: Option<String>,
-    pub props: HashMap<String, String>,
+    pub default: Option<ControlDefault>,
+    pub props: Option<HashMap<String, i32>>,
     pub platform: Option<String>,
     pub url: Option<String>,
     pub command: Option<String>,

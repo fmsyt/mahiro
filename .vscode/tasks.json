@@ -34,6 +34,31 @@
 				"kind": "build",
 				"isDefault": true
 			}
-		}
+		},
+		{
+      "label": "ui:dev",
+      "type": "shell",
+      "isBackground": true,
+      "command": "npm",
+      "args": [
+				"run",
+				"tauri:dev",
+				"--prefix",
+				"${workspaceFolder}/client"
+			],
+			"problemMatcher": []
+    },
+    {
+      "label": "ui:build",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+				"run",
+				"tauri:build",
+				"--prefix",
+				"${workspaceFolder}/client"
+			],
+			"problemMatcher": []
+    }
 	]
 }

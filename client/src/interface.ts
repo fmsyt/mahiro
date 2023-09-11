@@ -9,9 +9,10 @@ export interface controlProps {
     [key: string]: number | string | boolean | null
   }
   disabled?: boolean
-  [key: string]: any
+  [key: string]: unknown
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isTypeOfControlProps(data: any): data is controlProps {
   if (typeof data !== "object") {
     return false;
@@ -27,16 +28,24 @@ export function isTypeOfControlProps(data: any): data is controlProps {
 
 export interface pageProps {
   columns: number
-  controls: controlProps[]
+  items: controlProps[]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isTypeOfPageProps(data: any): data is pageProps {
 
   if (typeof data !== "object") {
     return false;
   }
 
-  return typeof data.columns === "number"
-    && Array.isArray(data.controls) && data.controls.findIndex((row: any) => !isTypeOfControlProps(row)) === -1
-    ;
+  const passed = typeof data.columns === "number"
+    && typeof data.items === "object" && Array.isArray(data.items)
+
+  if (!passed) {
+    return false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const items = data.items as Array<any>;
+  return items.every((item) => isTypeOfControlProps(item));
 }
