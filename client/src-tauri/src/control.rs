@@ -41,8 +41,8 @@ pub struct Control {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SheetItem {
-    pub control_id: String,
-    pub label: String,
+    pub control_id: Option<String>,
+    pub label: Option<String>,
     pub r#type: String,
 }
 
