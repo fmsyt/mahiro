@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path, process::Command, fmt::format};
+use std::{collections::HashMap, path, process::Command, env, io};
 use serde::{Deserialize, Serialize};
 
 pub enum ControlType {
@@ -103,10 +103,28 @@ impl EmitHandler for Control {
             "browser" => {
                 println!("browser");
                 if let Some(url) = &self.url {
+
+                    let command_result = match env::consts::OS {
+                        "windows" => {
+                            Command::new("cmd.exe").args(["/c", "start", url]).spawn()
+                        }
+                        "macos" => {
+                            Command::new("open").args([url]).spawn()
+                        }
+                        "linux" => {
+                            Command::new("xdg-open").args([url]).spawn()
+                        }
+                        _ => {
+                            eprintln!("Error: Unsupported platform: {}", env::consts::OS);
+                            Err(io::Error::new(io::ErrorKind::Other, "Unsupported platform"))
+                        }
+                    };
+
                     println!("url: {}", url);
-                    if let Err(e) = Command::new("cmd.exe").args(["/c", "start", url]).spawn() {
+                    if let Err(e) = command_result {
                         eprintln!("Error: {}", e);
                     }
+
                 } else {
                     eprintln!("Error: Invalid browser control: {}", self.id);
                 }
