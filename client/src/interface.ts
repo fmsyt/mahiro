@@ -8,7 +8,9 @@ export interface controlProps {
     [key: string]: number | string | boolean | null;
   }
   disabled?: boolean | null;
-  [key: string]: unknown;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,5 +54,6 @@ export function isTypeOfPageProps(data: any): data is pageProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const items = data.items as Array<any>;
   const allPassed = items.every(isTypeOfControlProps);
+
   return allPassed;
 }

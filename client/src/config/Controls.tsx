@@ -21,6 +21,7 @@ interface Control {
   sync?: boolean | null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isTypeOfControl(object: any): object is Control {
   console.log("object", object);
   return (
