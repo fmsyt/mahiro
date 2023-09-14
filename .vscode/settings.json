@@ -1,5 +1,9 @@
 {
   "rust-analyzer.linkedProjects": [
     "${workspaceFolder}/client/src-tauri/Cargo.toml"
+  ],
+  "cSpell.words": [
+    "consts",
+    "Keybd"
   ]
 }

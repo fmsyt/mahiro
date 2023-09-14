@@ -1,11 +1,12 @@
 use std::{collections::HashMap, path, process::Command, env, io};
+use inputbot::{get_keybd_key, KeybdKey};
 use serde::{Deserialize, Serialize};
 
-pub enum ControlType {
-    Command(String),
-    Browser(String),
-    Hotkey(String),
-}
+// pub enum ControlType {
+//     Command(String),
+//     Browser(String),
+//     Hotkey(String),
+// }
 
 // pub enum ControlPlatform {
 //     Windows(String),
@@ -73,6 +74,72 @@ pub struct Sheet {
     pub items: Vec<SheetItem>,
 }
 
+
+
+
+#[derive(Debug)]
+struct KeybdKeyStream {
+    special_keys: Vec<KeybdKey>,
+    char_keys: Vec<KeybdKey>,
+}
+
+trait KeybdKeyStreamInitializer {
+    fn from_string(s: String) -> Self;
+    // fn from_code(code: u64) -> Self;
+}
+
+impl KeybdKeyStreamInitializer for KeybdKeyStream {
+    fn from_string(s: String) -> Self {
+        let combined_hotkey = s.split("+").collect::<Vec<&str>>();
+
+        let mut press_special_keys: Vec<KeybdKey> = vec![];
+        let mut press_char_keys: Vec<KeybdKey> = vec![];
+
+        combined_hotkey.iter().for_each(|key| {
+
+            match key.to_lowercase().as_str() {
+                "ctrl" => press_special_keys.push(inputbot::KeybdKey::LControlKey),
+                "alt" => press_special_keys.push(inputbot::KeybdKey::LAltKey),
+                "shift" => press_special_keys.push(inputbot::KeybdKey::LShiftKey),
+                _ => {
+                    if let Some(c) = key.chars().next() {
+                        if let Some(k) = get_keybd_key(c) {
+                            press_char_keys.push(k);
+                        }
+                    }
+                }
+            }
+        });
+
+        KeybdKeyStream {
+            special_keys: press_special_keys,
+            char_keys: press_char_keys,
+        }
+    }
+}
+
+trait KeybdKeyStreamHandler {
+    fn send(&self);
+}
+
+impl KeybdKeyStreamHandler for KeybdKeyStream {
+    fn send(&self) {
+        self.special_keys.iter().for_each(|key| {
+            inputbot::KeybdKey::press(*key);
+        });
+
+        self.char_keys.iter().for_each(|key| {
+            inputbot::KeybdKey::press(*key);
+        });
+
+        self.char_keys.iter().for_each(|key| {
+            inputbot::KeybdKey::release(*key);
+        });
+    }
+}
+
+
+
 pub trait EmitHandler {
     fn emit(&self, event_name: String) -> Result<(), String>;
 }
@@ -131,7 +198,23 @@ impl EmitHandler for Control {
                 }
             }
             "hotkey" => {
-                println!("hotkey");
+                if let Some(hotkey) = &self.hotkey {
+                    println!("hotkey: {}", hotkey);
+
+                    let stream = KeybdKeyStream::from_string(hotkey.clone());
+                    stream.send();
+
+                } else if let Some(hotkeys) = &self.hotkeys {
+                    println!("hotkeys: {:?}", hotkeys);
+
+                    hotkeys.iter().for_each(|hotkey| {
+                        let stream = KeybdKeyStream::from_string(hotkey.clone());
+                        stream.send();
+                    });
+
+                } else {
+                    eprintln!("Error: Invalid hotkey control: {}", self.id);
+                }
             }
             "keyboard" => {
                 println!("keyboard");
