@@ -48,6 +48,7 @@ pub struct Control {
     pub hotkey: Option<String>,
     pub hotkeys: Option<Vec<String>>,
     pub sync: Option<bool>,
+    pub text: Option<String>,
 }
 
 
