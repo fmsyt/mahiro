@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path, process::Command, env, io};
+use std::{collections::HashMap, path, process::Command, env, io, thread::sleep, time::Duration};
 use inputbot::{get_keybd_key, KeybdKey};
 use serde::{Deserialize, Serialize};
 
@@ -88,6 +88,9 @@ trait KeybdKeyStreamInitializer {
     // fn from_code(code: u64) -> Self;
 }
 
+/**
+ * Reference: https://learn.microsoft.com/ja-jp/windows/win32/inputdev/virtual-key-codes
+ */
 impl KeybdKeyStreamInitializer for KeybdKeyStream {
     fn from_string(s: String) -> Self {
         let combined_hotkey = s.split("+").collect::<Vec<&str>>();
@@ -99,10 +102,22 @@ impl KeybdKeyStreamInitializer for KeybdKeyStream {
 
             match key.to_lowercase().as_str() {
                 "ctrl" => press_special_keys.push(inputbot::KeybdKey::LControlKey),
+                "lctrl" => press_special_keys.push(inputbot::KeybdKey::LControlKey),
+                "rctrl" => press_special_keys.push(inputbot::KeybdKey::RControlKey),
                 "alt" => press_special_keys.push(inputbot::KeybdKey::LAltKey),
+                "lalt" => press_special_keys.push(inputbot::KeybdKey::LAltKey),
+                "ralt" => press_special_keys.push(inputbot::KeybdKey::RAltKey),
                 "shift" => press_special_keys.push(inputbot::KeybdKey::LShiftKey),
+                "lshift" => press_special_keys.push(inputbot::KeybdKey::LShiftKey),
+                "rshift" => press_special_keys.push(inputbot::KeybdKey::RShiftKey),
+                "win" => press_special_keys.push(inputbot::KeybdKey::LSuper),
+                "lwin" => press_special_keys.push(inputbot::KeybdKey::LSuper),
+                "rwin" => press_special_keys.push(inputbot::KeybdKey::RSuper),
                 _ => {
-                    if let Some(c) = key.chars().next() {
+                    if let Some(n) = key.parse::<u64>().ok() {
+                        press_special_keys.push(inputbot::KeybdKey::from(n));
+
+                    } else if let Some(c) = key.chars().next() {
                         if let Some(k) = get_keybd_key(c) {
                             press_char_keys.push(k);
                         }
@@ -125,16 +140,23 @@ trait KeybdKeyStreamHandler {
 impl KeybdKeyStreamHandler for KeybdKeyStream {
     fn send(&self) {
         self.special_keys.iter().for_each(|key| {
-            inputbot::KeybdKey::press(*key);
+            println!("press: {:?}", key);
+            key.press();
         });
 
         self.char_keys.iter().for_each(|key| {
-            inputbot::KeybdKey::press(*key);
-            inputbot::KeybdKey::release(*key);
+            println!("press: {:?}", key);
+            key.press();
+            sleep(Duration::from_millis(20));
+
+            println!("release: {:?}", key);
+            key.release();
+
         });
 
         self.special_keys.iter().for_each(|key| {
-            inputbot::KeybdKey::release(*key);
+            println!("release: {:?}", key);
+            key.release();
         });
     }
 }
