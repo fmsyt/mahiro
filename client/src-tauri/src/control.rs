@@ -130,9 +130,10 @@ impl KeybdKeyStreamHandler for KeybdKeyStream {
 
         self.char_keys.iter().for_each(|key| {
             inputbot::KeybdKey::press(*key);
+            inputbot::KeybdKey::release(*key);
         });
 
-        self.char_keys.iter().for_each(|key| {
+        self.special_keys.iter().for_each(|key| {
             inputbot::KeybdKey::release(*key);
         });
     }
