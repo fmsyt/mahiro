@@ -11,15 +11,21 @@ pub async fn start_server(_config_directory_path: String) {
     let try_socket: Result<TcpListener, std::io::Error> = TcpListener::bind(addr).await;
     let listener: TcpListener = try_socket.expect("Failed to bind");
 
-    while let Ok((stream, _)) = listener.accept().await {
+    while let Ok((stream, _addr)) = listener.accept().await {
         let client_state = load_state(_config_directory_path.clone());
-        tokio::spawn(handle_client(stream, client_state));
+        tokio::spawn(handle_websocket_client(stream, client_state));
     }
 }
 
-async fn handle_client(stream: TcpStream, client_state: ClientState) {
-    let ws_stream: tokio_tungstenite::WebSocketStream<TcpStream> = accept_async(stream).await.expect("Failed to accept");
+async fn handle_websocket_client(stream: TcpStream, client_state: ClientState) {
+    let try_ws_stream = accept_async(stream).await;
 
+    if let Err(e) = try_ws_stream {
+        eprintln!("Error during the websocket handshake occurred: {}", e);
+        return;
+    }
+
+    let ws_stream = try_ws_stream.unwrap();
     let (mut write, mut read) = ws_stream.split();
 
 

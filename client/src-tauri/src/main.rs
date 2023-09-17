@@ -70,9 +70,7 @@ fn main() {
             let window = app.get_window("main").unwrap();
             window.show().unwrap();
 
-            let config_window = app.get_window("config").unwrap();
-            config_window.hide().unwrap();
-
+            let _config_window = app.get_window("config").unwrap();
             let _config_directory_path = app
                 .path_resolver()
                 .app_local_data_dir()
