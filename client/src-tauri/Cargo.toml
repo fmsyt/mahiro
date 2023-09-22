@@ -16,6 +16,7 @@ tauri-build = { version = "1.4", features = [] }
 base64 = "0.13"
 futures-util = "0.3"
 inputbot = "0.6"
+# keybd_event = "0.1.2"
 tauri = { version = "1.4", features = [ "fs-all", "shell-open", "system-tray" ] }
 tauri-plugin-websocket = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 tokio = { version = "1", features = ["net"] }
