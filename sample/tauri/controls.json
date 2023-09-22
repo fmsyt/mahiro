@@ -31,12 +31,17 @@
   {
     "id": "Ctrl+C",
     "type": "hotkey",
-    "hotkeys": ["ctrl", "c"]
+    "hotkey": "Ctrl+C"
   },
   {
     "id": "Ctrl+V",
     "type": "hotkey",
-    "hotkeys": ["ctrl", "v"]
+    "hotkey": "Ctrl+V"
+  },
+  {
+    "id": "Win+E",
+    "type": "hotkey",
+    "hotkey": "Win+E"
   },
   {
     "id": "text",
