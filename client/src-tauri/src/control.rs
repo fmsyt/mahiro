@@ -1,6 +1,12 @@
-use std::{collections::HashMap, path, process::Command, env, io, thread::sleep, time::Duration};
-use inputbot::{get_keybd_key, KeybdKey};
+use std::{collections::HashMap, path, process::Command};
 use serde::{Deserialize, Serialize};
+
+use crate::control::{hotkey::{KeySequence, KeybdKeyStreamInitializer, KeybdKeyStreamHandler}, command::send_text};
+
+mod command;
+mod browser;
+mod hotkey;
+mod keyboard;
 
 // pub enum ControlType {
 //     Command(String),
@@ -77,90 +83,6 @@ pub struct Sheet {
 
 
 
-#[derive(Debug)]
-struct KeybdKeyStream {
-    special_keys: Vec<KeybdKey>,
-    char_keys: Vec<KeybdKey>,
-}
-
-trait KeybdKeyStreamInitializer {
-    fn from_string(s: String) -> Self;
-    // fn from_code(code: u64) -> Self;
-}
-
-/**
- * Reference: https://learn.microsoft.com/ja-jp/windows/win32/inputdev/virtual-key-codes
- */
-impl KeybdKeyStreamInitializer for KeybdKeyStream {
-    fn from_string(s: String) -> Self {
-        let combined_hotkey = s.split("+").collect::<Vec<&str>>();
-
-        let mut press_special_keys: Vec<KeybdKey> = vec![];
-        let mut press_char_keys: Vec<KeybdKey> = vec![];
-
-        combined_hotkey.iter().for_each(|key| {
-
-            match key.to_lowercase().as_str() {
-                "ctrl" => press_special_keys.push(inputbot::KeybdKey::LControlKey),
-                "lctrl" => press_special_keys.push(inputbot::KeybdKey::LControlKey),
-                "rctrl" => press_special_keys.push(inputbot::KeybdKey::RControlKey),
-                "alt" => press_special_keys.push(inputbot::KeybdKey::LAltKey),
-                "lalt" => press_special_keys.push(inputbot::KeybdKey::LAltKey),
-                "ralt" => press_special_keys.push(inputbot::KeybdKey::RAltKey),
-                "shift" => press_special_keys.push(inputbot::KeybdKey::LShiftKey),
-                "lshift" => press_special_keys.push(inputbot::KeybdKey::LShiftKey),
-                "rshift" => press_special_keys.push(inputbot::KeybdKey::RShiftKey),
-                "win" => press_special_keys.push(inputbot::KeybdKey::LSuper),
-                "lwin" => press_special_keys.push(inputbot::KeybdKey::LSuper),
-                "rwin" => press_special_keys.push(inputbot::KeybdKey::RSuper),
-                _ => {
-                    if let Some(n) = key.parse::<u64>().ok() {
-                        press_special_keys.push(inputbot::KeybdKey::from(n));
-
-                    } else if let Some(c) = key.chars().next() {
-                        if let Some(k) = get_keybd_key(c) {
-                            press_char_keys.push(k);
-                        }
-                    }
-                }
-            }
-        });
-
-        KeybdKeyStream {
-            special_keys: press_special_keys,
-            char_keys: press_char_keys,
-        }
-    }
-}
-
-trait KeybdKeyStreamHandler {
-    fn send(&self);
-}
-
-impl KeybdKeyStreamHandler for KeybdKeyStream {
-    fn send(&self) {
-        self.special_keys.iter().for_each(|key| {
-            println!("press: {:?}", key);
-            key.press();
-        });
-
-        self.char_keys.iter().for_each(|key| {
-            println!("press: {:?}", key);
-            key.press();
-            sleep(Duration::from_millis(20));
-
-            println!("release: {:?}", key);
-            key.release();
-
-        });
-
-        self.special_keys.iter().for_each(|key| {
-            println!("release: {:?}", key);
-            key.release();
-        });
-    }
-}
-
 
 
 pub trait EmitHandler {
@@ -194,25 +116,7 @@ impl EmitHandler for Control {
             "browser" => {
                 println!("browser");
                 if let Some(url) = &self.url {
-
-                    let command_result = match env::consts::OS {
-                        "windows" => {
-                            Command::new("cmd.exe").args(["/c", "start", url]).spawn()
-                        }
-                        "macos" => {
-                            Command::new("open").args([url]).spawn()
-                        }
-                        "linux" => {
-                            Command::new("xdg-open").args([url]).spawn()
-                        }
-                        _ => {
-                            eprintln!("Error: Unsupported platform: {}", env::consts::OS);
-                            Err(io::Error::new(io::ErrorKind::Other, "Unsupported platform"))
-                        }
-                    };
-
-                    println!("url: {}", url);
-                    if let Err(e) = command_result {
+                    if let Err(e) = browser::browse(url) {
                         eprintln!("Error: {}", e);
                     }
 
@@ -224,14 +128,14 @@ impl EmitHandler for Control {
                 if let Some(hotkey) = &self.hotkey {
                     println!("hotkey: {}", hotkey);
 
-                    let stream = KeybdKeyStream::from_string(hotkey.clone());
+                    let stream = KeySequence::from_string(hotkey.clone());
                     stream.send();
 
                 } else if let Some(hotkeys) = &self.hotkeys {
                     println!("hotkeys: {:?}", hotkeys);
 
                     hotkeys.iter().for_each(|hotkey| {
-                        let stream = KeybdKeyStream::from_string(hotkey.clone());
+                        let stream = KeySequence::from_string(hotkey.clone());
                         stream.send();
                     });
 
@@ -241,6 +145,15 @@ impl EmitHandler for Control {
             }
             "keyboard" => {
                 println!("keyboard");
+                if let Some(text) = &self.text {
+                    println!("text: {}", text);
+                    if let Err(e) = send_text(text.clone()) {
+                        eprintln!("Error: {}", e);
+                    }
+
+                } else {
+                    eprintln!("Error: Invalid keyboard control: {}", self.id);
+                }
             }
             _ => {
                 eprintln!("Error: Invalid control type: {}", self.r#type)
