@@ -1,43 +1,86 @@
 import React from 'react';
+import { Box, Drawer, List, ListItem, ListItemButton, ListItemText, ListSubheader } from '@mui/material';
 
-import General from './config/General';
-import Controls from './config/Controls';
-import Sheets from './config/Sheets';
-import { Box, Container, Tab, Tabs } from '@mui/material';
+import Application from './config/Application';
+import ApplicationEdit from './config/application/Edit';
+import Security from './config/security/Connection';
 
+const drawerWidth = 180;
 
 export default function ConfigApp() {
 
-  const [currentTab, setCurrentTab] = React.useState(0);
-  const handleChange = React.useCallback((event: React.SyntheticEvent, newValue: number) => {
-    setCurrentTab(newValue);
-  }, []);
+  const [currentTab, setCurrentTab] = React.useState("application");
 
   return (
-    <Container>
-      <Tabs value={currentTab} onChange={handleChange}>
-        <Tab label="General" { ...a11yProps(0) } />
-        <Tab label="Controls" { ...a11yProps(1) } />
-        <Tab label="Sheets" { ...a11yProps(2) } />
-      </Tabs>
+    <Box sx={{ display: "flex" }}>
 
-      <CustomTabPanel value={currentTab} index={0}>
-        <General />
-      </CustomTabPanel>
-      <CustomTabPanel value={currentTab} index={1}>
-        <Controls />
-      </CustomTabPanel>
-      <CustomTabPanel value={currentTab} index={2}>
-        <Sheets />
-      </CustomTabPanel>
-    </Container>
+      <Drawer
+        anchor="left"
+        variant="permanent"
+        sx={{
+          flexShrink: 0,
+          width: drawerWidth,
+        }}
+      >
+        <List
+          component="nav"
+          dense
+          sx={{ width: drawerWidth }}
+          subheader={
+            <ListSubheader component="div">
+              アプリケーション
+            </ListSubheader>
+          }
+        >
+          <ListItem>
+            <ListItemButton onClick={() => setCurrentTab("application")} selected={currentTab === "application"}>
+              <ListItemText primary="全般" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton onClick={() => setCurrentTab("application.edit")} selected={currentTab === "application.edit"}>
+              <ListItemText primary="画面編集" />
+            </ListItemButton>
+          </ListItem>
+
+        </List>
+        <List
+          component="nav"
+          dense
+          subheader={
+            <ListSubheader component="div">
+              セキュリティ
+            </ListSubheader>
+          }
+        >
+          <ListItem>
+            <ListItemButton onClick={() => setCurrentTab("security")} selected={currentTab === "security"}>
+              <ListItemText primary="接続" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
+
+      <Box component="main" sx={{ flexGrow: 1 }}>
+        <CustomTabPanel value={currentTab} index="application">
+          <Application />
+        </CustomTabPanel>
+        <CustomTabPanel value={currentTab} index="application.edit">
+          <ApplicationEdit />
+        </CustomTabPanel>
+        <CustomTabPanel value={currentTab} index="security">
+          <Security />
+        </CustomTabPanel>
+      </Box>
+
+    </Box>
   );
 }
 
 interface TabPanelProps {
   children?: React.ReactNode;
-  index: number;
-  value: number;
+  index: string;
+  value: string;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -58,11 +101,4 @@ function CustomTabPanel(props: TabPanelProps) {
       )}
     </div>
   );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `tab-${index}`,
-    'aria-controls': `tabpanel-${index}`,
-  };
 }

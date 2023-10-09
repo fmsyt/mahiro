@@ -11,11 +11,12 @@ import { Stack, Typography } from "@mui/material";
  *
  * @returns { JSX.Element }
  */
-export default function General(): JSX.Element {
+export default function Application(): JSX.Element {
   return (
-    <Stack>
-      <Typography variant="h5">General</Typography>
+    <Stack gap={2}>
+      <Typography variant="h5">接続</Typography>
 
+      hoge
     </Stack>
   );
 }
