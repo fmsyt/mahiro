@@ -5,15 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: FastAPI",
-            "type": "python",
-            "request": "launch",
-            "module": "uvicorn",
-            "args": ["server:app", "--reload", "--host=0.0.0.0"],
-            "jinja": true,
-            "justMyCode": true
-        },
-        {
             "type": "lldb",
             "request": "launch",
             "name": "Tauri Development Debug",

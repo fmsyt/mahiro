@@ -16,16 +16,6 @@
 			"label": "Start Client on Application",
 		},
 		{
-			"label": "Start Server",
-			"windows": {
-				"command": "${workspaceFolder}\\venv\\Scripts\\python.exe",
-			},
-			"linux": {
-				"command": "${workspaceFolder}/venv/bin/python",
-			},
-			"args": ["server.py"]
-		},
-		{
 			"type": "npm",
 			"script": "build",
 			"path": "client",
