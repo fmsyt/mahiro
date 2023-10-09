@@ -94,7 +94,7 @@ impl SendWebSocketClientMessage for State {
                                     style: i.r#type.clone(),
                                     control_id: i.control_id.clone(),
                                     label: i.label.clone(),
-                                    disabled: c.disabled.clone(),
+                                    disabled: Some(false),
                                     default: default,
                                 }
                             },

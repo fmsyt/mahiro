@@ -107,7 +107,7 @@ export default function Controls() {
               Invalid JSON in controls.json
             </Typography>
           )}
-          {/* <pre>{ JSON.stringify(controls, null, 2) }</pre> */}
+          <pre>{ JSON.stringify(controls, null, 2) }</pre>
         </>
       )}
 

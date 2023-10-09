@@ -45,7 +45,6 @@ pub struct Control {
     pub r#type: String,
     pub style: Option<String>,
     pub label: Option<String>,
-    pub disabled: Option<bool>,
     pub default: Option<ControlDefault>,
     pub props: Option<HashMap<String, i32>>,
     pub platform: Option<String>,
@@ -56,6 +55,8 @@ pub struct Control {
     pub hotkeys: Option<Vec<String>>,
     pub sync: Option<bool>,
     pub text: Option<String>,
+    pub icon: Option<String>,
+    pub description: Option<String>,
 }
 
 
@@ -71,6 +72,7 @@ pub struct SheetItem {
     pub control_id: Option<String>,
     pub label: Option<String>,
     pub r#type: String,
+    pub disabled: Option<bool>,
 }
 
 

@@ -1,17 +1,33 @@
 export interface controlProps {
+  id: string;
   style: "button" | "slider" | "empty";
-  control_id?: string | null;
   label?: string | null;
   icon?: string | null;
   default?: number | string | boolean | null;
+  description?: string | null;
   props?: {
     [key: string]: number | string | boolean | null;
   }
-  disabled?: boolean | null;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
 }
+
+export interface browserControlProps extends controlProps {
+  url: string;
+}
+
+export interface commandControlProps extends controlProps {
+  commands: string[];
+  sync: boolean;
+}
+
+export interface keyboardControlProps extends controlProps {
+  text: string;
+}
+
+export interface hotkeyControlProps extends controlProps {
+  hotkeys: string[];
+}
+
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isTypeOfControlProps(data: any): data is controlProps {
@@ -20,14 +36,21 @@ export function isTypeOfControlProps(data: any): data is controlProps {
   }
 
   const styleIsValid = data.style === "button" || data.style === "slider" || data.style === "empty";
-  const controlIdIsValid = typeof data.control_id === "string" || data.control_id == null;
+  const idIsValid = typeof data.id === "string";
   const labelIsValid = typeof data.label === "string" || data.label == null;
   const iconIsValid = typeof data.icon === "string" || data.icon == null;
   const defaultIsValid = typeof data.default === "number" || typeof data.default === "string" || typeof data.default === "boolean" || data.default == null;
+  const descriptionIsValid = typeof data.description === "string" || data.description == null;
   const propsIsValid = typeof data.props === "object" || data.props == null;
-  const disabledIsValid = typeof data.disabled === "boolean" || data.disabled == null;
 
-  return styleIsValid && controlIdIsValid && labelIsValid && iconIsValid && defaultIsValid && propsIsValid && disabledIsValid;
+  return styleIsValid
+    && idIsValid
+    && labelIsValid
+    && iconIsValid
+    && defaultIsValid
+    && descriptionIsValid
+    && propsIsValid
+    ;
 }
 
 export interface pageProps {
