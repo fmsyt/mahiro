@@ -5,7 +5,8 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import ThemeContext from "../ThemeContext";
 
-import { Button, ButtonGroup, FormControl, FormLabel, Stack, Tooltip, Typography } from "@mui/material";
+import { Button, ButtonGroup, Checkbox, FormControl, FormControlLabel, FormLabel, Stack, Tooltip, Typography } from "@mui/material";
+import { Form } from "react-router-dom";
 
 /**
  * General tab for the config app.
@@ -60,6 +61,14 @@ export default function Application(): JSX.Element {
             </Button>
           </Tooltip>
         </ButtonGroup>
+      </FormControl>
+
+      <FormControl>
+        <FormLabel>最前面に表示</FormLabel>
+        <FormControlLabel
+          control={<Checkbox />}
+          label="最前面に表示する"
+          />
       </FormControl>
     </Stack>
   );
