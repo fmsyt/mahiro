@@ -19,9 +19,10 @@ import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 
 import { AppContext, AppContextProvider } from "./AppContext";
 
-import Connection from "./Connection";
 import "./App.css";
-
+import Connection from "./Connection";
+import ThemeContextProvider from "./ThemeContextProvider";
+import ThemeContext from "./ThemeContext";
 
 const drawerWidth = 240;
 
@@ -79,22 +80,24 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const App = ({ disableDrawer = false }: { disableDrawer?: boolean }) => {
   return (
     <MemoryRouter>
-      <AppContextProvider>
-        <CssBaseline />
-        <Container>
-          { !disableDrawer ? (
-            <AppDrawer>
-              <Box height="calc(100vh - 64px - 48px)">
+      <ThemeContextProvider>
+        <AppContextProvider>
+          <CssBaseline />
+          <Container>
+            { !disableDrawer ? (
+              <AppDrawer>
+                <Box height="calc(100vh - 64px - 48px)">
+                  <AppContent />
+                </Box>
+              </AppDrawer>
+            ) : (
+              <Stack padding={2} height="100vh">
                 <AppContent />
-              </Box>
-            </AppDrawer>
-          ) : (
-            <Stack padding={2} height="100vh">
-              <AppContent />
-            </Stack>
-          )}
-        </Container>
-      </AppContextProvider>
+              </Stack>
+            )}
+          </Container>
+        </AppContextProvider>
+      </ThemeContextProvider>
     </MemoryRouter>
   )
 }
@@ -174,7 +177,7 @@ const AppDrawer = memo(({ children } : { children: React.ReactNode }) => {
 const DrawerItem = ({ handleDrawerClose = () => {} }) => {
 
   const navigate = useNavigate();
-  const { themeMode, setThemeMode } = useContext(AppContext);
+  const { themeMode, setThemeMode } = useContext(ThemeContext);
 
   const handleClickLink = useCallback((path: string) => {
     handleDrawerClose();

@@ -1,6 +1,6 @@
 import React from "react";
 import { isTypeOfPageProps, pageProps } from "./interface";
-import { Alert, Snackbar, createTheme, ThemeProvider, useMediaQuery } from "@mui/material";
+import { Alert, Snackbar } from "@mui/material";
 import { updateGeneral, updateSheets } from "./functions";
 import { createWebSocket, defaultWebSocketConditions, webSocketConditionsTypes } from "./webSocket";
 
@@ -11,8 +11,6 @@ interface AppContextProps {
   reConnect: () => void,
   pages: pageProps[] | null,
   wsConditions: webSocketConditionsTypes,
-  themeMode: "light" | "dark" | "system",
-  setThemeMode: (themeMode: "light" | "dark" | "system") => void,
   setWebSocketConditions: React.Dispatch<React.SetStateAction<webSocketConditionsTypes>>,
   hostname?: string,
 }
@@ -23,8 +21,6 @@ const AppContext = React.createContext<AppContextProps>({
   wsConditions: defaultWebSocketConditions,
   reConnect: () => {},
   pages: null,
-  themeMode: "system",
-  setThemeMode: () => {},
   setWebSocketConditions: () => {},
 });
 
@@ -33,21 +29,7 @@ interface AppContextProviderProps {
 }
 
 
-
-
-
-const initialThemeMode = localStorage.getItem("themeMode") as "light" | "dark" | "system" | null;
-
 const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
-
-  const [themeMode, setThemeMode] = React.useState<"light" | "dark" | "system">(initialThemeMode || "system");
-
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const theme = React.useMemo(() => createTheme({
-    palette: {
-      mode: themeMode === "system" ? (prefersDarkMode ? "dark" : "light") : themeMode,
-    }
-  }), [prefersDarkMode, themeMode]);
 
   const { children } = props;
 
@@ -115,30 +97,24 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
   return (
     <AppContext.Provider value={{
-        webSocket,
-        wsCloseCode,
-        wsConditions,
-        reConnect,
-        pages,
-        hostname,
-        themeMode,
-        setWebSocketConditions,
-        setThemeMode: (themeMode: "light" | "dark" | "system") => {
-          setThemeMode(themeMode);
-          localStorage.setItem("themeMode", themeMode);
-        },
-      }}>
-      <ThemeProvider theme={theme}>
-        {children}
+      webSocket,
+      wsCloseCode,
+      wsConditions,
+      reConnect,
+      pages,
+      hostname,
+      setWebSocketConditions,
 
-        <Snackbar
-          open={open}
-          autoHideDuration={6000}
-          onClose={() => setOpen(false)}
-        >
-          <Alert severity="warning">不正なデータを受信しました。</Alert>
-        </Snackbar>
-      </ThemeProvider>
+    }}>
+      {children}
+
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={() => setOpen(false)}
+      >
+        <Alert severity="warning">不正なデータを受信しました。</Alert>
+      </Snackbar>
     </AppContext.Provider>
   )
 }
