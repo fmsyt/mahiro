@@ -51,7 +51,7 @@ fn handle_systemtray(app: &AppHandle<Wry>, event: SystemTrayEvent) {
                 window.show().unwrap();
             }
             "quit" => {
-                std::process::exit(0);
+                app.exit(0);
             }
             _ => {}
         },
