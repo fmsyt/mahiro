@@ -1,47 +1,9 @@
 import { useEffect, useState } from "react";
+import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { fs } from "@tauri-apps/api";
 import { BaseDirectory, FsOptions } from "@tauri-apps/api/fs";
 
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
-
-interface Control {
-  id: string;
-  type: string;
-  style?: string | null;
-  label?: string | null;
-  disabled?: boolean | null;
-  // default?: string | null;
-  props?: object | null;
-  platform?: string | null;
-  url?: string | null;
-  command?: string | null;
-  commands?: string[] | null;
-  hotkey?: string | null;
-  hotkeys?: string[] | null;
-  sync?: boolean | null;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isTypeOfControl(object: any): object is Control {
-  console.log("object", object);
-  return (
-    typeof object === "object" &&
-    typeof object.id === "string" &&
-    typeof object.type === "string" &&
-    (object.style == null || typeof object.style === "string") &&
-    (object.label == null || typeof object.label === "string") &&
-    (object.disabled == null || typeof object.disabled === "boolean") &&
-    // (object.default == null || typeof object.default === "string") &&
-    (object.props == null || typeof object.props === "object") &&
-    (object.platform == null || typeof object.platform === "string") &&
-    (object.url == null || typeof object.url === "string") &&
-    (object.command == null || typeof object.command === "string") &&
-    (object.commands == null || Array.isArray(object.commands)) &&
-    (object.hotkey == null || typeof object.hotkey === "string") &&
-    (object.hotkeys == null || Array.isArray(object.hotkeys)) &&
-    (object.sync == null || typeof object.sync === "boolean")
-  )
-}
+import { ControlProps, isTypeOfControl } from "../../interface";
 
 const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
 
@@ -50,7 +12,7 @@ const fsOptions: FsOptions = {
 }
 
 const useControls = () => {
-  const [controls, setControls] = useState<Control[] | null>(null);
+  const [controls, setControls] = useState<ControlProps[] | null>(null);
   const [invalidJson, setInvalidJson] = useState(false);
 
   useEffect(() => {

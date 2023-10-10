@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { controlProps } from "../interface";
+import { SheetItemProps } from "../interface";
 
 import { Box, Button as MuiButton, Stack, Typography } from "@mui/material";
 
@@ -7,7 +7,7 @@ import logo from "../logo.svg";
 import { Events } from "../enum";
 import { emit } from "../functions";
 
-const Button = (props: { ws: WebSocket, controlProps: controlProps, disabled?: boolean }) => {
+const Button = (props: { ws: WebSocket, controlProps: SheetItemProps, disabled?: boolean }) => {
 
   const { controlProps, ws } = props;
   const { label } = controlProps;

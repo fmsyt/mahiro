@@ -1,12 +1,12 @@
 import { memo } from "react";
-import { controlProps } from "./interface";
+import { SheetItemProps } from "./interface";
 import { Paper } from "@mui/material";
 
 import StyleButton from "./components/Button";
 import StyleSlider from "./components/Slider";
 
 interface controlUIPropsType {
-  controlProps: controlProps,
+  controlProps: SheetItemProps,
 }
 
 interface controlPropsType extends controlUIPropsType {

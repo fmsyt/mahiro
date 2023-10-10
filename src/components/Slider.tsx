@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { controlProps } from "../interface";
+import { SheetItemProps } from "../interface";
 
 import { Slider as MuiSlider, Paper, Stack, styled, Typography } from "@mui/material";
 import { emit } from "../functions";
@@ -49,7 +49,7 @@ const BoldSlider = styled(MuiSlider)(({ theme }) => ({
 }));
 
 
-const Slider = (props: { ws: WebSocket, controlProps: controlProps, disabled?: boolean }) => {
+const Slider = (props: { ws: WebSocket, controlProps: SheetItemProps, disabled?: boolean }) => {
 
   const { controlProps, ws } = props;
 
