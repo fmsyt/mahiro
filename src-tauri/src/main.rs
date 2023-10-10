@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::process::exit;
+
 use tauri::{
     AppHandle, Manager, Menu, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
 };
@@ -13,18 +15,30 @@ mod control;
 
 fn create_menu() -> Menu {
     let quit = tauri::CustomMenuItem::new("quit".to_string(), "Quit");
-    let close = tauri::CustomMenuItem::new("close".to_string(), "Close");
 
-    let submenu = tauri::Submenu::new("File", Menu::new().add_item(quit).add_item(close));
+    let submenu_file_items = Menu::new().add_item(quit);
+    let submenu_file = tauri::Submenu::new("File", submenu_file_items);
 
-    let menu = Menu::new().add_submenu(submenu);
+    let menu = Menu::new().add_submenu(submenu_file);
 
     menu
 }
 
 fn handle_menu(event: tauri::WindowMenuEvent<Wry>) {
     match event.menu_item_id() {
-        "quit" | "close" => event.window().close().unwrap(),
+        "quit" => {
+            exit(0);
+        }
+        _ => {}
+    }
+}
+
+fn handle_window(event: tauri::GlobalWindowEvent) {
+    match event.event() {
+        tauri::WindowEvent::CloseRequested { api, .. } => {
+            api.prevent_close();
+            event.window().hide().unwrap();
+        }
         _ => {}
     }
 }
@@ -46,16 +60,20 @@ fn create_systemtray() -> SystemTray {
 fn handle_systemtray(app: &AppHandle<Wry>, event: SystemTrayEvent) {
     match event {
         SystemTrayEvent::LeftClick { .. } => {
-            let window = app.get_window("main").unwrap();
-            window.set_focus().unwrap();
+            if let Some(window) = app.get_window("main") {
+                window.show().unwrap();
+                window.set_focus().unwrap();
+            }
         }
         SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
             "open_config" => {
-                let window = app.get_window("config").unwrap();
-                window.show().unwrap();
+                if let Some(window) = app.get_window("config") {
+                    window.show().unwrap();
+                    window.set_focus().unwrap();
+                }
             }
             "quit" => {
-                app.exit(0);
+                exit(0);
             }
             _ => {}
         },
@@ -66,6 +84,7 @@ fn handle_systemtray(app: &AppHandle<Wry>, event: SystemTrayEvent) {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_websocket::init())
+        .on_window_event(handle_window)
         .menu(create_menu())
         .on_menu_event(handle_menu)
         .system_tray(create_systemtray())
