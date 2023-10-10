@@ -24,7 +24,7 @@ impl KeybdKeyStreamInitializer for KeySequence {
         combined_hotkey.iter().for_each(|key| {
 
             if key.len() == 1 {
-                if let Some(c) = key.chars().next() {
+                if let Some(c) = key.to_ascii_lowercase().chars().next() {
                     result.push(c);
                 }
             } else {
