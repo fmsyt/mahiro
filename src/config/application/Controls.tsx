@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, CircularProgress, FormControl, FormControlLabel, FormLabel, Input, MenuItem, Radio, RadioGroup, Select, Stack, TextField, Typography } from "@mui/material";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 import { fs } from "@tauri-apps/api";
 import { BaseDirectory, FsOptions } from "@tauri-apps/api/fs";
 
-import { ControlProps, isTypeOfControl } from "../../interface";
+import { ControlProps, ControlType, isTypeOfControl } from "../../interface";
 
 const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
 
@@ -33,6 +35,7 @@ const useControls = () => {
           setInvalidJson(false);
         }
       } catch (error) {
+        console.error(error);
         setInvalidJson(true);
       }
     }
@@ -42,6 +45,77 @@ const useControls = () => {
   }, []);
 
   return { controls, invalidJson };
+}
+
+function createAccordion(data: ControlProps, index: number) {
+  return (
+    <Accordion key={index}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls={`panel-${data.id}-content`}
+        id={`panel-${data.id}-header`}
+      >
+        <Typography>{`${index + 1}. ${data.label || data.id}`}</Typography>
+        <Typography sx={{ color: "text.secondary" }}>{data.description}</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Stack direction="column" spacing={2} alignItems="flex-start" justifyContent="center">
+          <FormControl>
+            <TextField
+              label="ID"
+              defaultValue={data.id}
+              variant="standard"
+              onChange={() => {}}
+              />
+          </FormControl>
+          <FormControl>
+            <TextField
+              label="Description"
+              defaultValue={data.description}
+              variant="standard"
+              onChange={() => {}}
+              />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Control Type</FormLabel>
+            <Select value={data.type} variant="standard">
+              {Object.keys(ControlType).map((key) => (
+                <MenuItem key={key} value={key.toLowerCase()}>{key}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {data.type === ControlType.Browser && (
+            <FormControl>
+              <FormLabel>URL</FormLabel>
+              <TextField value={data.url} variant="standard" />
+            </FormControl>
+          )}
+
+          {data.type === ControlType.Command && (
+            <FormControl>
+              <FormLabel>Command</FormLabel>
+              <TextField value={data.command} variant="standard" />
+            </FormControl>
+          )}
+
+          {data.type === ControlType.Keyboard && (
+            <FormControl>
+              <FormLabel>Key</FormLabel>
+              <TextField value={data.key} variant="standard" />
+            </FormControl>
+          )}
+
+          {data.type === ControlType.Hotkey && (
+            <FormControl>
+              <FormLabel>Key</FormLabel>
+              <TextField value={data.key} variant="standard" />
+            </FormControl>
+          )}
+        </Stack>
+      </AccordionDetails>
+    </Accordion>
+  )
 }
 
 export default function Controls() {
@@ -69,7 +143,7 @@ export default function Controls() {
               Invalid JSON in controls.json
             </Typography>
           )}
-          <pre>{ JSON.stringify(controls, null, 2) }</pre>
+          {controls.map(createAccordion)}
         </>
       )}
 

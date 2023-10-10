@@ -6,17 +6,17 @@ export enum ControlStyle {
   Empty = "empty",
 }
 
-export interface EmptyControlProps {
-  style: ControlStyle.Empty;
+export enum ControlType {
+  Command = "command",
+  Browser = "browser",
+  Keyboard = "keyboard",
+  Hotkey = "hotkey",
 }
 
 export interface ControlProps {
   id: string;
   type: string;
   // default?: string | null;
-
-  style: ControlStyle;
-  label?: string | null;
   icon?: string | null;
   description?: string | null;
   props?: {
@@ -45,31 +45,9 @@ export interface HotkeyControlProps extends ControlProps {
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isTypeOfEmptyControl(data: any): data is EmptyControlProps {
-  if (typeof data !== "object") {
-    throw new Error("data is not object");
-  }
-
-  if (data.style === ControlStyle.Empty) {
-    return true;
-  }
-
-  return false;
-}
-
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isTypeOfControl(data: any): data is ControlProps {
   if (typeof data !== "object") {
     throw new Error("data is not object");
-  }
-
-  if (isTypeOfEmptyControl(data)) {
-    return true;
-  }
-
-  if (Object.values(ControlStyle).includes(data.style) === false) {
-    throw new Error("style is not ControlStyle");
   }
 
   if (typeof data.id !== "string") {
@@ -80,12 +58,8 @@ export function isTypeOfControl(data: any): data is ControlProps {
     throw new Error("type is not string");
   }
 
-  if (typeof data.style !== "string") {
-    throw new Error("style is not string");
-  }
-
-  if (data.label != null && typeof data.label !== "string") {
-    throw new Error("label is not string");
+  if (!Object.values(ControlType).includes(data.type)) {
+    throw new Error(`type is not ControlType: ${data.type}`);
   }
 
   if (data.icon != null && typeof data.icon !== "string") {
@@ -211,7 +185,7 @@ export function isTypeOfSheetItemProps(data: any): data is SheetItemProps {
     throw new Error("data.style is not string");
   }
 
-  if (Object.values(ControlStyle).includes(data.style) === false) {
+  if (!Object.values(ControlStyle).includes(data.style)) {
     throw new Error("data.style is not ControlStyle");
   }
 

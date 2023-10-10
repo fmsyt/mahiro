@@ -44,7 +44,6 @@ pub struct Control {
     pub id: String,
     pub r#type: String,
     pub style: Option<String>,
-    pub label: Option<String>,
     pub default: Option<ControlDefault>,
     pub props: Option<HashMap<String, i32>>,
     pub platform: Option<String>,
