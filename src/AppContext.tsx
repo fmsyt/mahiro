@@ -66,7 +66,11 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
             if (Array.isArray(obj?.data)) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const receivedPages = obj.data as Array<any>;
-              receivedPages.every(isTypeOfPageProps) && setPages(receivedPages);
+              if (receivedPages.every(isTypeOfPageProps)) {
+                receivedPages.every(isTypeOfPageProps) && setPages(receivedPages);
+              } else {
+                console.error("Received invalid data.");
+              }
             }
             break;
         }

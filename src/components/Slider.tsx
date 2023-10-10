@@ -69,7 +69,7 @@ const Slider = (props: { ws: WebSocket, controlProps: controlProps, disabled?: b
         isActive = true;
         setTimeout(() => { isActive = false }, 100);
 
-        emit(ws, { action: controlProps.id, event: Events.keyUp, context: JSON.stringify(value) })
+        emit(ws, { action: controlProps.control_id, event: Events.keyUp, context: JSON.stringify(value) })
       },
     }
 

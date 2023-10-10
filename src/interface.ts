@@ -1,5 +1,7 @@
+'use strict'
+
 export interface controlProps {
-  id: string;
+  control_id?: string;
   style: "button" | "slider" | "empty";
   label?: string | null;
   icon?: string | null;
@@ -35,22 +37,39 @@ export function isTypeOfControlProps(data: any): data is controlProps {
     return false;
   }
 
-  const styleIsValid = data.style === "button" || data.style === "slider" || data.style === "empty";
-  const idIsValid = typeof data.id === "string";
-  const labelIsValid = typeof data.label === "string" || data.label == null;
-  const iconIsValid = typeof data.icon === "string" || data.icon == null;
-  const defaultIsValid = typeof data.default === "number" || typeof data.default === "string" || typeof data.default === "boolean" || data.default == null;
-  const descriptionIsValid = typeof data.description === "string" || data.description == null;
-  const propsIsValid = typeof data.props === "object" || data.props == null;
+  if (typeof data.style !== "string") {
+    throw new Error("data.style is not string");
+  }
 
-  return styleIsValid
-    && idIsValid
-    && labelIsValid
-    && iconIsValid
-    && defaultIsValid
-    && descriptionIsValid
-    && propsIsValid
-    ;
+  if (![ "button", "slider", "empty" ].some((style) => style === data.style)) {
+    throw new Error("data.style is not button, slider, or empty");
+  }
+
+  if (typeof data.control_id !== "string" && data.control_id != null) {
+    throw new Error("data.control_id is not string");
+  }
+
+  if (typeof data.label !== "string" && data.label != null) {
+    throw new Error("data.label is not string or null");
+  }
+
+  if (typeof data.icon !== "string" && data.icon != null) {
+    throw new Error("data.icon is not string or null");
+  }
+
+  if (typeof data.default !== "number" && typeof data.default !== "string" && typeof data.default !== "boolean" && data.default != null) {
+    throw new Error("data.default is not number, string, boolean, or null");
+  }
+
+  if (typeof data.description !== "string" && data.description != null) {
+    throw new Error("data.description is not string or null");
+  }
+
+  if (typeof data.props !== "object" && data.props != null) {
+    throw new Error("data.props is not object or null");
+  }
+
+  return true;
 }
 
 export interface pageProps {
