@@ -1,6 +1,6 @@
 {
   "rust-analyzer.linkedProjects": [
-    "${workspaceFolder}/client/src-tauri/Cargo.toml"
+    "${workspaceFolder}/src-tauri/Cargo.toml"
   ],
   "cSpell.words": [
     "consts",

@@ -11,14 +11,12 @@
 		{
 			"type": "npm",
 			"script": "tauri:dev",
-			"path": "client",
 			"problemMatcher": [],
 			"label": "Start Client on Application",
 		},
 		{
 			"type": "npm",
 			"script": "build",
-			"path": "client",
 			"label": "Build Client",
 			"group": {
 				"kind": "build",
@@ -33,8 +31,6 @@
       "args": [
 				"run",
 				"tauri:dev",
-				"--prefix",
-				"${workspaceFolder}/client"
 			],
 			"problemMatcher": []
     },
@@ -45,8 +41,6 @@
       "args": [
 				"run",
 				"tauri:build",
-				"--prefix",
-				"${workspaceFolder}/client"
 			],
 			"problemMatcher": []
     }
