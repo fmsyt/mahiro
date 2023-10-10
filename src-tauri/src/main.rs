@@ -45,6 +45,10 @@ fn create_systemtray() -> SystemTray {
 
 fn handle_systemtray(app: &AppHandle<Wry>, event: SystemTrayEvent) {
     match event {
+        SystemTrayEvent::LeftClick { .. } => {
+            let window = app.get_window("main").unwrap();
+            window.set_focus().unwrap();
+        }
         SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
             "open_config" => {
                 let window = app.get_window("config").unwrap();
