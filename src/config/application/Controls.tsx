@@ -1,51 +1,12 @@
 import { useEffect, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Box, CircularProgress, FormControl, FormControlLabel, FormLabel, Input, MenuItem, Radio, RadioGroup, Select, Stack, TextField, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, CircularProgress, FormControl, FormLabel, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { fs } from "@tauri-apps/api";
-import { BaseDirectory, FsOptions } from "@tauri-apps/api/fs";
-
-import { ControlProps, ControlType, isTypeOfControl } from "../../interface";
+import { ControlProps, ControlType } from "../../interface";
+import fetchControls from "../fetchControls";
 
 const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
 
-const fsOptions: FsOptions = {
-  dir: BaseDirectory.AppLocalData,
-}
-
-const useControls = () => {
-  const [controls, setControls] = useState<ControlProps[] | null>(null);
-  const [invalidJson, setInvalidJson] = useState(false);
-
-  useEffect(() => {
-
-    const read = async () => {
-      const isExists = await fs.exists("controls.json", fsOptions);
-
-      if (!isExists) {
-        await fs.writeFile("controls.json", "[]", fsOptions);
-      }
-
-      const text = await fs.readTextFile("controls.json", fsOptions);
-      try {
-        const json = JSON.parse(text);
-        console.log(json);
-        if (Array.isArray(json) && json.every(isTypeOfControl)) {
-          setControls(json);
-          setInvalidJson(false);
-        }
-      } catch (error) {
-        console.error(error);
-        setInvalidJson(true);
-      }
-    }
-
-    read();
-
-  }, []);
-
-  return { controls, invalidJson };
-}
 
 function createAccordion(data: ControlProps, index: number) {
   return (
@@ -120,7 +81,26 @@ function createAccordion(data: ControlProps, index: number) {
 
 export default function Controls() {
 
-  const { controls, invalidJson } = useControls();
+  const [controls, setControls] = useState<ControlProps[] | null>(null);
+  const [invalidJson, setInvalidJson] = useState(false);
+
+  useEffect(() => {
+
+    const read = async () => {
+
+      try {
+        const controls = await fetchControls();
+        setControls(controls);
+
+      } catch (error) {
+        console.error(error);
+        setInvalidJson(true);
+      }
+    }
+
+    read();
+
+  }, []);
 
   return (
     <Stack>
@@ -133,9 +113,9 @@ export default function Controls() {
 
 
       {controls == null ? (
-        <Box justifyContent="center" alignItems="center">
+        <Stack justifyContent="center" alignItems="center">
           <CircularProgress />
-        </Box>
+        </Stack>
       ) : (
         <>
           {invalidJson && (
