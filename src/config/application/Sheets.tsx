@@ -100,6 +100,7 @@ const SheetPageControl = (props: SheetPageControlProps) => {
           <Button
             variant="outlined"
             color="primary"
+            sx={{ textTransform: "none" }}
             onClick={() => setOpen(false)}
             >
             Close
