@@ -107,8 +107,22 @@ const ControlAccordion = (props: ControlAccordionProps) => {
 
         </Stack>
         <Stack direction="row" spacing={2} justifyContent="center" paddingTop={2}>
-          <Button variant="contained" color="primary" onClick={() => props.onSave?.(control)}>Save</Button>
-          <Button variant="outlined" color="secondary" onClick={() => setControl(props.initialControl)} >Reset</Button>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ textTransform: "none" }}
+            onClick={() => props.onSave?.(control)}
+          >
+            Save
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            sx={{ textTransform: "none" }}
+            onClick={() => setControl(props.initialControl)}
+          >
+            Reset
+          </Button>
         </Stack>
       </AccordionDetails>
     </Accordion>
