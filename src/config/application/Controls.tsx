@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Accordion, AccordionDetails, AccordionSummary, Button, CircularProgress, FormControl, FormLabel, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { ControlProps, ControlType } from "../../interface";
 import fetchControls from "../fetchControls";
+import saveControls from "../saveControls";
 
 const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
 
@@ -137,6 +138,17 @@ export default function Controls() {
 
   }, []);
 
+  const handleSave = useCallback((control: ControlProps, index: number) => {
+
+    const newControls = [...controls!];
+    newControls[index] = control;
+
+    saveControls(newControls).then(() => {
+      setControls(newControls);
+    });
+
+  }, [controls]);
+
   return (
     <Stack>
       <Typography variant="h5">Controls</Typography>
@@ -163,11 +175,7 @@ export default function Controls() {
               key={index}
               initialControl={control}
               index={index}
-              onSave={(control) => {
-                const newControls = [...controls];
-                newControls[index] = control;
-                setControls(newControls);
-              }}
+              onSave={(control) => handleSave(control, index)}
               />
           ))}
         </>
