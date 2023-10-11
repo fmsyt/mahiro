@@ -1,58 +1,113 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Box, Button, CircularProgress, Pagination, Stack, TextField, Typography } from "@mui/material";
-import { ConfigSheetProps } from "../../interface";
-import fetchSheets from "../fetchSheets";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { Box, Button, CircularProgress, Dialog, FormControl, FormLabel, MenuItem, Pagination, Select, Stack, TextField, Typography } from "@mui/material";
+import ErrorIcon from '@mui/icons-material/Error';
 
-interface SheetPageProps {
-  sheet: ConfigSheetProps;
-  index: number;
-  onSave?: (sheet: ConfigSheetProps) => void;
+import { ConfigControlProps, ConfigSheetItemProps, ConfigSheetProps, ControlStyle, isTypeOfConfigSheetItemProps } from "../../interface";
+import fetchSheets from "../fetchSheets";
+import useControls from "../useControls";
+
+
+interface SheetPageControlProps {
+  control?: ConfigControlProps;
+  controls: ConfigControlProps[];
+  defaultItem: ConfigSheetItemProps;
+  onChange?: (item: ConfigSheetItemProps) => void;
 }
 
-const SheetPage = (props: SheetPageProps) => {
+const SheetPageControl = (props: SheetPageControlProps) => {
 
-    const { index, sheet: defaultSheet } = props;
-    const [columns, setColumns] = useState(defaultSheet.columns);
-    const [items, setItems] = useState(defaultSheet.items);
+  const [open, setOpen] = useState(false);
+  const { control, controls, defaultItem, onChange } = props;
 
-    const gridTemplateColumns = useMemo(() => `repeat(${columns}, 1fr)`, [columns]);
-    const gridTemplateRows = useMemo(() => `repeat(${Math.ceil(items.length / columns)}, 1fr)`, [items, columns]);
+  const [item, setItem] = useState<ConfigSheetItemProps>(defaultItem);
+  const isError = item.type !== ControlStyle.Empty && !control;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleChange = useCallback((key: string, value: any) => {
+    setItem((prev) => {
+      const newItem = { ...prev, [key]: value };
+      onChange?.(newItem);
 
-    return (
-      <Stack direction="column" gap={2} justifyContent="center" alignItems="start">
-        <Button variant="contained">Save</Button>
-        <TextField
-          label="Columns"
-          defaultValue={columns}
-          variant="standard"
-          inputProps={{ type: "number" }}
-          onChange={(e) => setColumns(Number(e.target.value))}
-          />
+      isTypeOfConfigSheetItemProps(newItem);
 
-        <Box gap={2} sx={{ display: "grid", width: "100%", gridTemplateColumns, gridTemplateRows }}>
-          {items.map((item, index) => (
-            <Button
-              key={index}
-              variant="outlined"
-              sx={{ textTransform: "none" }}
-              disabled={item.disabled}
+      return newItem;
+    });
+
+  }, [onChange]);
+
+  return (
+    <>
+      <Button
+        variant="outlined"
+        sx={{ textTransform: "none" }}
+        disabled={item.disabled}
+        startIcon={isError && (
+          <ErrorIcon
+            color="error"
+            />
+        )}
+        onClick={() => setOpen(true)}
+      >
+        {item.label}
+      </Button>
+      <Dialog open={open} onClose={() => item.type !== ControlStyle.Empty && setOpen(false)}>
+        <Stack
+          direction="column"
+          alignItems="flex-start"
+          justifyContent="center"
+          padding={2}
+          gap={2}
+        >
+          <FormControl>
+            <FormLabel>Control</FormLabel>
+            <Select
+              defaultValue={control?.id}
+              variant="standard"
+              onChange={(e) => handleChange("control_id", e.target.value)}
             >
-              {item.label}
-            </Button>
-          ))}
-        </Box>
-      </Stack>
-    );
+              {controls.map((control, index) => (
+                <MenuItem key={index} value={control.id}>{control.id}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel>UI Type</FormLabel>
+            <Select
+              defaultValue={item.type.toLowerCase()}
+              variant="standard"
+              onChange={(e) => handleChange("type", e.target.value)}
+            >
+              {Object.keys(ControlStyle).map((key) => (
+                <MenuItem key={key} value={key.toLowerCase()}>{key}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
+            <FormLabel>Label</FormLabel>
+            <TextField
+              defaultValue={item.label}
+              variant="standard"
+              onChange={(e) => handleChange("label", e.target.value)}
+              />
+          </FormControl>
+        </Stack>
+      </Dialog>
+    </>
+  )
 }
 
 
 export default function Sheets() {
 
+  const { controls } = useControls();
+
   const [sheets, setSheets] = useState<ConfigSheetProps[] | null>(null);
   const [invalidJson, setInvalidJson] = useState(false);
   const [page, setPage] = useState(1);
+
   const pageIndex = page - 1;
+
+  const [columns, setColumns] = useState(1);
 
   useEffect(() => {
 
@@ -72,15 +127,22 @@ export default function Sheets() {
 
   }, []);
 
-  const handleSave = useCallback((control: ConfigSheetProps, index: number) => {
+  const findControl = useCallback((id?: string) => controls?.find((control) => control.id === id), [controls]);
+  const handleSheetItemChange = useCallback((item: ConfigSheetItemProps, pageIndex: number, itemIndex: number) => {
 
-    const newControls = [...sheets!];
-    newControls[index] = control;
+    console.log(item, pageIndex, itemIndex);
 
-    // saveControls(newControls).then(() => {
-    //   setSheets(newControls);
-    // });
+    const newSheets = [...(sheets || [])];
+    newSheets[pageIndex].items[itemIndex] = item;
+    setSheets(newSheets);
+  }, [sheets]);
 
+
+  const handlePageChange = useCallback((event: React.ChangeEvent<unknown>, page: number) => {
+    setPage(page);
+    if (sheets?.[page - 1]) {
+      setColumns(sheets[page - 1].columns);
+    }
   }, [sheets]);
 
   return (
@@ -92,7 +154,7 @@ export default function Sheets() {
           <CircularProgress />
         </Stack>
       ) : (
-        <>
+        <Stack gap={2}>
           {invalidJson && (
             <Typography variant="body1">
               Invalid JSON in controls.json
@@ -100,22 +162,49 @@ export default function Sheets() {
           )}
 
 
-          {sheets[pageIndex] && (
-            <SheetPage
-              sheet={sheets[pageIndex]}
-              index={pageIndex}
-              onSave={() => handleSave(sheets[pageIndex], pageIndex)}
-              />
+          {!!sheets?.[pageIndex] && (
+            <Stack direction="column" gap={2} justifyContent="center" alignItems="start">
+              <Button variant="contained">Save</Button>
+              <TextField
+                label="Columns"
+                value={columns}
+                variant="standard"
+                inputProps={{
+                  type: "number",
+                  min: 1,
+                 }}
+                onChange={(e) => setColumns(Number(e.target.value))}
+                />
+
+              <Box
+                gap={2}
+                sx={{
+                    display: "grid",
+                    width: "100%",
+                    gridTemplateColumns: `repeat(${columns}, 1fr)`,
+                    gridTemplateRows: `repeat(${Math.ceil(sheets[pageIndex].items.length / columns)}, 1fr)`
+                  }}>
+                {sheets[pageIndex].items.map((item, index) => (
+                  <SheetPageControl
+                    key={index}
+                    control={findControl(item.control_id)}
+                    controls={controls || []}
+                    defaultItem={item}
+                    onChange={(item) => handleSheetItemChange(item, pageIndex, index)}
+                    />
+                ))}
+              </Box>
+            </Stack>
           )}
 
           <Stack justifyContent="center" alignItems="center">
             <Pagination
               count={sheets.length}
-              onChange={(event, page) => setPage(page)}
+              onChange={handlePageChange}
               />
           </Stack>
 
-        </>
+        </Stack>
       )}
     </Stack>
   );
