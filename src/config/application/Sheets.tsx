@@ -55,46 +55,56 @@ const SheetPageControl = (props: SheetPageControlProps) => {
         {item.label}
       </Button>
       <Dialog open={open} onClose={() => item.type !== ControlStyle.Empty && setOpen(false)}>
-        <Stack
-          direction="column"
-          alignItems="flex-start"
-          justifyContent="center"
-          padding={2}
-          gap={2}
-        >
-          <FormControl>
-            <FormLabel>Control</FormLabel>
-            <Select
-              value={control?.id || ""}
-              variant="standard"
-              onChange={(e) => handleChange("control_id", e.target.value)}
+        <DialogContent>
+          <Stack
+            direction="column"
+            alignItems="flex-start"
+            justifyContent="center"
+            gap={2}
+          >
+            <FormControl>
+              <FormLabel>Control</FormLabel>
+              <Select
+                value={control?.id || ""}
+                variant="standard"
+                onChange={(e) => handleChange("control_id", e.target.value)}
+              >
+                {controls.map((control, index) => (
+                  <MenuItem key={index} value={control.id}>{control.id}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel>UI Type</FormLabel>
+              <Select
+                value={item.type.toLowerCase()}
+                variant="standard"
+                onChange={(e) => handleChange("type", e.target.value)}
+              >
+                {Object.keys(ControlStyle).map((key) => (
+                  <MenuItem key={key} value={key.toLowerCase()}>{key}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel>Label</FormLabel>
+              <TextField
+                defaultValue={item.label || ""}
+                variant="standard"
+                onChange={(e) => handleChange("label", e.target.value)}
+                />
+            </FormControl>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => setOpen(false)}
             >
-              {controls.map((control, index) => (
-                <MenuItem key={index} value={control.id}>{control.id}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <FormLabel>UI Type</FormLabel>
-            <Select
-              value={item.type.toLowerCase()}
-              variant="standard"
-              onChange={(e) => handleChange("type", e.target.value)}
-            >
-              {Object.keys(ControlStyle).map((key) => (
-                <MenuItem key={key} value={key.toLowerCase()}>{key}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <FormLabel>Label</FormLabel>
-            <TextField
-              defaultValue={item.label || ""}
-              variant="standard"
-              onChange={(e) => handleChange("label", e.target.value)}
-              />
-          </FormControl>
-        </Stack>
+            Close
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   )
