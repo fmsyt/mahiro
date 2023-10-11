@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, CircularProgress, FormControl, FormLabel, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Button, CircularProgress, FormControl, FormLabel, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { ControlProps, ControlType } from "../../interface";
@@ -8,71 +8,106 @@ import fetchControls from "../fetchControls";
 const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
 
 
-function createAccordion(data: ControlProps, index: number) {
+interface ControlAccordionProps {
+  initialControl: ControlProps;
+  index: number;
+  onSave?: (control: ControlProps) => void;
+}
+
+const ControlAccordion = (props: ControlAccordionProps) => {
+
+  const { index, initialControl } = props;
+  const [control, setControl] = useState<ControlProps>(initialControl);
+
   return (
     <Accordion key={index}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
-        aria-controls={`panel-${data.id}-content`}
-        id={`panel-${data.id}-header`}
+        aria-controls={`panel-${initialControl.id}-content`}
+        id={`panel-${initialControl.id}-header`}
       >
-        <Typography>{`${index + 1}. ${data.label || data.id}`}</Typography>
-        <Typography sx={{ color: "text.secondary" }}>{data.description}</Typography>
+        <Typography>{`${index + 1}. ${initialControl.label || initialControl.id}`}</Typography>
+        <Typography sx={{ color: "text.secondary" }}>{initialControl.description}</Typography>
       </AccordionSummary>
       <AccordionDetails>
         <Stack direction="column" spacing={2} alignItems="flex-start" justifyContent="center">
           <FormControl>
             <TextField
               label="ID"
-              defaultValue={data.id}
+              defaultValue={control.id}
               variant="standard"
-              onChange={() => {}}
+              onChange={(e) => setControl({ ...control, id: e.target.value })}
               />
           </FormControl>
           <FormControl>
             <TextField
               label="Description"
-              defaultValue={data.description}
+              defaultValue={control.description}
               variant="standard"
-              onChange={() => {}}
+              onChange={(e) => setControl({ ...control, description: e.target.value })}
               />
           </FormControl>
           <FormControl>
             <FormLabel>Control Type</FormLabel>
-            <Select value={data.type} variant="standard">
+            <Select
+              value={control.type}
+              variant="standard"
+              onChange={(e) => setControl({ ...control, type: e.target.value as ControlType })}
+            >
               {Object.keys(ControlType).map((key) => (
                 <MenuItem key={key} value={key.toLowerCase()}>{key}</MenuItem>
               ))}
             </Select>
           </FormControl>
 
-          {data.type === ControlType.Browser && (
+          {control.type === ControlType.Browser && (
             <FormControl>
               <FormLabel>URL</FormLabel>
-              <TextField value={data.url} variant="standard" />
+              <TextField
+                value={control.url}
+                variant="standard"
+                onChange={(e) => setControl({ ...control, url: e.target.value })}
+                />
             </FormControl>
           )}
 
-          {data.type === ControlType.Command && (
+          {control.type === ControlType.Command && (
             <FormControl>
               <FormLabel>Command</FormLabel>
-              <TextField value={data.command} variant="standard" />
+              <TextField
+                value={control.command}
+                variant="standard"
+                onChange={(e) => setControl({ ...control, command: e.target.value })}
+                />
             </FormControl>
           )}
 
-          {data.type === ControlType.Keyboard && (
+          {control.type === ControlType.Keyboard && (
             <FormControl>
               <FormLabel>Key</FormLabel>
-              <TextField value={data.key} variant="standard" />
+              <TextField
+                value={control.key}
+                variant="standard"
+                onChange={(e) => setControl({ ...control, key: e.target.value })}
+                />
             </FormControl>
           )}
 
-          {data.type === ControlType.Hotkey && (
+          {control.type === ControlType.Hotkey && (
             <FormControl>
               <FormLabel>Key</FormLabel>
-              <TextField value={data.key} variant="standard" />
+              <TextField
+                value={control.key}
+                variant="standard"
+                onChange={(e) => setControl({ ...control, key: e.target.value })}
+                />
             </FormControl>
           )}
+
+        </Stack>
+        <Stack direction="row" spacing={2} justifyContent="center" paddingTop={2}>
+          <Button variant="contained" color="primary" onClick={() => props.onSave?.(control)}>Save</Button>
+          <Button variant="outlined" color="secondary" onClick={() => setControl(props.initialControl)} >Reset</Button>
         </Stack>
       </AccordionDetails>
     </Accordion>
@@ -123,7 +158,18 @@ export default function Controls() {
               Invalid JSON in controls.json
             </Typography>
           )}
-          {controls.map(createAccordion)}
+          {controls.map((control, index) => (
+            <ControlAccordion
+              key={index}
+              initialControl={control}
+              index={index}
+              onSave={(control) => {
+                const newControls = [...controls];
+                newControls[index] = control;
+                setControls(newControls);
+              }}
+              />
+          ))}
         </>
       )}
 
