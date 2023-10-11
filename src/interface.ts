@@ -13,7 +13,7 @@ export enum ControlType {
   Hotkey = "hotkey",
 }
 
-export interface ControlProps {
+export interface ConfigControlProps {
   id: string;
   type: string;
   // default?: string | null;
@@ -26,26 +26,26 @@ export interface ControlProps {
   [key: string]: unknown;
 }
 
-export interface BrowserControlProps extends ControlProps {
+export interface ConfigBrowserControlProps extends ConfigControlProps {
   url: string;
 }
 
-export interface CommandControlProps extends ControlProps {
+export interface ConfigCommandControlProps extends ConfigControlProps {
   commands: string[];
   sync?: boolean;
 }
 
-export interface KeyboardControlProps extends ControlProps {
+export interface ConfigKeyboardControlProps extends ConfigControlProps {
   text: string;
 }
 
-export interface HotkeyControlProps extends ControlProps {
+export interface ConfigHotkeyControlProps extends ConfigControlProps {
   hotkeys: string[];
 }
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isTypeOfControl(data: any): data is ControlProps {
+export function isTypeOfConfigControl(data: any): data is ConfigControlProps {
   if (typeof data !== "object") {
     throw new Error("data is not object");
   }
@@ -78,8 +78,8 @@ export function isTypeOfControl(data: any): data is ControlProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isTypeOfBrowserControl(data: any): data is BrowserControlProps {
-  if (!isTypeOfControl(data)) {
+export function isTypeOfConfigBrowserControl(data: any): data is ConfigBrowserControlProps {
+  if (!isTypeOfConfigControl(data)) {
     throw new Error("data is not ControlProps");
   }
 
@@ -95,8 +95,8 @@ export function isTypeOfBrowserControl(data: any): data is BrowserControlProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isTypeOfCommandControl(data: any): data is CommandControlProps {
-  if (!isTypeOfControl(data)) {
+export function isTypeOfConfigCommandControl(data: any): data is ConfigCommandControlProps {
+  if (!isTypeOfConfigControl(data)) {
     throw new Error("data is not ControlProps");
   }
 
@@ -120,8 +120,8 @@ export function isTypeOfCommandControl(data: any): data is CommandControlProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isTypeOfKeyboardControl(data: any): data is KeyboardControlProps {
-  if (!isTypeOfControl(data)) {
+export function isTypeOfConfigKeyboardControl(data: any): data is ConfigKeyboardControlProps {
+  if (!isTypeOfConfigControl(data)) {
     throw new Error("data is not ControlProps");
   }
 
@@ -137,8 +137,8 @@ export function isTypeOfKeyboardControl(data: any): data is KeyboardControlProps
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isTypeOfHotkeyControl(data: any): data is HotkeyControlProps {
-  if (!isTypeOfControl(data)) {
+export function isTypeOfConfigHotkeyControl(data: any): data is ConfigHotkeyControlProps {
+  if (!isTypeOfConfigControl(data)) {
     throw new Error("data is not ControlProps");
   }
 
@@ -152,6 +152,77 @@ export function isTypeOfHotkeyControl(data: any): data is HotkeyControlProps {
 
   if (data.hotkeys.some((hotkey) => typeof hotkey !== "string")) {
     throw new Error("hotkeys is not string[]");
+  }
+
+  return true;
+}
+
+
+export interface ConfigSheetItemProps {
+  control_id?: string;
+  label?: string;
+  type: ControlStyle;
+  disabled?: boolean;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isTypeOfConfigSheetItemProps(data: any): data is ConfigSheetItemProps {
+  if (typeof data !== "object") {
+    throw new Error("data is not object");
+  }
+
+  if (typeof data.type !== "string") {
+    throw new Error("data.type is not string");
+  }
+
+  if (!Object.values(ControlStyle).includes(data.type)) {
+    throw new Error("data.type is not ControlStyle");
+  }
+
+  if (typeof data.control_id !== "string" && data.control_id != null) {
+    throw new Error("data.control_id is not string");
+  }
+
+  if (typeof data.label !== "string" && data.label != null) {
+    throw new Error("data.label is not string or null");
+  }
+
+  if (typeof data.disabled !== "boolean" && data.disabled != null) {
+    throw new Error("data.disabled is not boolean or null");
+  }
+
+  return true;
+}
+
+
+
+export interface ConfigSheetProps {
+  columns: number;
+  items: ConfigSheetItemProps[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isTypeOfSheet(data: any): data is ConfigSheetProps {
+  if (typeof data !== "object") {
+    throw new Error("data is not object");
+  }
+
+  if (typeof data.columns !== "number") {
+    throw new Error("data.columns is not number");
+  }
+
+  if (typeof data.items !== "object") {
+    throw new Error("data.items is not object");
+  }
+
+  if (!Array.isArray(data.items)) {
+    throw new Error("data.items is not array");
+  }
+
+  const items = data.items as Array<ConfigSheetItemProps>;
+  const passed = items.every((item) => isTypeOfConfigSheetItemProps(item));
+  if (!passed) {
+    throw new Error("data.items is not ConfigSheetItemProps[]");
   }
 
   return true;

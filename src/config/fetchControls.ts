@@ -1,5 +1,5 @@
 import { fs } from "@tauri-apps/api";
-import { isTypeOfControl } from "../interface";
+import { isTypeOfConfigControl } from "../interface";
 import { BaseDirectory, FsOptions } from "@tauri-apps/api/fs";
 
 const fsOptions: FsOptions = {
@@ -16,7 +16,7 @@ const fetchControls = async () => {
   const text = await fs.readTextFile("controls.json", fsOptions);
   const json = JSON.parse(text);
 
-  if (Array.isArray(json) && json.every(isTypeOfControl)) {
+  if (Array.isArray(json) && json.every(isTypeOfConfigControl)) {
     return json;
   }
 

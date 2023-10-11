@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Accordion, AccordionDetails, AccordionSummary, Button, CircularProgress, FormControl, FormLabel, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { ControlProps, ControlType } from "../../interface";
+import { ConfigControlProps, ControlType } from "../../interface";
 import fetchControls from "../fetchControls";
 import saveControls from "../saveControls";
 
@@ -10,15 +10,15 @@ const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
 
 
 interface ControlAccordionProps {
-  initialControl: ControlProps;
+  initialControl: ConfigControlProps;
   index: number;
-  onSave?: (control: ControlProps) => void;
+  onSave?: (control: ConfigControlProps) => void;
 }
 
 const ControlAccordion = (props: ControlAccordionProps) => {
 
   const { index, initialControl } = props;
-  const [control, setControl] = useState<ControlProps>(initialControl);
+  const [control, setControl] = useState<ConfigControlProps>(initialControl);
 
   return (
     <Accordion key={index}>
@@ -117,7 +117,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
 
 export default function Controls() {
 
-  const [controls, setControls] = useState<ControlProps[] | null>(null);
+  const [controls, setControls] = useState<ConfigControlProps[] | null>(null);
   const [invalidJson, setInvalidJson] = useState(false);
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function Controls() {
 
   }, []);
 
-  const handleSave = useCallback((control: ControlProps, index: number) => {
+  const handleSave = useCallback((control: ConfigControlProps, index: number) => {
 
     const newControls = [...controls!];
     newControls[index] = control;
