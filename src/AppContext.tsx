@@ -20,6 +20,7 @@ function isArrayOfPageProps(data: any): data is ReceiveSheetUpdateMessage["data"
 interface AppContextProps {
   pages: PageProps[] | null;
   emit: (data: EmitTypes) => void;
+  hostname?: string;
 }
 
 const AppContext = React.createContext<AppContextProps>({

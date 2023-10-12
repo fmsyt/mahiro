@@ -9,7 +9,7 @@ const Connection = memo(() => {
   const theme = useTheme();
   const matched = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { connection, readyState, setToken, tokenRequired } = useContext(WebSocketContext);
+  const { connection, setToken, tokenRequired } = useContext(WebSocketContext);
 
   const protocolRef = useRef<HTMLInputElement>(null);
   const hostnameRef = useRef<HTMLInputElement>(null);

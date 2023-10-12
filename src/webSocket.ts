@@ -5,10 +5,15 @@ export interface WebSocketConnection {
   token: string | null,
 }
 
-const defaultProtocol = localStorage.getItem("lastConnectedProtocol") || (window.location.protocol === "https:" ? "wss" : "ws");
-const defaultPort = localStorage.getItem("lastConnectedPort") || 17001;
+const defaultProtocol = localStorage.getItem("lastConnectedProtocol")
+  || (window.location.protocol === "https:" ? "wss" : "ws")
 
-const defaultHost = localStorage.getItem("lastConnectedHost") || window.location.hostname;
+const defaultPort = localStorage.getItem("lastConnectedPort")
+  || 17001
+
+const defaultHost = localStorage.getItem("lastConnectedHost")
+  || window.location.hostname
+
 const defaultWebSocketToken = localStorage.getItem("wsToken");
 
 export function toURL(conditions: WebSocketConnection): string {
