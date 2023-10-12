@@ -1,12 +1,9 @@
-import { useMemo } from "react";
-import { SheetItemProps } from "../interface";
-
 import { Slider as MuiSlider, Paper, Stack, styled, Typography } from "@mui/material";
-import { emit } from "../functions";
+import { EmitControllerProps } from "../interface";
+
 import { Events } from "../enum";
 
 const sliderSize = "100%";
-
 const BoldSlider = styled(MuiSlider)(({ theme }) => ({
 
   "& .MuiSlider-thumb": {
@@ -48,14 +45,13 @@ const BoldSlider = styled(MuiSlider)(({ theme }) => ({
   }
 }));
 
+const Slider = (props: EmitControllerProps) => {
 
-const Slider = (props: { ws: WebSocket, controlProps: SheetItemProps, disabled?: boolean }) => {
+  const { sheetItem, emit } = props;
 
-  const { controlProps, ws } = props;
+  const disabled = props.disabled || sheetItem.disabled || false;
 
-  const disabled = props.disabled || controlProps.disabled || false;
-
-  const events = useMemo(() => {
+  const events = () => {
     if (disabled) {
       return {}
     }
@@ -69,18 +65,22 @@ const Slider = (props: { ws: WebSocket, controlProps: SheetItemProps, disabled?:
           return;
         }
 
-        if (!controlProps.control_id) {
+        if (!sheetItem.control_id) {
           return;
         }
 
         isActive = true;
         setTimeout(() => { isActive = false }, 100);
 
-        emit(ws, { action: controlProps.control_id, event: Events.keyUp, context: JSON.stringify(value) })
+        emit({
+          action: sheetItem.control_id,
+          event: Events.keyUp,
+          context: JSON.stringify(value)
+        })
       },
     }
 
-  }, [ws, controlProps, disabled]);
+  }
 
   return (
     <Paper variant="outlined">
@@ -88,15 +88,15 @@ const Slider = (props: { ws: WebSocket, controlProps: SheetItemProps, disabled?:
         {/* <VolumeDown /> */}
         <BoldSlider
           aria-label="Volume"
-          defaultValue={Number(controlProps.default || 0)}
+          defaultValue={Number(sheetItem.default || 0)}
           disabled={disabled}
           orientation="vertical"
           sx={{ width: "100%", height: "100%" }}
-          { ...(controlProps.props || {}) }
+          { ...(sheetItem.props || {}) }
           { ...events }
           />
         {/* <VolumeUp /> */}
-        <Typography variant="caption">{controlProps.label}</Typography>
+        <Typography variant="caption">{sheetItem.label}</Typography>
       </Stack>
     </Paper>
   )

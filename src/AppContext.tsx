@@ -1,27 +1,30 @@
-import React from "react";
-import { isTypeOfPageProps, pageProps } from "./interface";
-import { Alert, Snackbar } from "@mui/material";
-import { updateGeneral, updateSheets } from "./functions";
-import { createWebSocket, defaultWebSocketConditions, webSocketConditionsTypes } from "./webSocket";
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } from "react";
+import { EmitTypes, isTypeOfPageProps, PageProps, ReceiveSheetUpdateMessage } from "./interface";
+import WebSocketContext from "./WebSocketContext";
+
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isArrayOfPageProps(data: any): data is ReceiveSheetUpdateMessage["data"] {
+  if (!Array.isArray(data)) {
+    throw new Error("data is not array");
+  }
+
+  if (data.every(isTypeOfPageProps)) {
+    return true;
+  }
+
+  return false;
+}
 
 
 interface AppContextProps {
-  webSocket: WebSocket | null,
-  wsCloseCode: CloseEvent["code"] | null,
-  reConnect: () => void,
-  pages: pageProps[] | null,
-  wsConditions: webSocketConditionsTypes,
-  setWebSocketConditions: React.Dispatch<React.SetStateAction<webSocketConditionsTypes>>,
-  hostname?: string,
+  pages: PageProps[] | null;
+  emit: (data: EmitTypes) => void;
 }
 
 const AppContext = React.createContext<AppContextProps>({
-  webSocket: null,
-  wsCloseCode: null,
-  wsConditions: defaultWebSocketConditions,
-  reConnect: () => {},
   pages: null,
-  setWebSocketConditions: () => {},
+  emit: () => {},
 });
 
 interface AppContextProviderProps {
@@ -32,93 +35,58 @@ interface AppContextProviderProps {
 const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
   const { children } = props;
+  const { lastJsonMessage, readyState, sendJsonMessage } = useContext(WebSocketContext);
 
-  const [hostname, setHostname] = React.useState<string | undefined>(undefined);
+  const pagesRef = useRef<PageProps[] | null>(null);
 
-  const [wsConditions, setWebSocketConditions] = React.useState<webSocketConditionsTypes>(defaultWebSocketConditions);
-  const [wsCloseCode, setWsCloseCode] = React.useState<CloseEvent["code"] | null>(null);
+  const emit = useCallback((data: EmitTypes) => {
+    sendJsonMessage({ method: "emit", data });
+  }, [sendJsonMessage]);
 
-  const [open, setOpen] = React.useState(false);
-  const [pages, setPages] = React.useState<pageProps[] | null>(null);
+  useEffect(() => {
 
-  const [webSocket, reConnect] = React.useMemo(() => {
-
-    const webSocket = createWebSocket(wsConditions);
-
-    const handleOpen = () => {
-      updateGeneral(webSocket);
-      updateSheets(webSocket);
+    if (readyState !== WebSocket.OPEN) {
+      return;
     }
 
-    const handleMessage = (event: MessageEvent) => {
+    sendJsonMessage({ method: "general.update" });
+    sendJsonMessage({ method: "sheets.update" });
 
-      try {
-        const obj = JSON.parse(event.data);
+  }, [readyState, sendJsonMessage])
 
-        switch (obj?.method) {
-          default: break;
+  useLayoutEffect(() => {
 
-          case "general.update":
-            setHostname(obj?.data?.hostname);
-            break;
+    const method = lastJsonMessage?.method || "";
 
-          case "sheets.update":
-            if (Array.isArray(obj?.data)) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const receivedPages = obj.data as Array<any>;
-              if (receivedPages.every(isTypeOfPageProps)) {
-                receivedPages.every(isTypeOfPageProps) && setPages(receivedPages);
-              } else {
-                console.error("Received invalid data.");
-              }
-            }
-            break;
+    switch (method) {
+      case "sheets.update": {
+
+
+        const list = lastJsonMessage?.data;
+        if (!Array.isArray(list)) {
+          return;
         }
+
+        if (isArrayOfPageProps(list)) {
+          console.log("sheets.update", lastJsonMessage?.data);
+          pagesRef.current = list;
+        }
+
+        return;
       }
-      catch (e) {
-        console.error(e);
-        setOpen(true);
-      }
+
     }
 
-    const handleClose = (e: CloseEvent) => {
-      setWsCloseCode(e.code);
-    }
+  }, [lastJsonMessage]);
 
-    const reConnect = () => {
-      webSocket.close();
-      setWebSocketConditions((prev) => ({ ...prev }));
-    }
-
-    webSocket.addEventListener("open", handleOpen);
-    webSocket.addEventListener("message", handleMessage);
-    webSocket.addEventListener("close", handleClose);
-
-    return [webSocket, reConnect];
-
-  }, [wsConditions]);
-
+  const values = {
+    pages: pagesRef.current,
+    emit,
+  }
 
   return (
-    <AppContext.Provider value={{
-      webSocket,
-      wsCloseCode,
-      wsConditions,
-      reConnect,
-      pages,
-      hostname,
-      setWebSocketConditions,
-
-    }}>
+    <AppContext.Provider value={values}>
       {children}
-
-      <Snackbar
-        open={open}
-        autoHideDuration={6000}
-        onClose={() => setOpen(false)}
-      >
-        <Alert severity="warning">不正なデータを受信しました。</Alert>
-      </Snackbar>
     </AppContext.Provider>
   )
 }

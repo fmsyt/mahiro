@@ -1,33 +1,24 @@
 import { memo } from "react";
-import { SheetItemProps } from "./interface";
 import { Paper } from "@mui/material";
+
+import { EmitControllerProps } from "./interface";
 
 import StyleButton from "./components/Button";
 import StyleSlider from "./components/Slider";
 
-interface controlUIPropsType {
-  controlProps: SheetItemProps,
-}
+export const Control = memo((props: EmitControllerProps) => {
+  const { sheetItem, emit } = props;
 
-interface controlPropsType extends controlUIPropsType {
-  ws: WebSocket,
-  disabled?: boolean,
-}
-
-export const Control = memo((props: controlPropsType) => {
-
-  const { controlProps, ws } = props;
-
-  switch (controlProps.style) {
+  switch (sheetItem.style) {
     default:
     case "empty":
       return <DefaultControlUI />;
 
     case "button":
-      return <StyleButton ws={ws} controlProps={controlProps} disabled={props.disabled} />
+      return <StyleButton emit={emit} sheetItem={sheetItem} disabled={props.disabled} />
 
     case "slider":
-      return <StyleSlider ws={ws} controlProps={controlProps} disabled={props.disabled} />
+      return <StyleSlider emit={emit} sheetItem={sheetItem} disabled={props.disabled} />
   }
 })
 

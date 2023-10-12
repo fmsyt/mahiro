@@ -1,39 +1,41 @@
-import { memo, useCallback, useContext, useMemo, useState } from "react";
-import { pageProps } from "./interface";
+import { memo, useCallback, useContext, useMemo } from "react";
+import { Box, CircularProgress, Pagination, Stack, Typography } from "@mui/material";
+import { ReadyState } from "react-use-websocket";
 
-import { Box, Button, CircularProgress, Pagination, Stack, Typography } from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
+import { useSearchParams } from "react-router-dom";
+import { PageProps } from "./interface";
 
 import { AppContext } from "./AppContext";
 import { Control } from "./Control";
-import { useSearchParams } from "react-router-dom";
+
+import WebSocketContext from "./WebSocketContext";
 
 import "./board.css"
+import { toURL } from "./webSocket";
 
 const Board = memo(() => {
 
-  const { pages, webSocket } = useContext(AppContext);
+  const { pages } = useContext(AppContext);
+  const { connection, readyState } = useContext(WebSocketContext);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
   const page = Number(searchParams.get("page") || 1);
   const setPage = useCallback((page: number) => setSearchParams({ page: page.toString() }), [setSearchParams]);
 
-  const [isEditMode] = useState(false);
-
-  return !webSocket || !pages
+  return readyState !== ReadyState.OPEN
   ? (
     <Stack alignItems="center" justifyContent="center" gap={2} height="80vh">
-      <Typography variant="body1">Connecting...</Typography>
+      <Typography variant="body1">Connecting to {toURL(connection)}</Typography>
       <CircularProgress />
     </Stack>
   ) : (
     <Box sx={{ display: "grid", gap: 2, gridTemplateRows: "1fr 32px", height: "100%" }}>
-      {pages.length > 0 && (
-        <Page webSocket={webSocket} isEditMode={isEditMode} {...pages[page - 1]} />
+      {!!pages && pages.length > 0 && (
+        <Page {...pages[page - 1]} />
       )}
 
-      {pages.length > 1 && (
+      {!!pages && pages.length > 1 && (
         <Stack alignItems="center">
           <Pagination
             count={pages.length}
@@ -47,29 +49,24 @@ const Board = memo(() => {
   )
 })
 
-interface PageProps extends pageProps {
-  webSocket: WebSocket;
-  isEditMode: boolean;
-}
-
 const Page = (props: PageProps) => {
 
-  const { items: controls, webSocket, columns, isEditMode } = props;
+  const { items, columns } = props;
+  const { emit } = useContext(AppContext);
 
   const gridTemplateColumns = useMemo(() => `repeat(${columns}, 1fr)`, [columns]);
-  const gridTemplateRows = useMemo(() => `repeat(${Math.ceil(controls.length / columns)}, 1fr)`, [controls, columns]);
+  const gridTemplateRows = useMemo(() => `repeat(${Math.ceil(items.length / columns)}, 1fr)`, [items, columns]);
 
   return (
     <Box gap={2} sx={{ display: "grid", height: "100%", gridTemplateColumns, gridTemplateRows }}>
-      {controls.map((control, i) => (
-        <Control key={i} controlProps={control} ws={webSocket} disabled={isEditMode} />
+      {items.map((control, i) => (
+        <Control
+          key={i}
+          emit={emit}
+          sheetItem={control}
+          />
       ))}
 
-      {isEditMode && (
-        <Button variant="outlined" sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }} onClick={() => console.log("edit")}>
-          <AddIcon />
-        </Button>
-      )}
     </Box>
   )
 }

@@ -1,29 +1,28 @@
-import { useMemo } from "react";
-import { SheetItemProps } from "../interface";
-
 import { Box, Button as MuiButton, Stack, Typography } from "@mui/material";
+import { EmitControllerProps } from "../interface";
 
 import logo from "../logo.svg";
 import { Events } from "../enum";
-import { emit } from "../functions";
 
-const Button = (props: { ws: WebSocket, controlProps: SheetItemProps, disabled?: boolean }) => {
+const Button = (props: EmitControllerProps) => {
 
-  const { controlProps, ws } = props;
-  const { label } = controlProps;
+  const { sheetItem, emit } = props;
+  const { label } = sheetItem;
 
-  const disabled = props.disabled || controlProps.disabled || false;
+  const disabled = props.disabled || sheetItem.disabled || false;
 
-  const events = useMemo(() => {
+  const events = () => {
     if (disabled) {
       return {}
     }
 
     return {
-      onMouseUp: () => emit(ws, { action: controlProps.control_id || "", event: Events.keyUp }),
+      onMouseUp: () => emit({
+        action: sheetItem.control_id || "",
+        event: Events.keyUp
+      }),
     }
-
-  }, [ws, controlProps, disabled]);
+  }
 
   return (
     <MuiButton variant="outlined" { ...events } disabled={disabled} sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }}>

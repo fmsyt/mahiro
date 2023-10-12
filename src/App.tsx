@@ -23,6 +23,7 @@ import "./App.css";
 import Connection from "./Connection";
 import ThemeContextProvider from "./ThemeContextProvider";
 import ThemeContext from "./ThemeContext";
+import WebSocketProvider from "./WebSocketProvider";
 
 const drawerWidth = 240;
 
@@ -81,22 +82,24 @@ const App = ({ disableDrawer = false }: { disableDrawer?: boolean }) => {
   return (
     <MemoryRouter>
       <ThemeContextProvider>
-        <AppContextProvider>
-          <CssBaseline />
-          <Container>
-            { !disableDrawer ? (
-              <AppDrawer>
-                <Box height="calc(100vh - 64px - 48px)">
+        <WebSocketProvider>
+          <AppContextProvider>
+            <CssBaseline />
+            <Container>
+              { !disableDrawer ? (
+                <AppDrawer>
+                  <Box height="calc(100vh - 64px - 48px)">
+                    <AppContent />
+                  </Box>
+                </AppDrawer>
+              ) : (
+                <Stack padding={2} height="100vh">
                   <AppContent />
-                </Box>
-              </AppDrawer>
-            ) : (
-              <Stack padding={2} height="100vh">
-                <AppContent />
-              </Stack>
-            )}
-          </Container>
-        </AppContextProvider>
+                </Stack>
+              )}
+            </Container>
+          </AppContextProvider>
+        </WebSocketProvider>
       </ThemeContextProvider>
     </MemoryRouter>
   )

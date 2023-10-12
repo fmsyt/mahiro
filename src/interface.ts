@@ -1,5 +1,7 @@
 'use strict'
 
+import { Events } from "./enum";
+
 export enum ControlStyle {
   Button = "button",
   Slider = "slider",
@@ -288,13 +290,13 @@ export function isTypeOfSheetItemProps(data: any): data is SheetItemProps {
   return true;
 }
 
-export interface pageProps {
+export interface PageProps {
   columns: number
   items: SheetItemProps[]
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isTypeOfPageProps(data: any): data is pageProps {
+export function isTypeOfPageProps(data: any): data is PageProps {
 
   if (typeof data !== "object") {
     throw new Error("data is not object");
@@ -319,4 +321,36 @@ export function isTypeOfPageProps(data: any): data is pageProps {
   }
 
   return true;
+}
+export interface EmitTypes {
+  action: string;
+  event: Events;
+  context?: number | string;
+  payload?: {
+    coordinates?: {
+      column: number;
+      row: number;
+    };
+    isInMultiAction: boolean;
+    state?: string;
+    settings?: object;
+    userDesiredState?: string | number;
+  };
+}
+
+export interface ReceiveJsonMessage {
+  method: string;
+  data: unknown;
+}
+
+export interface ReceiveSheetUpdateMessage extends ReceiveJsonMessage {
+  data: PageProps[];
+}
+
+
+
+export interface EmitControllerProps {
+  sheetItem: SheetItemProps;
+  disabled?: boolean;
+  emit: (emit: EmitTypes) => void;
 }
