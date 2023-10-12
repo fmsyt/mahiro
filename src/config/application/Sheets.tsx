@@ -268,10 +268,16 @@ export default function Sheets() {
 
                   <Tooltip title="Delete this page">
                     <Button
+                      color="secondary"
                       variant="outlined"
-                      color="error"
                       startIcon={<DeleteIcon />}
-                      sx={{ textTransform: "none" }}
+                      sx={{
+                        textTransform: "none",
+                        "&:hover": {
+                          color: "error.main",
+                          borderColor: "error.main",
+                        }
+                      }}
                       onClick={() => setOpenDeletePageDialog(true)}
                     >
                       Delete

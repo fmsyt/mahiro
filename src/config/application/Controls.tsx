@@ -169,14 +169,18 @@ const ControlAccordion = (props: ControlAccordionProps) => {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setOpenDeleteDialog(false)}
+            color="primary"
+            variant="outlined"
             sx={{ textTransform: "none" }}
+            onClick={() => setOpenDeleteDialog(false)}
           >
             Cancel
           </Button>
           <Button
+            color="error"
+            variant="outlined"
+            sx={{ textTransform: "none" }}
             onClick={handleRemove}
-            sx={{ color: "error.main", textTransform: "none" }}
           >
             Delete
           </Button>
