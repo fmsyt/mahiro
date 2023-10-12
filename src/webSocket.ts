@@ -5,12 +5,8 @@ export interface webSocketConditionsTypes {
   token?: string | null,
 }
 
-const defaultProtocol = localStorage.getItem("lastConnectedProtocol")
-  || (window.location.protocol === "https:" ? "wss" : "ws");
-const defaultPort = localStorage.getItem("lastConnectedPort")
-  || (import.meta.env.PROD
-    ? (window.location.port || (defaultProtocol === "ws" ? 80 : 443))
-    : 8000);
+const defaultProtocol = localStorage.getItem("lastConnectedProtocol") || (window.location.protocol === "https:" ? "wss" : "ws");
+const defaultPort = localStorage.getItem("lastConnectedPort") || 17001;
 
 const defaultHost = localStorage.getItem("lastConnectedHost") || window.location.hostname;
 const defaultWebSocketToken = localStorage.getItem("wsToken");

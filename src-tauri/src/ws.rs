@@ -5,7 +5,7 @@ use tokio::net::{TcpListener, TcpStream};
 use crate::client::{ReceivedMessage, load_state, State as ClientState, SendWebSocketClientMessage, ReceiveWebSocketClientMessage};
 
 pub async fn start_server(_config_directory_path: String) {
-    let addr: String = "0.0.0.0:8080".to_string();
+    let addr: String = "0.0.0.0:17001".to_string();
     println!("Listening on: {}", addr);
 
     let try_socket: Result<TcpListener, std::io::Error> = TcpListener::bind(addr).await;
