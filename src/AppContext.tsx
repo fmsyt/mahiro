@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef } from "react";
+import React, { useCallback, useContext, useEffect, useLayoutEffect } from "react";
 import { EmitTypes, isTypeOfPageProps, PageProps, ReceiveSheetUpdateMessage } from "./interface";
 import WebSocketContext from "./WebSocketContext";
 
@@ -38,7 +38,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
   const { children } = props;
   const { lastJsonMessage, readyState, sendJsonMessage } = useContext(WebSocketContext);
 
-  const pagesRef = useRef<PageProps[] | null>(null);
+  const [pages, setPages] = React.useState<PageProps[] | null>(null);
 
   const emit = useCallback((data: EmitTypes) => {
     sendJsonMessage({ method: "emit", data });
@@ -70,7 +70,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
 
         if (isArrayOfPageProps(list)) {
           console.log("sheets.update", lastJsonMessage?.data);
-          pagesRef.current = list;
+          setPages(list);
         }
 
         return;
@@ -81,7 +81,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
   }, [lastJsonMessage]);
 
   const values = {
-    pages: pagesRef.current,
+    pages,
     emit,
   }
 

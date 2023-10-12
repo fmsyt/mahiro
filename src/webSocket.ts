@@ -6,12 +6,14 @@ export interface WebSocketConnection {
 }
 
 const defaultProtocol = localStorage.getItem("lastConnectedProtocol")
+  || "ws"
   || (window.location.protocol === "https:" ? "wss" : "ws")
 
 const defaultPort = localStorage.getItem("lastConnectedPort")
   || 17001
 
 const defaultHost = localStorage.getItem("lastConnectedHost")
+  || "localhost"
   || window.location.hostname
 
 const defaultWebSocketToken = localStorage.getItem("wsToken");
