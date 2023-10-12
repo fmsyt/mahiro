@@ -1,5 +1,5 @@
 import { SyntheticEvent, useCallback, useState } from "react";
-import { Box, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Container, Stack, Tab, Tabs, Typography } from "@mui/material";
 import Controls from "./Controls";
 import Sheets from "./Sheets";
 
@@ -20,21 +20,23 @@ export default function Edit(): JSX.Element {
   const handleChange = useCallback((event: SyntheticEvent, newValue: number) => setCurrentTab(newValue), []);
 
   return (
-    <Stack gap={2}>
-      <Typography variant="h5">画面編集</Typography>
+    <Container>
+      <Stack gap={2}>
+        <Typography variant="h5">画面編集</Typography>
 
-      <Tabs value={currentTab} onChange={handleChange}>
-        <Tab label="Controls" { ...a11yProps(0) } />
-        <Tab label="Sheets" { ...a11yProps(1) } />
-      </Tabs>
+        <Tabs value={currentTab} onChange={handleChange}>
+          <Tab label="Controls" { ...a11yProps(0) } />
+          <Tab label="Sheets" { ...a11yProps(1) } />
+        </Tabs>
 
-      <CustomTabPanel value={currentTab} index={0}>
-        <Controls />
-      </CustomTabPanel>
-      <CustomTabPanel value={currentTab} index={1}>
-        <Sheets />
-      </CustomTabPanel>
-    </Stack>
+        <CustomTabPanel value={currentTab} index={0}>
+          <Controls />
+        </CustomTabPanel>
+        <CustomTabPanel value={currentTab} index={1}>
+          <Sheets />
+        </CustomTabPanel>
+      </Stack>
+    </Container>
   );
 }
 
