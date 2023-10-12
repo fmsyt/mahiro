@@ -72,7 +72,6 @@ const ControlAccordion = (props: ControlAccordionProps) => {
             onClick={handleOpenRemoveDialog}
             disabled={disallowed}
             sx={{
-              color: "secondary.main",
               "&:hover": { color: "error.main" }
             }}
           >
@@ -265,8 +264,10 @@ const ControlAccordionCommandDetails = (props: ControlAccordionDetailsProps) => 
               <IconButton onClick={() => handleDeleteArgument(index)}>
                 <RemoveCircleIcon
                   sx={{
-                    color: "secondary",
-                    "&:hover": { color: "error" }
+                    "&:hover": {
+                      color: "error.main",
+                      borderColor: "error.main",
+                    }
                   }}
                   />
               </IconButton>
@@ -339,8 +340,10 @@ const ControlAccordionHotkeyDetails = (props: ControlAccordionDetailsProps) => {
             }}>
               <RemoveCircleIcon
                 sx={{
-                  color: "secondary",
-                  "&:hover": { color: "error" }
+                  "&:hover": {
+                    color: "error.main",
+                    borderColor: "error.main",
+                  }
                 }}
                 />
             </IconButton>
