@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Button, CircularProgress, FormControl, FormLabel, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Accordion, AccordionDetails, AccordionSummary, Button, CircularProgress, FormControl, FormLabel, IconButton, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
-import { ConfigControlProps, ControlType } from "../../interface";
+import { ConfigBrowserControlProps, ConfigCommandControlProps, ConfigControlProps, ConfigHotkeyControlProps, ConfigKeyboardControlProps, ControlType, isTypeOfConfigCommandControl } from "../../interface";
 import fetchControls from "../fetchControls";
 import saveControls from "../saveControls";
 
@@ -81,47 +82,31 @@ const ControlAccordion = (props: ControlAccordionProps) => {
           </FormControl>
 
           {control.type === ControlType.Browser && (
-            <FormControl>
-              <FormLabel>URL</FormLabel>
-              <TextField
-                value={control.url}
-                variant="standard"
-                onChange={(e) => setControl({ ...control, url: e.target.value })}
-                />
-            </FormControl>
+            <ControlAccordionBrowserDetails
+              control={control}
+              setControl={setControl}
+              />
           )}
 
           {control.type === ControlType.Command && (
-            <FormControl>
-              <FormLabel>Command</FormLabel>
-              <TextField
-                value={control.command}
-                variant="standard"
-                onChange={(e) => setControl({ ...control, command: e.target.value })}
-                />
-            </FormControl>
+            <ControlAccordionCommandDetails
+              control={control}
+              setControl={setControl}
+              />
           )}
 
           {control.type === ControlType.Keyboard && (
-            <FormControl>
-              <FormLabel>Key</FormLabel>
-              <TextField
-                value={control.key}
-                variant="standard"
-                onChange={(e) => setControl({ ...control, key: e.target.value })}
-                />
-            </FormControl>
+            <ControlAccordionKeyboardDetails
+              control={control}
+              setControl={setControl}
+              />
           )}
 
           {control.type === ControlType.Hotkey && (
-            <FormControl>
-              <FormLabel>Key</FormLabel>
-              <TextField
-                value={control.key}
-                variant="standard"
-                onChange={(e) => setControl({ ...control, key: e.target.value })}
-                />
-            </FormControl>
+            <ControlAccordionHotkeyDetails
+              control={control}
+              setControl={setControl}
+              />
           )}
 
         </Stack>
@@ -147,6 +132,183 @@ const ControlAccordion = (props: ControlAccordionProps) => {
     </Accordion>
   )
 }
+
+interface ControlAccordionDetailsProps {
+  control: ConfigControlProps;
+  setControl: React.Dispatch<React.SetStateAction<ConfigControlProps>>;
+}
+
+const ControlAccordionBrowserDetails = (props: ControlAccordionDetailsProps) => {
+
+  const { control, setControl } = props;
+  const url = (control as ConfigBrowserControlProps).url || "";
+
+  return (
+    <FormControl>
+      <FormLabel>URL</FormLabel>
+      <TextField
+        value={url}
+        variant="standard"
+        onChange={(e) => setControl({ ...control, url: e.target.value })}
+        />
+    </FormControl>
+  )
+}
+
+const ControlAccordionCommandDetails = (props: ControlAccordionDetailsProps) => {
+
+  const { control, setControl } = props;
+  const commands = (control as ConfigCommandControlProps).commands || [];
+
+  const command = commands[0] || "";
+  const [, ...args] = commands || [];
+
+  const handleDeleteArgument = useCallback((index: number) => {
+
+    setControl((prev) => {
+
+      if (isTypeOfConfigCommandControl(prev)) {
+        const newCommands = [...prev.commands];
+        newCommands.splice(index + 1, 1);
+        return { ...prev, commands: newCommands };
+      }
+
+      return prev;
+    });
+
+  }, [setControl]);
+
+
+  return (
+    <>
+      <FormControl>
+        <FormLabel>Command</FormLabel>
+        <TextField
+          value={command}
+          variant="standard"
+          onChange={(e) => setControl({ ...control, command: e.target.value })}
+          />
+      </FormControl>
+      <FormControl>
+        <FormLabel>arguments</FormLabel>
+        {args.map((arg, index) => (
+          <Stack direction="row" gap={2}>
+            <TextField
+              key={index}
+              value={arg}
+              variant="standard"
+              onChange={(e) => {
+                const newArgs = [...args];
+                newArgs[index] = e.target.value;
+                setControl({ ...control, commands: [command, ...newArgs] })
+              }}
+              />
+
+            <Tooltip title="この引数を削除">
+              <IconButton onClick={() => handleDeleteArgument(index)}>
+                <RemoveCircleIcon
+                  sx={{
+                    color: "secondary",
+                    "&:hover": { color: "error" }
+                  }}
+                  />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        ))}
+
+        <Button
+          variant="outlined"
+          color="primary"
+          sx={{ textTransform: "none" }}
+          onClick={() => { setControl((prev) => ({ ...prev, commands: [command, ...args, ""] })) }}
+          >
+          Add argument
+        </Button>
+      </FormControl>
+    </>
+  )
+}
+
+const ControlAccordionKeyboardDetails = (props: ControlAccordionDetailsProps) => {
+
+  const { control, setControl } = props;
+  const text = (control as ConfigKeyboardControlProps).text || "";
+
+  return (
+    <FormControl>
+      <FormLabel>Text</FormLabel>
+      <TextField
+        value={text}
+        variant="standard"
+        onChange={(e) => setControl({ ...control, key: e.target.value })}
+        />
+    </FormControl>
+  )
+}
+
+const ControlAccordionHotkeyDetails = (props: ControlAccordionDetailsProps) => {
+
+  const { control, setControl } = props;
+  const hotkeys = (control as ConfigHotkeyControlProps).hotkeys || [];
+
+  return (
+    <FormControl>
+      <FormLabel>Hotkey</FormLabel>
+      {/* <TextField
+        defaultValue={hotkeys}
+        variant="standard"
+        onChange={(e) => setControl({ ...control, key: e.target.value })}
+        /> */}
+
+      {hotkeys.map((hotkey, index) => (
+        <Stack
+          direction="row"
+          gap={2}
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <TextField
+            key={index}
+            value={hotkey}
+            variant="standard"
+            onChange={(e) => {
+              const newHotkeys = [...hotkeys];
+              newHotkeys[index] = e.target.value;
+              setControl({ ...control, hotkeys: newHotkeys })
+            }}
+            />
+
+          <Tooltip title="このホットキーを削除">
+            <IconButton onClick={() => {
+              const newHotkeys = [...hotkeys];
+              newHotkeys.splice(index, 1);
+              setControl({ ...control, hotkeys: newHotkeys })
+            }}>
+              <RemoveCircleIcon
+                sx={{
+                  color: "secondary",
+                  "&:hover": { color: "error" }
+                }}
+                />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      ))}
+
+      <Button
+        variant="outlined"
+        color="primary"
+        sx={{ textTransform: "none" }}
+        onClick={() => { setControl((prev) => ({ ...prev, hotkeys: [...hotkeys, ""] })) }}
+        >
+        Add hotkey
+      </Button>
+    </FormControl>
+  )
+}
+
+
 
 export default function Controls() {
 
