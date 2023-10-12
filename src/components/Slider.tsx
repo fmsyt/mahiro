@@ -65,7 +65,14 @@ const Slider = (props: { ws: WebSocket, controlProps: SheetItemProps, disabled?:
     return {
       onChange: (e: Event, value: number | number[], activeThumb: number) => {
 
-        if (isActive) return;
+        if (isActive) {
+          return;
+        }
+
+        if (!controlProps.control_id) {
+          return;
+        }
+
         isActive = true;
         setTimeout(() => { isActive = false }, 100);
 

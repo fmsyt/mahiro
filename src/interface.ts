@@ -238,6 +238,7 @@ export interface SheetItemProps {
   icon?: string | null;
   default?: number | string | boolean | null;
   description?: string | null;
+  disabled?: boolean;
   props?: {
     [key: string]: number | string | boolean | null;
   }
