@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, FormControl, FormLabel, IconButton, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
@@ -14,12 +14,29 @@ interface ControlAccordionProps {
   initialControl: ConfigControlProps;
   index: number;
   onSave?: (control: ConfigControlProps) => void;
+  onRemove?: (control: ConfigControlProps) => void;
 }
 
 const ControlAccordion = (props: ControlAccordionProps) => {
 
-  const { index, initialControl } = props;
+  const { index, initialControl, onRemove } = props;
   const [control, setControl] = useState<ConfigControlProps>(initialControl);
+
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+
+  const handleOpenRemoveDialog = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    setOpenDeleteDialog(true);
+
+  }, []);
+
+  const handleRemove = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    setOpenDeleteDialog(false);
+    onRemove?.(control);
+
+  }, [control, onRemove]);
 
   return (
     <Accordion key={index}>
@@ -27,26 +44,40 @@ const ControlAccordion = (props: ControlAccordionProps) => {
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`panel-${initialControl.id}-content`}
         id={`panel-${initialControl.id}-header`}
+        sx={{ flexDirection: "row-reverse", gap: 2 }}
       >
-        <Stack
-          direction="row"
-          gap={2}
-          alignItems="center"
-        >
-          <Typography variant="h6" sx={{ whiteSpace: "nowrap" }}>
-            {`${index + 1}. ${initialControl.label || initialControl.id}`}
-          </Typography>
-          <Typography
-            variant="body2"
+        <Stack direction="row" justifyContent="space-between" width="100%">
+          <Stack
+            direction="row"
+            gap={2}
+            alignItems="center"
+          >
+            <Typography variant="h6" sx={{ whiteSpace: "nowrap" }}>
+              {`${index + 1}. ${initialControl.label || initialControl.id}`}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+              }}
+            >
+              {initialControl.description}
+            </Typography>
+          </Stack>
+
+          <IconButton
+            onClick={handleOpenRemoveDialog}
+            disabled={disallowed}
             sx={{
-              color: "text.secondary",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-              overflow: "hidden",
+              color: "secondary.main",
+              "&:hover": { color: "error.main" }
             }}
           >
-            {initialControl.description}
-          </Typography>
+            <RemoveCircleIcon />
+          </IconButton>
         </Stack>
       </AccordionSummary>
       <AccordionDetails>
@@ -129,6 +160,28 @@ const ControlAccordion = (props: ControlAccordionProps) => {
           </Button>
         </Stack>
       </AccordionDetails>
+
+      <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+        <DialogContent>
+          <DialogContentText>
+            このコントロールを削除しますか？
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenDeleteDialog(false)}
+            sx={{ textTransform: "none" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleRemove}
+            sx={{ color: "error.main", textTransform: "none" }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Accordion>
   )
 }
@@ -255,11 +308,6 @@ const ControlAccordionHotkeyDetails = (props: ControlAccordionDetailsProps) => {
   return (
     <FormControl>
       <FormLabel>Hotkey</FormLabel>
-      {/* <TextField
-        defaultValue={hotkeys}
-        variant="standard"
-        onChange={(e) => setControl({ ...control, key: e.target.value })}
-        /> */}
 
       {hotkeys.map((hotkey, index) => (
         <Stack
@@ -344,6 +392,17 @@ export default function Controls() {
 
   }, [controls]);
 
+  const handleRemove = useCallback((index: number) => {
+
+    const newControls = [...controls!];
+    newControls.splice(index, 1);
+
+    saveControls(newControls).then(() => {
+      setControls(newControls);
+    });
+
+  }, [controls]);
+
   return (
     <Stack gap={2}>
       <Typography variant="h5">Controls</Typography>
@@ -373,6 +432,7 @@ export default function Controls() {
                 initialControl={control}
                 index={index}
                 onSave={(control) => handleSave(control, index)}
+                onRemove={() => handleRemove(index)}
                 />
             ))}
           </Box>
