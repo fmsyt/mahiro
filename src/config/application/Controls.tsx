@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Button, CircularProgress, FormControl, FormLabel, IconButton, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, FormControl, FormLabel, IconButton, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
@@ -345,7 +345,7 @@ export default function Controls() {
   }, [controls]);
 
   return (
-    <Stack>
+    <Stack gap={2}>
       <Typography variant="h5">Controls</Typography>
       {disallowed && (
         <Typography variant="body1">
@@ -359,21 +359,42 @@ export default function Controls() {
           <CircularProgress />
         </Stack>
       ) : (
-        <>
+        <Stack gap={2}>
           {invalidJson && (
             <Typography variant="body1">
               Invalid JSON in controls.json
             </Typography>
           )}
-          {controls.map((control, index) => (
-            <ControlAccordion
-              key={index}
-              initialControl={control}
-              index={index}
-              onSave={(control) => handleSave(control, index)}
-              />
-          ))}
-        </>
+
+          <Box>
+            {controls.map((control, index) => (
+              <ControlAccordion
+                key={index}
+                initialControl={control}
+                index={index}
+                onSave={(control) => handleSave(control, index)}
+                />
+            ))}
+          </Box>
+
+          <Button
+            variant="outlined"
+            color="primary"
+            sx={{ textTransform: "none" }}
+            onClick={() => {
+              const newControls = [...controls];
+              newControls.push({
+                id: "(New Control)",
+                description: "",
+                type: ControlType.Browser,
+                url: "",
+              });
+              setControls(newControls);
+            }}
+            >
+            Add control
+          </Button>
+        </Stack>
       )}
 
     </Stack>
