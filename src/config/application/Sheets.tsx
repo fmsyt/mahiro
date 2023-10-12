@@ -166,7 +166,7 @@ export default function Sheets() {
       newSheets[pageIndex].items.push({
         control_id: undefined,
         type: ControlStyle.Empty,
-        label: "Empty",
+        label: undefined,
         disabled: false
       });
 

@@ -27,8 +27,26 @@ const ControlAccordion = (props: ControlAccordionProps) => {
         aria-controls={`panel-${initialControl.id}-content`}
         id={`panel-${initialControl.id}-header`}
       >
-        <Typography>{`${index + 1}. ${initialControl.label || initialControl.id}`}</Typography>
-        <Typography sx={{ color: "text.secondary" }}>{initialControl.description}</Typography>
+        <Stack
+          direction="row"
+          gap={2}
+          alignItems="center"
+        >
+          <Typography variant="h6" sx={{ whiteSpace: "nowrap" }}>
+            {`${index + 1}. ${initialControl.label || initialControl.id}`}
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+            }}
+          >
+            {initialControl.description}
+          </Typography>
+        </Stack>
       </AccordionSummary>
       <AccordionDetails>
         <Stack direction="column" spacing={2} alignItems="flex-start" justifyContent="center">
@@ -46,6 +64,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
               defaultValue={control.description}
               variant="standard"
               onChange={(e) => setControl({ ...control, description: e.target.value })}
+              fullWidth
               />
           </FormControl>
           <FormControl>
