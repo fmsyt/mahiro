@@ -1,32 +1,57 @@
 # mahiro
 
-## Installation
+Control PC with your device you want.
 
-1. Setup server
+## Requirement
+
+- Node.js `>=16.13.0`
+- Rust
+
+If you want to run `mahiro` on Linux as host server, need to install below packages.
+
+> Linux users may have to install `libxdo-dev` if they are using `X11`. For example, on Debian-based distros:
+>
+> ```Bash
+> apt-get install libxdo-dev
+> ```
+>
+> On Arch:
+>
+> ```Bash
+> pacman -S xdotool
+> ```
+>
+> On Fedora:
+>
+> ```Bash
+> dnf install libX11-devel libxdo-devel
+> ```
+>
+> On Gentoo:
+>
+> ```Bash
+> emerge -a xdotool
+> ```
+
+(Followed by enigo: [GitHub](https://github.com/enigo-rs/enigo))
+
+## Setup
 
 ```bash
-$ cd path/to/mihari
-$ python -m venv venv
-$ . ./venv/bin/activate
-(venv) $ pip install pipenv
-(venv) $ pipenv install
-```
-
-2. Setup client
-
-```bash
-$ cd path/to/mihari/client
+$ cd path/to/mahiro
 $ npm install
-$ npm run build
 ```
 
-## Run
+## Run Application
 
-HTTP server will be started on port `8000`.
+**Run as Desktop Application**
 
 ```bash
-$ cd path/to/mihari
-$ python -m venv venv
-$ . ./venv/bin/activate
-(venv) $ python main.py
+$ npm run tauri:dev
+```
+
+**Run as Web Application**
+
+```bash
+$ npm run web:dev
 ```

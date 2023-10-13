@@ -3,7 +3,7 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "dev",
+			"script": "web:dev",
 			"problemMatcher": [],
 			"label": "Start Client on Web",
 		},
@@ -15,7 +15,7 @@
 		},
 		{
 			"type": "npm",
-			"script": "build",
+			"script": "web:build",
 			"label": "Build Client",
 			"group": {
 				"kind": "build",

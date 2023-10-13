@@ -1,13 +1,13 @@
 {
-  "name": "vite-project",
+  "name": "mahiro",
   "private": true,
   "version": "0.9.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "tsc && vite build",
-    "dev:tauri": "vite --config vite.tauri.config.ts --host 0.0.0.0",
-    "build:tauri": "tsc && vite build --config vite.tauri.config.ts",
+    "web:dev": "vite --host 0.0.0.0",
+    "web:build": "tsc && vite build",
+    "tauri:dev:ui": "vite --config vite.tauri.config.ts --host 0.0.0.0",
+    "tauri:build:ui": "tsc && vite build --config vite.tauri.config.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "tauri": "tauri",

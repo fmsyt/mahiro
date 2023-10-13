@@ -1,7 +1,7 @@
 {
   "build": {
-    "beforeDevCommand": "npm run dev:tauri",
-    "beforeBuildCommand": "npm run build:tauri",
+    "beforeDevCommand": "npm run tauri:dev:ui",
+    "beforeBuildCommand": "npm run tauri:build:ui",
     "devPath": "http://localhost:1421",
     "distDir": "../tauri.dist",
     "withGlobalTauri": false
