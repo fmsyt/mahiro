@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path, process::Command};
+use std::{collections::HashMap, path};
 use serde::{Deserialize, Serialize};
 
 use crate::control::hotkey::{KeySequence, KeybdKeyStreamInitializer, KeybdKeyStreamHandler};
