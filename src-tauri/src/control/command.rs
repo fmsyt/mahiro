@@ -1,8 +1,10 @@
-use enigo::{Enigo, KeyboardControllable, dsl::ParseError};
+use std::{process::{Command, Child}, io::Result};
 
-pub fn send_text(text: String) -> Result<(), ParseError> {
-    let mut enigo = Enigo::new();
-    let result = enigo.key_sequence_parse_try(&text);
+pub fn send(command: &String, args: Option<Vec<String>>) -> Result<Child>{
+    let mut cmd = Command::new(command);
+    if let Some(args) = args {
+        cmd.args(args);
+    }
 
-    result
+    return cmd.spawn();
 }

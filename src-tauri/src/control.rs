@@ -1,7 +1,7 @@
 use std::{collections::HashMap, path, process::Command};
 use serde::{Deserialize, Serialize};
 
-use crate::control::{hotkey::{KeySequence, KeybdKeyStreamInitializer, KeybdKeyStreamHandler}, command::send_text};
+use crate::control::hotkey::{KeySequence, KeybdKeyStreamInitializer, KeybdKeyStreamHandler};
 
 mod command;
 mod browser;
@@ -97,7 +97,7 @@ impl EmitHandler for Control {
             "command" => {
                 if let Some(command) = &self.command {
                     println!("command: {}", command);
-                    if let Err(e) = Command::new(command).spawn() {
+                    if let Err(e) = command::send(command, None) {
                         eprintln!("Error: {}", e);
                     }
 
@@ -106,7 +106,7 @@ impl EmitHandler for Control {
                     let first = commands.first();
                     let args = &commands[1..];
 
-                    if let Err(e) = Command::new(first.unwrap()).args(args).spawn() {
+                    if let Err(e) = command::send(first.unwrap(), Some(args.to_vec())) {
                         eprintln!("Error: {}", e);
                     }
 
@@ -148,7 +148,7 @@ impl EmitHandler for Control {
                 println!("keyboard");
                 if let Some(text) = &self.text {
                     println!("text: {}", text);
-                    if let Err(e) = send_text(text.clone()) {
+                    if let Err(e) = keyboard::send_text(text.clone()) {
                         eprintln!("Error: {}", e);
                     }
 
