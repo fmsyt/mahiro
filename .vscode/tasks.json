@@ -42,6 +42,25 @@
 				"tauri:build",
 			],
 			"problemMatcher": []
-    }
+    },
+		{
+			"label": "Lint Client",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"lint",
+			],
+			"problemMatcher": [],
+		},
+		{
+			"label": "Lint Client and Fix",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"lint:fix",
+			],
+		}
 	]
 }
