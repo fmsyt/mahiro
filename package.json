@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "web:dev": "vite --host 0.0.0.0",
-    "web:build": "tsc && vite build",
+    "web:build": "eslint src && tsc && vite build",
     "tauri:dev:ui": "vite --config vite.tauri.config.ts --host 0.0.0.0",
-    "tauri:build:ui": "tsc && vite build --config vite.tauri.config.ts",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "tauri:build:ui": "eslint src &&tsc && vite build --config vite.tauri.config.ts",
+    "lint": "eslint src",
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",

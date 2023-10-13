@@ -4,7 +4,7 @@ import { EmitControllerProps } from "../interface";
 import { Events } from "../enum";
 
 const sliderSize = "100%";
-const BoldSlider = styled(MuiSlider)(({ theme }) => ({
+const BoldSlider = styled(MuiSlider)(({ theme: _ }) => ({
 
   "& .MuiSlider-thumb": {
     width: 4,
@@ -59,7 +59,7 @@ const Slider = (props: EmitControllerProps) => {
     let isActive = false;
 
     return {
-      onChange: (e: Event, value: number | number[], activeThumb: number) => {
+      onChange: (e: Event, value: number | number[]) => {
 
         if (isActive) {
           return;
