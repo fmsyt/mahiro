@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect } from "react";
 import { EmitTypes, isTypeOfPageProps, PageProps, ReceiveSheetUpdateMessage } from "./interface";
 import WebSocketContext from "./WebSocketContext";
 
@@ -23,7 +23,7 @@ interface AppContextProps {
   hostname?: string;
 }
 
-const AppContext = React.createContext<AppContextProps>({
+const AppContext = createContext<AppContextProps>({
   pages: null,
   emit: () => {},
 });
