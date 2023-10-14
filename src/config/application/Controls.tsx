@@ -443,7 +443,7 @@ export default function Controls() {
   }, [controls]);
 
   return (
-    <Stack gap={2}>
+    <Stack gap={2} alignItems="flex-start" justifyContent="center">
       <Typography variant="h5">Controls</Typography>
       {disallowed && (
         <Typography variant="body1">
@@ -457,14 +457,14 @@ export default function Controls() {
           <CircularProgress />
         </Stack>
       ) : (
-        <Stack gap={2}>
+        <Stack gap={2} sx={{ width: "100%" }}>
           {invalidJson && (
             <Typography variant="body1">
               Invalid JSON in controls.json
             </Typography>
           )}
 
-          <Box>
+          <Box width="100%">
             {controls.map((control, index) => (
               <ControlAccordion
                 key={index}
@@ -476,26 +476,26 @@ export default function Controls() {
             ))}
           </Box>
 
-          <Button
-            variant="outlined"
-            color="primary"
-            sx={{ textTransform: "none" }}
-            onClick={() => {
-              const newControls = [...controls];
-              newControls.push({
-                id: "(New Control)",
-                description: "",
-                type: ControlType.Browser,
-                url: "",
-              });
-              setControls(newControls);
-            }}
-            >
-            Add control
-          </Button>
         </Stack>
       )}
 
+      <Button
+        variant="outlined"
+        color="primary"
+        sx={{ textTransform: "none", marginLeft: "auto" }}
+        onClick={() => {
+          const newControls = [...controls];
+          newControls.push({
+            id: "(New Control)",
+            description: "",
+            type: ControlType.Browser,
+            url: "",
+          });
+          setControls(newControls);
+        }}
+      >
+        Add control
+      </Button>
     </Stack>
   );
 }
