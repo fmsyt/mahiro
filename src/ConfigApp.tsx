@@ -35,12 +35,12 @@ export default function ConfigApp() {
               </ListSubheader>
             }
           >
-            <ListItem>
+            <ListItem disablePadding>
               <ListItemButton onClick={() => setCurrentTab("application")} selected={currentTab === "application"}>
                 <ListItemText primary="全般" />
               </ListItemButton>
             </ListItem>
-            <ListItem>
+            <ListItem disablePadding>
               <ListItemButton onClick={() => setCurrentTab("application.edit")} selected={currentTab === "application.edit"}>
                 <ListItemText primary="画面編集" />
               </ListItemButton>
@@ -56,7 +56,7 @@ export default function ConfigApp() {
               </ListSubheader>
             }
           >
-            <ListItem>
+            <ListItem disablePadding>
               <ListItemButton onClick={() => setCurrentTab("security")} selected={currentTab === "security"}>
                 <ListItemText primary="接続" />
               </ListItemButton>
