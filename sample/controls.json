@@ -1,54 +1,54 @@
 [
   {
-    "control_id": "explorer",
+    "id": "explorer",
     "type": "command",
-    "command": "explorer.exe",
+    "commands": ["explorer.exe"],
     "platform": "Windows"
   },
   {
-    "control_id": "windows_terminal",
+    "id": "windows_terminal",
     "type": "command",
-    "command": "wt",
+    "commands": ["wt"],
     "platform": "Windows"
   },
   {
-    "control_id": "display_clone",
+    "id": "display_clone",
     "type": "command",
-    "command": ["DisplaySwitch.exe", "/clone"],
+    "commands": ["DisplaySwitch.exe", "/clone"],
     "platform": "Windows"
   },
   {
-    "control_id": "display_extend",
+    "id": "display_extend",
     "type": "command",
-    "command": ["DisplaySwitch.exe", "/extend"],
+    "commands": ["DisplaySwitch.exe", "/extend"],
     "platform": "Windows"
   },
   {
-    "control_id": "mui",
+    "id": "mui",
     "type": "browser",
     "url": "https://mui.com/"
   },
   {
-    "control_id": "Ctrl+C",
+    "id": "Win+I",
     "type": "hotkey",
-    "hotkey": ["ctrl", "c"]
+    "hotkeys": ["win+i"]
   },
   {
-    "control_id": "Ctrl+V",
+    "id": "Ctrl+V",
     "type": "hotkey",
-    "hotkey": ["ctrl", "v"]
+    "hotkeys": ["ctrl+v"]
   },
   {
-    "control_id": "text",
+    "id": "text",
     "type": "keyboard",
     "text": "text"
   },
   {
-    "control_id": "volume",
+    "id": "volume",
     "type": "command",
     "style": "slider",
     "sync": true,
-    "command": [
+    "commands": [
       "nircmd.exe",
       "setsysvolume",
       "{context}"
@@ -61,12 +61,12 @@
     "platform": "Windows"
   },
   {
-    "control_id": "volume_pa",
+    "id": "volume_pa",
     "type": "command",
-    "command": ["pacmd", "set-sink-volume", "@DEFAULT_SINK@", "{context}"],
+    "commands": ["pacmd", "set-sink-volume", "@DEFAULT_SINK@", "{context}"],
     "style": "slider",
     "default": {
-      "command": "pacmd list-sinks | grep -A 22 '* index' | grep 'volume: front' | awk '{print $3}'",
+      "commands": ["pacmd list-sinks | grep -A 22 '* index' | grep 'volume: front' | awk '{print $3}'"],
       "value": 0
     },
     "props": {

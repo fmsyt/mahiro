@@ -1,60 +1,18 @@
 [
   {
-    "columns": 4,
-    "items": [
-      {
-        "control_id": "explorer",
-        "label": "Explorer",
-        "type": "button"
-      },
-      {
-        "control_id": "windows_terminal",
-        "label": "wt",
-        "type": "button"
-      },
-      {
-        "control_id": "display_clone",
-        "label": "複製",
-        "type": "button"
-      },
-      {
-        "type": "empty"
-      },
-      {
-        "control_id": "display_extend",
-        "label": "拡張",
-        "type": "button"
-      },
-      {
-        "control_id": "mui",
-        "label": "mui",
-        "type": "button"
-      },
-      {
-        "control_id": "Ctrl+C",
-        "label": "Ctrl+C",
-        "type": "button"
-      },
-      {
-        "control_id": "Ctrl+V",
-        "label": "Ctrl+V",
-        "type": "button"
-      },
-      {
-        "control_id": "text",
-        "label": "text",
-        "type": "button"
-      }
-    ]
+      "columns": 4,
+      "items": [
+          { "control_id": "explorer", "label": "Explorer", "type": "button" },
+          { "control_id": "windows_terminal", "label": "wt", "type": "button" },
+          { "control_id": "display_clone", "label": "複製", "type": "button" },
+          { "type": "empty" },
+          { "control_id": "display_extend", "label": "拡張", "type": "button" },
+          { "control_id": "mui", "label": "mui", "type": "button" },
+          { "control_id": "Win+I", "label": "Win+I", "type": "button" },
+          { "control_id": "Ctrl+V", "label": "Ctrl+V", "type": "button" },
+          { "control_id": "text", "label": "text", "type": "button" }
+      ]
   },
-  {
-    "columns": 2,
-    "items": [
-      {
-        "control_id": "volume",
-        "label": "Volume",
-        "type": "slider"
-      }
-    ]
-  }
+  { "columns": 2, "items": [{ "control_id": "volume", "label": "Volume", "type": "slider" }] },
+  { "columns": 4, "items": [] }
 ]
