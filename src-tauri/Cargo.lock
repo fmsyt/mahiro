@@ -1616,6 +1616,7 @@ dependencies = [
  "base64 0.13.1",
  "enigo",
  "futures-util",
+ "log",
  "serde",
  "serde_json",
  "tauri",

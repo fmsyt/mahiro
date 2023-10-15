@@ -2,21 +2,23 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::process::exit;
-use tauri_plugin_log::{LogTarget, fern::colors::ColoredLevelConfig};
 
+use log::LevelFilter;
 use tauri::{
     AppHandle, Manager, Menu, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
 };
 
-mod ws;
+use tauri_plugin_log::{fern::colors::ColoredLevelConfig, LogTarget};
+
 mod client;
 mod control;
+mod ws;
 
 #[cfg(debug_assertions)]
-const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Webview];
+const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Stderr];
 
 #[cfg(not(debug_assertions))]
-const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::LogDir];
+const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stderr, LogTarget::LogDir];
 
 // reference: https://qiita.com/namn1125/items/8ed4d91d3d00af8750f8
 
@@ -90,7 +92,13 @@ fn handle_systemtray(app: &AppHandle<Wry>, event: SystemTrayEvent) {
 
 fn main() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_log::Builder::default().targets(LOG_TARGETS).with_colors(ColoredLevelConfig::default()).build())
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets(LOG_TARGETS)
+                .with_colors(ColoredLevelConfig::default())
+                .level(LevelFilter::Info)
+                .build(),
+        )
         .plugin(tauri_plugin_websocket::init())
         .on_window_event(handle_window)
         .menu(create_menu())
