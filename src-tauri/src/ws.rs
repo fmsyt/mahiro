@@ -6,7 +6,6 @@ use crate::client::{ReceivedMessage, load_state, State as ClientState, SendWebSo
 
 pub async fn start_server(_config_directory_path: String) {
     let addr: String = "0.0.0.0:17001".to_string();
-    println!("Listening on: {}", addr);
 
     let try_socket: Result<TcpListener, std::io::Error> = TcpListener::bind(addr).await;
     let listener: TcpListener = try_socket.expect("Failed to bind");
@@ -27,8 +26,6 @@ async fn websocket_process(socket: TcpStream, client_state: ClientState) {
 
     let websocket = try_websocket.unwrap();
     let (mut write, mut read) = websocket.split();
-
-
 
     while let Some(message) = read.next().await {
 
@@ -61,7 +58,6 @@ async fn websocket_process(socket: TcpStream, client_state: ClientState) {
                     "general.update" => {
                     }
                     "sheets.update" => {
-                        println!("sheets.update");
                         let message = client_state.sheets_update();
                         write.send(message).await.expect("Failed to send");
                     }

@@ -144,7 +144,6 @@ pub trait ReceiveWebSocketClientMessage {
 
 impl ReceiveWebSocketClientMessage for State {
     fn emit(&self, action: String, event: String) -> Result<(), String> {
-        println!("emit: {:?}", action);
 
         let control = self.controls.iter().find(|&c| c.id == action);
 

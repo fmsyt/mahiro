@@ -96,13 +96,11 @@ impl EmitHandler for Control {
         match self.r#type.as_str() {
             "command" => {
                 if let Some(command) = &self.command {
-                    println!("command: {}", command);
                     if let Err(e) = command::send(command, None) {
                         eprintln!("Error: {}", e);
                     }
 
                 } else if let Some(commands) = &self.commands {
-                    println!("commands: {:?}", commands);
                     let first = commands.first();
                     let args = &commands[1..];
 
@@ -115,7 +113,6 @@ impl EmitHandler for Control {
                 }
             }
             "browser" => {
-                println!("browser");
                 if let Some(url) = &self.url {
                     if let Err(e) = browser::browse(url) {
                         eprintln!("Error: {}", e);
@@ -127,13 +124,11 @@ impl EmitHandler for Control {
             }
             "hotkey" => {
                 if let Some(hotkey) = &self.hotkey {
-                    println!("hotkey: {}", hotkey);
 
                     let stream = KeySequence::from_string(hotkey.clone());
                     stream.send();
 
                 } else if let Some(hotkeys) = &self.hotkeys {
-                    println!("hotkeys: {:?}", hotkeys);
 
                     hotkeys.iter().for_each(|hotkey| {
                         let stream = KeySequence::from_string(hotkey.clone());
@@ -145,9 +140,7 @@ impl EmitHandler for Control {
                 }
             }
             "keyboard" => {
-                println!("keyboard");
                 if let Some(text) = &self.text {
-                    println!("text: {}", text);
                     if let Err(e) = keyboard::send_text(text.clone()) {
                         eprintln!("Error: {}", e);
                     }
@@ -179,13 +172,13 @@ pub fn get_control_list(config_dir: String) -> Vec<Control> {
             match c {
                 Ok(controls) => controls,
                 Err(e) => {
-                    println!("Error: {}: {}", e, control_file_path_str);
+                    eprintln!("Error: {}: {}", e, control_file_path_str);
                     vec![]
                 }
             }
         }
         Err(e) => {
-            println!("Error: {}: {}", e, control_file_path_str);
+            eprintln!("Error: {}: {}", e, control_file_path_str);
             vec![]
         }
     };
@@ -204,13 +197,13 @@ pub fn get_sheet_list(config_dir: String) -> Vec<Sheet> {
             match s {
                 Ok(sheets) => sheets,
                 Err(e) => {
-                    println!("Error: {}: {}", e, sheet_file_path_str);
+                    eprintln!("Error: {}: {}", e, sheet_file_path_str);
                     vec![]
                 }
             }
         }
         Err(e) => {
-            println!("Error: {}: {}", e, sheet_file_path_str);
+            eprintln!("Error: {}: {}", e, sheet_file_path_str);
             vec![]
         }
     };

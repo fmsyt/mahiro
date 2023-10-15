@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::process::exit;
+use tauri_plugin_log::{LogTarget, fern::colors::ColoredLevelConfig};
 
 use tauri::{
     AppHandle, Manager, Menu, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
@@ -10,6 +11,12 @@ use tauri::{
 mod ws;
 mod client;
 mod control;
+
+#[cfg(debug_assertions)]
+const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Webview];
+
+#[cfg(not(debug_assertions))]
+const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::LogDir];
 
 // reference: https://qiita.com/namn1125/items/8ed4d91d3d00af8750f8
 
@@ -83,6 +90,7 @@ fn handle_systemtray(app: &AppHandle<Wry>, event: SystemTrayEvent) {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_log::Builder::default().targets(LOG_TARGETS).with_colors(ColoredLevelConfig::default()).build())
         .plugin(tauri_plugin_websocket::init())
         .on_window_event(handle_window)
         .menu(create_menu())
@@ -101,8 +109,6 @@ fn main() {
                 .to_str()
                 .unwrap()
                 .to_string();
-
-            println!("config_directory_path: {:?}", _config_directory_path.clone());
 
             tauri::async_runtime::spawn(ws::start_server(_config_directory_path));
 
