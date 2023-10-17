@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path};
+use std::{collections::HashMap, path, fs::{File, self}};
 use serde::{Deserialize, Serialize};
 
 use crate::control::hotkey::{KeySequence, KeybdKeyStreamInitializer, KeybdKeyStreamHandler};
@@ -177,8 +177,9 @@ pub fn get_control_list(config_dir: String) -> Vec<Control> {
                 }
             }
         }
-        Err(e) => {
-            eprintln!("Error: {}: {}", e, control_file_path_str);
+        Err(_) => {
+            File::create(control_file_path_str.clone()).unwrap();
+            fs::write(control_file_path_str.clone(), "[]").unwrap();
             vec![]
         }
     };
@@ -202,8 +203,9 @@ pub fn get_sheet_list(config_dir: String) -> Vec<Sheet> {
                 }
             }
         }
-        Err(e) => {
-            eprintln!("Error: {}: {}", e, sheet_file_path_str);
+        Err(_) => {
+            File::create(sheet_file_path_str.clone()).unwrap();
+            fs::write(sheet_file_path_str.clone(), "[]").unwrap();
             vec![]
         }
     };
