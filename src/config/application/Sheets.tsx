@@ -11,6 +11,7 @@ import { ConfigControlProps, ConfigSheetItemProps, ConfigSheetProps, ControlStyl
 import fetchSheets from "../fetchSheets";
 import useControls from "../useControls";
 import saveSheets from "../saveSheets";
+import { Control } from "../../Control";
 
 
 interface SheetPageControlProps {
@@ -52,7 +53,11 @@ const SheetPageControl = (props: SheetPageControlProps) => {
         )}
         onClick={() => setOpen(true)}
       >
-        {item.label}
+        <Control
+          sheetItem={{ ...item, style: item.type }}
+          disabled={true}
+          emit={() => {}}
+          />
       </Button>
       <Dialog open={open} onClose={() => item.type !== ControlStyle.Empty && setOpen(false)}>
         <DialogContent>
@@ -62,18 +67,6 @@ const SheetPageControl = (props: SheetPageControlProps) => {
             justifyContent="center"
             gap={2}
           >
-            <FormControl>
-              <FormLabel>Control</FormLabel>
-              <Select
-                value={control?.id || ""}
-                variant="standard"
-                onChange={(e) => handleChange("control_id", e.target.value)}
-              >
-                {controls.map((control, index) => (
-                  <MenuItem key={index} value={control.id}>{control.id}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
             <FormControl>
               <FormLabel>UI Type</FormLabel>
               <Select
@@ -86,11 +79,27 @@ const SheetPageControl = (props: SheetPageControlProps) => {
                 ))}
               </Select>
             </FormControl>
+
+            <FormControl>
+              <FormLabel>Control</FormLabel>
+              <Select
+                value={control?.id || ""}
+                variant="standard"
+                disabled={item.type === ControlStyle.Empty}
+                onChange={(e) => handleChange("control_id", e.target.value)}
+              >
+                {controls.map((control, index) => (
+                  <MenuItem key={index} value={control.id}>{control.id}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
             <FormControl>
               <FormLabel>Label</FormLabel>
               <TextField
                 defaultValue={item.label || ""}
                 variant="standard"
+                disabled={item.type === ControlStyle.Empty}
                 onChange={(e) => handleChange("label", e.target.value)}
                 />
             </FormControl>
@@ -309,7 +318,7 @@ export default function Sheets() {
                     }}>
                     {sheets[pageIndex].items.map((item, index) => (
                       <SheetPageControl
-                        key={index}
+                        key={`${pageIndex * 10000 + index}`}
                         control={findControl(item.control_id)}
                         controls={controls || []}
                         defaultItem={item}

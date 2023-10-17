@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Box, Button as MuiButton, Stack, Typography } from "@mui/material";
+import { Box, Button as MuiButton, Paper, Stack, Typography } from "@mui/material";
 import { EmitControllerProps } from "../interface";
 
 import logo from "../logo.svg";
@@ -29,8 +29,38 @@ const Button = (props: EmitControllerProps) => {
     }
   }, [disabled, emit, sheetItem.control_id]);
 
+  const Component = ({ children }: { children: React.ReactNode }) => {
+    return !disabled ? (
+      <MuiButton
+        variant="outlined"
+        disabled={disabled}
+        sx={{
+          width: "100%",
+          height: "100%",
+          padding: 0,
+          textTransform: "none"
+        }}
+        { ...events }
+      >
+        {children}
+      </MuiButton>
+    ) : (
+      <Paper
+        variant="outlined"
+        sx={{
+          width: "100%",
+          height: "100%",
+          backgroundColor: "transparent"
+        }}
+      >
+        {children}
+      </Paper>
+    )
+  }
+
+
   return (
-    <MuiButton variant="outlined" { ...events } disabled={disabled} sx={{ width: "100%", height: "100%", padding: 0, textTransform: "none" }}>
+    <Component>
       <Stack width="100%" height="100%" alignItems="center" justifyContent="space-between" padding={2}>
         <Box>
           {logo && (
@@ -39,7 +69,7 @@ const Button = (props: EmitControllerProps) => {
         </Box>
         <Typography variant="caption">{label}</Typography>
       </Stack>
-    </MuiButton>
+    </Component>
   )
 }
 

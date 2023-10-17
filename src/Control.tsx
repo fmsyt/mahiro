@@ -24,6 +24,13 @@ export const Control = memo((props: EmitControllerProps) => {
 
 const DefaultControlUI = memo(() => {
   return (
-    <Paper variant="outlined" sx={{ width: "100%", height: "100%" }}></Paper>
+    <Paper
+      variant="outlined"
+      sx={{
+        width: "100%",
+        height: "100%",
+        backgroundColor: "transparent"
+      }}
+      />
   )
 })
