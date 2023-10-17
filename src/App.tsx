@@ -17,7 +17,8 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 
-import { AppContext, AppContextProvider } from "./AppContext";
+import AppContext from "./AppContext";
+import AppContextProvider from "./AppContextProvider";
 
 import "./App.css";
 import Connection from "./Connection";

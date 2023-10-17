@@ -256,7 +256,7 @@ export function isTypeOfSheetItemProps(data: any): data is SheetItemProps {
   }
 
   if (typeof data.style !== "string") {
-    throw new Error("data.style is not string");
+    throw new Error(`data.style is not string: ${data.style}`);
   }
 
   if (!Object.values(ControlStyle).includes(data.style)) {
@@ -290,9 +290,82 @@ export function isTypeOfSheetItemProps(data: any): data is SheetItemProps {
   return true;
 }
 
-export interface PageProps {
-  columns: number
-  items: SheetItemProps[]
+
+
+export interface ReceiveJsonMessage {
+  method: string;
+  data: unknown;
+}
+
+export interface ReceiveSheetUpdateData {
+  columns: number;
+  items: SheetItemProps[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isTypeOfSheetUpdateData(data: any): data is ReceiveSheetUpdateData {
+  if (typeof data !== "object") {
+    throw new Error("data is not object");
+  }
+
+  if (typeof data.columns !== "number") {
+    throw new Error("data.columns is not number");
+  }
+
+  if (typeof data.items !== "object") {
+    throw new Error("data.items is not object");
+  }
+
+  if (!Array.isArray(data.items)) {
+    throw new Error("data.items is not array");
+  }
+
+  const items = data.items as Array<SheetItemProps>;
+  const passed = items.every((item) => isTypeOfSheetItemProps(item));
+  if (!passed) {
+    throw new Error("data.items is not SheetItemProps[]");
+  }
+
+  return true;
+}
+
+export interface ReceiveSheetUpdateMessage extends ReceiveJsonMessage {
+  data: ReceiveSheetUpdateData[];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isTypeOfReceiveSheetUpdateMessage(data: any): data is ReceiveSheetUpdateMessage {
+  if (typeof data !== "object") {
+    throw new Error("data is not object");
+  }
+
+  if (typeof data.method !== "string") {
+    throw new Error("data.method is not string");
+  }
+
+  if (typeof data.data !== "object") {
+    throw new Error("data.data is not object");
+  }
+
+  if (!Array.isArray(data.data)) {
+    throw new Error("data.data is not array");
+  }
+
+  const items = data.data as Array<ReceiveSheetUpdateData>;
+  const passed = items.every((item) => isTypeOfSheetUpdateData(item));
+  if (!passed) {
+    throw new Error("data.data is not ReceiveSheetUpdateData[]");
+  }
+
+  return true;
+}
+
+
+
+
+export interface PageProps extends ReceiveSheetUpdateData {
+  disabled?: boolean;
+  emit?: (emit: EmitTypes) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -336,15 +409,6 @@ export interface EmitTypes {
     settings?: object;
     userDesiredState?: string | number;
   };
-}
-
-export interface ReceiveJsonMessage {
-  method: string;
-  data: unknown;
-}
-
-export interface ReceiveSheetUpdateMessage extends ReceiveJsonMessage {
-  data: PageProps[];
 }
 
 

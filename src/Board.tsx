@@ -1,13 +1,11 @@
-import { memo, useCallback, useContext, useMemo } from "react";
+import { memo, useCallback, useContext } from "react";
 import { Box, CircularProgress, Pagination, Stack, Typography } from "@mui/material";
 import { ReadyState } from "react-use-websocket";
 
 import { useSearchParams } from "react-router-dom";
-import { PageProps } from "./interface";
 
-import { AppContext } from "./AppContext";
-import { Control } from "./Control";
-
+import AppContext from "./AppContext";
+import Page from "./Page";
 import WebSocketContext from "./WebSocketContext";
 
 import "./board.css"
@@ -48,27 +46,5 @@ const Board = memo(() => {
     </Box>
   )
 })
-
-const Page = (props: PageProps) => {
-
-  const { items, columns } = props;
-  const { emit } = useContext(AppContext);
-
-  const gridTemplateColumns = useMemo(() => `repeat(${columns}, 1fr)`, [columns]);
-  const gridTemplateRows = useMemo(() => `repeat(${Math.ceil(items.length / columns)}, 1fr)`, [items, columns]);
-
-  return (
-    <Box gap={2} sx={{ display: "grid", height: "100%", gridTemplateColumns, gridTemplateRows }}>
-      {items.map((control, i) => (
-        <Control
-          key={i}
-          emit={emit}
-          sheetItem={control}
-          />
-      ))}
-
-    </Box>
-  )
-}
 
 export default Board;
