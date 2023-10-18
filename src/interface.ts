@@ -241,6 +241,7 @@ export interface SheetItemProps {
   default?: number | string | boolean | null;
   description?: string | null;
   disabled?: boolean;
+  value?: string;
   props?: {
     [key: string]: number | string | boolean | null;
   }
@@ -277,6 +278,10 @@ export function isTypeOfSheetItemProps(data: any): data is SheetItemProps {
 
   if (typeof data.default !== "number" && typeof data.default !== "string" && typeof data.default !== "boolean" && data.default != null) {
     throw new Error("data.default is not number, string, boolean, or null");
+  }
+
+  if (typeof data.value !== "string" && data.value != null) {
+    throw new Error(`data.value is not string: ${data.value}`);
   }
 
   if (typeof data.description !== "string" && data.description != null) {

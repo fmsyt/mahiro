@@ -1,9 +1,9 @@
-use std::{collections::HashMap, process::Command};
+use std::process::Command;
 
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::tungstenite::Message;
 
-use crate::control::{Control, Sheet, EmitHandler, get_control_list, get_sheet_list};
+use crate::control::{Control, Sheet, EmitHandler, get_control_list, get_sheet_list, ControlHandler};
 
 #[derive(Serialize, Deserialize, Debug)]
 enum ClientSheetItemDefault {
@@ -18,6 +18,7 @@ pub struct ClientSheetItem {
     label: Option<String>,
     disabled: Option<bool>,
     default: Option<ClientSheetItemDefault>,
+    value: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -44,8 +45,17 @@ pub struct ReceivedMessage {
 pub struct ReceivedEmitMessage {
     pub action: String,
     pub event: String,
-    pub data: Option<HashMap<String, String>>,
+    pub context: Option<String>,
+    pub payload: Option<ReceivedEmitMessageData>,
 }
+
+
+#[derive(Serialize, Deserialize, Debug)]
+
+pub struct ReceivedEmitMessageData {
+    pub context: String,
+}
+
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct State {
@@ -73,6 +83,14 @@ impl SendWebSocketClientMessage for State {
                             Some(c) => {
 
                                 let mut default: Option<ClientSheetItemDefault> = None;
+                                let mut value = None;
+                                if let Some(ref hooks) = c.hooks {
+                                    println!("hooks: {:?}", hooks);
+                                    if let Ok(stdout) = hooks.get_value() {
+                                        println!("stdout: {}", stdout);
+                                        value = Some(stdout);
+                                    }
+                                }
 
                                 match c.default {
                                     Some(ref d) => {
@@ -95,7 +113,8 @@ impl SendWebSocketClientMessage for State {
                                     control_id: i.control_id.clone(),
                                     label: i.label.clone(),
                                     disabled: Some(false),
-                                    default: default,
+                                    default,
+                                    value: value,
                                 }
                             },
                             None => {
@@ -105,6 +124,7 @@ impl SendWebSocketClientMessage for State {
                                     label: None,
                                     disabled: None,
                                     default: None,
+                                    value: None,
                                 }
                             }
                         }
@@ -117,6 +137,7 @@ impl SendWebSocketClientMessage for State {
                             label: None,
                             disabled: None,
                             default: None,
+                            value: None,
                         }
                     }
                 }
@@ -125,7 +146,7 @@ impl SendWebSocketClientMessage for State {
 
             ClientSheet {
                 columns: s.columns,
-                items: items,
+                items,
             }
         }).collect();
 
@@ -139,17 +160,17 @@ impl SendWebSocketClientMessage for State {
 }
 
 pub trait ReceiveWebSocketClientMessage {
-    fn emit(&self, control_id: String, event_name: String) -> Result<(), String>;
+    fn emit(&self, control_id: String, event_name: String, context: Option<String>, payload: Option<ReceivedEmitMessageData>) -> Result<(), String>;
 }
 
 impl ReceiveWebSocketClientMessage for State {
-    fn emit(&self, action: String, event: String) -> Result<(), String> {
+    fn emit(&self, control_id: String, event_name: String, context: Option<String>, payload: Option<ReceivedEmitMessageData>) -> Result<(), String> {
 
-        let control = self.controls.iter().find(|&c| c.id == action);
+        let control = self.controls.iter().find(|&c| c.id == control_id);
 
         match control {
             Some(c) => {
-                if let Err(e) = c.emit(event) {
+                if let Err(e) = c.emit(event_name, context, payload) {
                     println!("Error: {}", e);
                     Err(e)
                 } else {
@@ -157,7 +178,7 @@ impl ReceiveWebSocketClientMessage for State {
                 }
             },
             None => {
-                println!("Unknown control: {:?}", action);
+                println!("Unknown control: {:?}", control_id);
                 Err("control not found".to_string())
             }
         }

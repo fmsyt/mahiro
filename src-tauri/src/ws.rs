@@ -46,7 +46,7 @@ async fn websocket_process(socket: TcpStream, client_state: ClientState) {
                     "emit" => {
 
                         if let Some(data) = message.data {
-                            if let Err(e) = client_state.emit(data.action, data.event) {
+                            if let Err(e) = client_state.emit(data.action, data.event, data.context, None) {
                                 eprintln!("Error: {}", e);
                             }
 

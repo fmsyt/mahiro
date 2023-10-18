@@ -1,7 +1,7 @@
-use std::{collections::HashMap, path, fs::{File, self}};
+use std::{collections::HashMap, path, fs::{File, self}, process::Command};
 use serde::{Deserialize, Serialize};
 
-use crate::control::hotkey::{KeySequence, KeybdKeyStreamInitializer, KeybdKeyStreamHandler};
+use crate::{control::hotkey::{KeySequence, KeybdKeyStreamInitializer, KeybdKeyStreamHandler}, client::ReceivedEmitMessageData};
 
 mod command;
 mod browser;
@@ -40,6 +40,35 @@ pub struct ControlDefault {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct ControlHooks {
+    value: Vec<String>
+}
+
+pub trait ControlHandler {
+    fn get_value(&self) -> Result<String, String>;
+}
+
+impl ControlHandler for ControlHooks {
+    fn get_value(&self) -> Result<String, String> {
+
+        let first = self.value.first();
+        if first.is_none() {
+            return Err("Invalid hook".to_string());
+        }
+
+        let args = &self.value[1..];
+
+        let stdout = Command::new(first.unwrap())
+            .args(args)
+            .output()
+            .expect("failed to execute process");
+
+        return Ok(String::from_utf8(stdout.stdout).unwrap());
+    }
+}
+
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Control {
     pub id: String,
     pub r#type: String,
@@ -56,6 +85,7 @@ pub struct Control {
     pub text: Option<String>,
     pub icon: Option<String>,
     pub description: Option<String>,
+    pub hooks: Option<ControlHooks>,
 }
 
 
@@ -87,11 +117,11 @@ pub struct Sheet {
 
 
 pub trait EmitHandler {
-    fn emit(&self, event_name: String) -> Result<(), String>;
+    fn emit(&self, event_name: String, context: Option<String>, data: Option<ReceivedEmitMessageData>) -> Result<(), String>;
 }
 
 impl EmitHandler for Control {
-    fn emit(&self, _event: String) -> Result<(), String> {
+    fn emit(&self, _event: String, context: Option<String>, _payload: Option<ReceivedEmitMessageData>) -> Result<(), String> {
 
         match self.r#type.as_str() {
             "command" => {
@@ -102,7 +132,11 @@ impl EmitHandler for Control {
 
                 } else if let Some(commands) = &self.commands {
                     let first = commands.first();
-                    let args = &commands[1..];
+                    let args = &commands[1..].to_vec().iter().map(|arg| {
+                        let context = context.clone().unwrap_or("".to_string());
+                        arg.replace("{context}", &context)
+
+                    }).collect::<Vec<String>>();
 
                     if let Err(e) = command::send(first.unwrap(), Some(args.to_vec())) {
                         eprintln!("Error: {}", e);

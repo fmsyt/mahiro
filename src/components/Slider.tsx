@@ -2,6 +2,7 @@ import { Slider as MuiSlider, Paper, Stack, styled, Typography } from "@mui/mate
 import { EmitControllerProps } from "../interface";
 
 import { Events } from "../enum";
+import { useRef } from "react";
 
 const sliderSize = "100%";
 const BoldSlider = styled(MuiSlider)(({ theme: _ }) => ({
@@ -51,35 +52,24 @@ const Slider = (props: EmitControllerProps) => {
 
   const disabled = props.disabled || sheetItem.disabled || false;
 
-  const events = () => {
-    if (disabled) {
-      return {}
+  const isActiveRef = useRef(false);
+  const handleChange = (e: Event, value: number | number[]) => {
+    if (isActiveRef.current) {
+      return;
     }
 
-    let isActive = false;
-
-    return {
-      onChange: (e: Event, value: number | number[]) => {
-
-        if (isActive) {
-          return;
-        }
-
-        if (!sheetItem.control_id) {
-          return;
-        }
-
-        isActive = true;
-        setTimeout(() => { isActive = false }, 100);
-
-        emit({
-          action: sheetItem.control_id,
-          event: Events.keyUp,
-          context: JSON.stringify(value)
-        })
-      },
+    if (!sheetItem.control_id) {
+      return;
     }
 
+    isActiveRef.current = true;
+    setTimeout(() => { isActiveRef.current = false }, 100);
+
+    emit({
+      action: sheetItem.control_id,
+      event: Events.keyUp,
+      context: JSON.stringify(value)
+    })
   }
 
   return (
@@ -88,12 +78,12 @@ const Slider = (props: EmitControllerProps) => {
         {/* <VolumeDown /> */}
         <BoldSlider
           aria-label="Volume"
-          defaultValue={Number(sheetItem.default || 0)}
+          defaultValue={Number(sheetItem.value || sheetItem.default || 0)}
           disabled={disabled}
           orientation="vertical"
           sx={{ width: "100%", height: "100%" }}
           { ...(sheetItem.props || {}) }
-          { ...events }
+          onChange={handleChange}
           />
         {/* <VolumeUp /> */}
         <Typography variant="caption">{sheetItem.label}</Typography>
