@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
+
+import { fs, path } from "@tauri-apps/api";
 
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -9,6 +11,7 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import { ConfigBrowserControlProps, ConfigCommandControlProps, ConfigControlProps, ConfigHotkeyControlProps, ConfigKeyboardControlProps, ControlType, isTypeOfConfigCommandControl } from "../../interface";
 import fetchControls from "../fetchControls";
 import saveControls from "../saveControls";
+import useIcon from "../../icon/useIcon";
 
 const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
 
@@ -24,6 +27,9 @@ const ControlAccordion = (props: ControlAccordionProps) => {
 
   const { index, initialControl, onRemove } = props;
   const [control, setControl] = useState<ConfigControlProps>(initialControl);
+
+  const previewIconRef = useRef<HTMLImageElement>(null);
+  const iconSrc = useIcon(control.icon);
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
@@ -54,6 +60,47 @@ const ControlAccordion = (props: ControlAccordionProps) => {
 
   }, [control, onRemove]);
 
+  const handleChangeIcon = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+
+    const file = e.target.files?.[0];
+    if (file == null) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+
+      const save = async () => {
+
+        const d = await path.appCacheDir();
+        const filename = `${control.id}.cache`;
+
+        const exists = await fs.exists(filename, { dir: fs.BaseDirectory.AppCache });
+
+        exists && await fs.renameFile(filename, `${filename}.bak`, { dir: fs.BaseDirectory.AppCache });
+
+        try {
+          await fs.writeTextFile(filename, result, { dir: fs.BaseDirectory.AppCache, append: false });
+        } catch (error) {
+          exists && await fs.renameFile(`${filename}.bak`, filename, { dir: fs.BaseDirectory.AppCache });
+        } finally {
+          exists && await fs.removeFile(`${filename}.bak`, { dir: fs.BaseDirectory.AppCache });
+        }
+
+
+        console.log("saved icon:", `${d}${filename}`);
+        setControl((prev) => ({ ...prev, icon: filename }));
+      }
+
+      save();
+    }
+    reader.readAsDataURL(file);
+    previewIconRef.current?.setAttribute("src", URL.createObjectURL(file));
+
+  }, [control.id]);
+
   return (
     <Accordion key={index}>
       <AccordionSummary
@@ -69,7 +116,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
             alignItems="center"
           >
             <Typography variant="h6" sx={{ whiteSpace: "nowrap" }}>
-              {`${index + 1}. ${initialControl.label || initialControl.id}`}
+              {`${index + 1}.${initialControl.label || initialControl.id}`}
             </Typography>
             <Typography
               variant="body2"
@@ -128,6 +175,29 @@ const ControlAccordion = (props: ControlAccordionProps) => {
                 <MenuItem key={key} value={key.toLowerCase()}>{key}</MenuItem>
               ))}
             </Select>
+          </FormControl>
+
+          <FormControl>
+            <FormLabel htmlFor={`${index + 1}.${initialControl.label || initialControl.id}.icon`}>Icon</FormLabel>
+            <input
+              id={`${index + 1}.${initialControl.label || initialControl.id}.icon`}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleChangeIcon}
+              />
+            <img
+              ref={previewIconRef}
+              src={iconSrc}
+              alt=""
+              className="square-image"
+              style={{
+                width: 64,
+                height: 64,
+                objectFit: "contain",
+                display: control.icon ? "block" : "none",
+              }}
+              />
           </FormControl>
 
           {control.type === ControlType.Browser && (

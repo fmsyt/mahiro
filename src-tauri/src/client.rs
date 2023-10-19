@@ -19,6 +19,7 @@ pub struct ClientSheetItem {
     disabled: Option<bool>,
     default: Option<ClientSheetItemDefault>,
     value: Option<String>,
+    icon: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -92,6 +93,11 @@ impl SendWebSocketClientMessage for State {
                                     }
                                 }
 
+                                let icon = match c.icon {
+                                    Some(ref i) => Some(i.clone()),
+                                    None => None,
+                                };
+
                                 match c.default {
                                     Some(ref d) => {
 
@@ -114,7 +120,8 @@ impl SendWebSocketClientMessage for State {
                                     label: i.label.clone(),
                                     disabled: Some(false),
                                     default,
-                                    value: value,
+                                    value,
+                                    icon,
                                 }
                             },
                             None => {
@@ -125,6 +132,7 @@ impl SendWebSocketClientMessage for State {
                                     disabled: None,
                                     default: None,
                                     value: None,
+                                    icon: None,
                                 }
                             }
                         }
@@ -138,6 +146,7 @@ impl SendWebSocketClientMessage for State {
                             disabled: None,
                             default: None,
                             value: None,
+                            icon: None,
                         }
                     }
                 }
@@ -152,7 +161,7 @@ impl SendWebSocketClientMessage for State {
 
         let message = SendSheetsUpdateMessage {
             method: "sheets.update".to_string(),
-            data: data,
+            data,
         };
 
         Message::Text(serde_json::to_string(&message).unwrap())

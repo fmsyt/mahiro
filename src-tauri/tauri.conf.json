@@ -19,9 +19,15 @@
       },
       "fs": {
         "all": true,
-        "scope": [
-          "$APPLOCALDATA/*"
-        ]
+        "scope": {
+          "allow": [
+            "$APPLOCALDATA/**"
+          ],
+          "requireLiteralLeadingDot": true
+        }
+      },
+      "path": {
+        "all": true
       }
     },
     "bundle": {

@@ -4,12 +4,14 @@ import { EmitControllerProps } from "../interface";
 
 import logo from "../logo.svg";
 import { Events } from "../enum";
+import useIcon from "../icon/useIcon";
 
 const Button = (props: EmitControllerProps) => {
 
   const { sheetItem, emit } = props;
   const { label } = sheetItem;
 
+  const src = useIcon(sheetItem.icon);
   const disabled = props.disabled || sheetItem.disabled || false;
 
   const events = useMemo(() => {
@@ -63,9 +65,7 @@ const Button = (props: EmitControllerProps) => {
     <Component>
       <Stack width="100%" height="100%" alignItems="center" justifyContent="space-between" padding={2}>
         <Box>
-          {logo && (
-            <img src={logo} alt="" className="square-image" />
-          )}
+          <img src={src || logo} alt="" className="square-image" />
         </Box>
         <Typography variant="caption">{label}</Typography>
       </Stack>
