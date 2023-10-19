@@ -109,8 +109,14 @@ fn main() {
             let window = app.get_window("main").unwrap();
             window.show().unwrap();
 
-            let _config_window = app.get_window("config").unwrap();
-            let _config_directory_path = app
+            #[cfg(debug_assertions)]
+            {
+                window.open_devtools();
+                window.close_devtools();
+            }
+
+            // let _config_window = app.get_window("config").unwrap();
+            let config_directory_path = app
                 .path_resolver()
                 .app_local_data_dir()
                 .unwrap()
@@ -118,7 +124,7 @@ fn main() {
                 .unwrap()
                 .to_string();
 
-            tauri::async_runtime::spawn(ws::start_server(_config_directory_path));
+            tauri::async_runtime::spawn(ws::start_server(config_directory_path));
 
             Ok(())
         })

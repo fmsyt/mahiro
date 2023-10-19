@@ -11,7 +11,7 @@
             "cargo": {
                 "args": [
                     "build",
-                    "--manifest-path=${workspaceFolder}/src-tauri/Cargo.toml",
+                    "--manifest-path=src-tauri/Cargo.toml",
                     "--no-default-features"
                 ]
             },
@@ -24,7 +24,7 @@
             "cargo": {
                 "args": [
                     "build", "--release",
-                    "--manifest-path=${workspaceFolder}/src-tauri/Cargo.toml"
+                    "--manifest-path=src-tauri/Cargo.toml"
                 ]
             },
             "preLaunchTask": "ui:build"
