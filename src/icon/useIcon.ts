@@ -17,6 +17,7 @@ const useIcon = (name?: string) => {
       alive = true;
 
       if (!name) {
+        setSrc(null);
         return;
       }
 
@@ -28,7 +29,6 @@ const useIcon = (name?: string) => {
       }
 
       const url = await fs.readTextFile(filepath, { dir: fs.BaseDirectory.AppCache });
-      console.log(url);
       setSrc(url);
     }
 

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Card, CardActionArea, CardMedia, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 
 import { fs } from "@tauri-apps/api";
 
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import InputIcon from '@mui/icons-material/Input';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
@@ -29,31 +30,54 @@ const ControlAccordion = (props: ControlAccordionProps) => {
   const [control, setControl] = useState<ConfigControlProps>(initialControl);
 
   const previewIconRef = useRef<HTMLImageElement>(null);
+
+  const inputFileRef = useRef<HTMLInputElement>(null);
   const iconSrc = useIcon(control.icon);
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openDeleteIconDialog, setOpenDeleteIconDialog] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const openMenu = Boolean(anchorEl);
+
+  const [openMenu, setOpenMenu] = useState(false);
+  const [openIconMenu, setOpenIconMenu] = useState(false);
 
   const handelOpenMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
+    setOpenMenu(true);
+    setOpenIconMenu(false);
+
+    setAnchorEl(e.currentTarget);
+  }, []);
+
+  const handleOpenIconMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    setOpenMenu(false);
+    setOpenIconMenu(true);
+
     setAnchorEl(e.currentTarget);
   }, []);
 
   const handelCloseMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
+    setOpenMenu(false);
+    setOpenIconMenu(false);
     setAnchorEl(null);
   }, []);
 
   const handleOpenRemoveDialog = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
-    setAnchorEl(null);
+    handelCloseMenu(e);
     setOpenDeleteDialog(true);
-  }, []);
+  }, [handelCloseMenu]);
 
-  const handleRemove = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleOpenRemoveIconDialog = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
+    handelCloseMenu(e);
+    setOpenDeleteIconDialog(true);
+  }, [handelCloseMenu]);
+
+  const handleRemove = useCallback(() => {
 
     setOpenDeleteDialog(false);
     onRemove?.(control);
@@ -78,6 +102,32 @@ const ControlAccordion = (props: ControlAccordionProps) => {
     removeIcon();
 
   }, [control, onRemove]);
+
+
+  const handleRemoveIcon = useCallback(async () => {
+
+    setOpenDeleteIconDialog(false);
+
+    if (!control.icon) {
+      return;
+    }
+
+    const filename = `${control.id}.cache`;
+    const tempname = `${filename}.tmp`;
+    const dir = "icons";
+
+    if (await fs.exists(`${dir}/${filename}`, { dir: fs.BaseDirectory.AppCache })) {
+      await fs.removeFile(`${dir}/${filename}`, { dir: fs.BaseDirectory.AppCache });
+    }
+
+    if (await fs.exists(`${dir}/${tempname}`, { dir: fs.BaseDirectory.AppCache })) {
+      await fs.removeFile(`${dir}/${tempname}`, { dir: fs.BaseDirectory.AppCache });
+    }
+
+    setControl((prev) => ({ ...prev, icon: undefined }));
+
+
+  }, [control]);
 
   const handleChange = useCallback((key: string, value: string) => {
     setControl((prev) => ({ ...prev, [key]: value }));
@@ -132,10 +182,6 @@ const ControlAccordion = (props: ControlAccordionProps) => {
 
     const save = async () => {
 
-      if (!control.icon) {
-        return;
-      }
-
       const config = {
         dir: fs.BaseDirectory.AppCache
       }
@@ -154,7 +200,9 @@ const ControlAccordion = (props: ControlAccordionProps) => {
         await fs.removeFile(`${dir}/${filename}`, config);
       }
 
-      await fs.renameFile(`${dir}/${tempname}`, `${dir}/${filename}`, config);
+      if (control.icon) {
+        await fs.renameFile(`${dir}/${tempname}`, `${dir}/${filename}`, config);
+      }
 
       props.onSave?.(control);
     }
@@ -240,26 +288,51 @@ const ControlAccordion = (props: ControlAccordionProps) => {
           </FormControl>
 
           <FormControl>
-            <FormLabel htmlFor={`${index + 1}.${initialControl.label || initialControl.id}.icon`}>Icon</FormLabel>
+            <FormLabel>Icon</FormLabel>
             <input
               id={`${index + 1}.${initialControl.label || initialControl.id}.icon`}
               type="file"
               accept="image/*"
               style={{ display: "none" }}
               onChange={handleChangeIcon}
+              ref={inputFileRef}
               />
-            <img
-              ref={previewIconRef}
-              src={iconSrc}
-              alt=""
-              className="square-image"
-              style={{
-                width: 64,
-                height: 64,
-                objectFit: "contain",
-                display: control.icon ? "block" : "none",
-              }}
-              />
+
+            <Card>
+              <CardActionArea
+                onClick={handleOpenIconMenu}
+              >
+                <CardMedia
+                  component="img"
+                  image={iconSrc}
+                  ref={previewIconRef}
+                  alt=""
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    objectFit: "contain",
+                  }}
+                  />
+              </CardActionArea>
+            </Card>
+            <Menu
+              open={openIconMenu}
+              onClose={handelCloseMenu}
+              anchorEl={anchorEl}
+            >
+              <MenuItem onClick={() => inputFileRef.current?.click()}>
+                <ListItemIcon>
+                  <InputIcon />
+                </ListItemIcon>
+                <ListItemText primary="Change" />
+              </MenuItem>
+              <MenuItem onClick={handleOpenRemoveIconDialog}>
+                <ListItemIcon>
+                  <DeleteForeverIcon />
+                </ListItemIcon>
+                <ListItemText primary="Remove" />
+              </MenuItem>
+            </Menu>
           </FormControl>
 
           {control.type === ControlType.Browser && (
@@ -331,6 +404,32 @@ const ControlAccordion = (props: ControlAccordionProps) => {
             variant="outlined"
             sx={{ textTransform: "none" }}
             onClick={handleRemove}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openDeleteIconDialog} onClose={() => setOpenDeleteIconDialog(false)}>
+        <DialogContent>
+          <DialogContentText>
+            このアイコンを削除しますか？
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="primary"
+            variant="outlined"
+            sx={{ textTransform: "none" }}
+            onClick={() => setOpenDeleteIconDialog(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="error"
+            variant="outlined"
+            sx={{ textTransform: "none" }}
+            onClick={handleRemoveIcon}
           >
             Delete
           </Button>
