@@ -20,12 +20,14 @@ const useIcon = (name?: string) => {
         return;
       }
 
-      const exists = await fs.exists(name, { dir: fs.BaseDirectory.AppCache });
+      const filepath = `icons/${name}`;
+
+      const exists = await fs.exists(filepath, { dir: fs.BaseDirectory.AppCache });
       if (!exists) {
         return;
       }
 
-      const url = await fs.readTextFile(name, { dir: fs.BaseDirectory.AppCache });
+      const url = await fs.readTextFile(filepath, { dir: fs.BaseDirectory.AppCache });
       console.log(url);
       setSrc(url);
     }

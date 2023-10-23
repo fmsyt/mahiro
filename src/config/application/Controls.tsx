@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 
-import { fs, path } from "@tauri-apps/api";
+import { fs } from "@tauri-apps/api";
 
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -58,7 +58,31 @@ const ControlAccordion = (props: ControlAccordionProps) => {
     setOpenDeleteDialog(false);
     onRemove?.(control);
 
+    const removeIcon = async () => {
+      if (!control.icon) {
+        return;
+      }
+
+      const filename = `${control.id}.cache`;
+      const savePath = `icons/${filename}`;
+
+      if (await fs.exists(savePath, { dir: fs.BaseDirectory.AppCache })) {
+        await fs.removeFile(savePath, { dir: fs.BaseDirectory.AppCache });
+      }
+
+      if (await fs.exists(`${savePath}.tmp`, { dir: fs.BaseDirectory.AppCache })) {
+        await fs.removeFile(`${savePath}.tmp`, { dir: fs.BaseDirectory.AppCache });
+      }
+    }
+
+    removeIcon();
+
   }, [control, onRemove]);
+
+  const handleChange = useCallback((key: string, value: string) => {
+    setControl((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
 
   const handleChangeIcon = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -72,34 +96,72 @@ const ControlAccordion = (props: ControlAccordionProps) => {
     reader.onload = () => {
       const result = reader.result as string;
 
-      const save = async () => {
+      const createTemp = async () => {
 
-        const d = await path.appCacheDir();
+        await fs.createDir("icons", { recursive: true, dir: fs.BaseDirectory.AppCache });
+
         const filename = `${control.id}.cache`;
 
-        const exists = await fs.exists(filename, { dir: fs.BaseDirectory.AppCache });
+        const tempname = `${filename}.tmp`;
+        const savePath = `icons/${tempname}`;
 
-        exists && await fs.renameFile(filename, `${filename}.bak`, { dir: fs.BaseDirectory.AppCache });
-
-        try {
-          await fs.writeTextFile(filename, result, { dir: fs.BaseDirectory.AppCache, append: false });
-        } catch (error) {
-          exists && await fs.renameFile(`${filename}.bak`, filename, { dir: fs.BaseDirectory.AppCache });
-        } finally {
-          exists && await fs.removeFile(`${filename}.bak`, { dir: fs.BaseDirectory.AppCache });
+        if (await fs.exists(savePath, { dir: fs.BaseDirectory.AppCache })) {
+          await fs.removeFile(savePath, { dir: fs.BaseDirectory.AppCache });
         }
 
+        try {
+          await fs.writeTextFile(savePath, result, { dir: fs.BaseDirectory.AppCache, append: false });
 
-        console.log("saved icon:", `${d}${filename}`);
+        } catch (error) {
+          console.error(error);
+        }
+
         setControl((prev) => ({ ...prev, icon: filename }));
       }
 
-      save();
+      createTemp();
     }
+
     reader.readAsDataURL(file);
     previewIconRef.current?.setAttribute("src", URL.createObjectURL(file));
 
   }, [control.id]);
+
+
+  const handleSave = useCallback(() => {
+
+    const save = async () => {
+
+      if (!control.icon) {
+        return;
+      }
+
+      const config = {
+        dir: fs.BaseDirectory.AppCache
+      }
+
+      const filename = `${control.id}.cache`;
+      const tempname = `${filename}.tmp`;
+      const dir = "icons";
+
+      // exit if temp file does not exist
+      if (!await fs.exists(`${dir}/${tempname}`, config)) {
+        return;
+      }
+
+      // exit if file already exists
+      if (await fs.exists(`${dir}/${filename}`, config)) {
+        await fs.removeFile(`${dir}/${filename}`, config);
+      }
+
+      await fs.renameFile(`${dir}/${tempname}`, `${dir}/${filename}`, config);
+
+      props.onSave?.(control);
+    }
+
+    save();
+
+  }, [control, props]);
 
   return (
     <Accordion key={index}>
@@ -152,7 +214,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
               label="ID"
               defaultValue={control.id}
               variant="standard"
-              onChange={(e) => setControl({ ...control, id: e.target.value })}
+              onChange={(e) => handleChange("id", e.target.value)}
               />
           </FormControl>
           <FormControl>
@@ -160,7 +222,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
               label="Description"
               defaultValue={control.description}
               variant="standard"
-              onChange={(e) => setControl({ ...control, description: e.target.value })}
+              onChange={(e) => handleChange("description", e.target.value)}
               fullWidth
               />
           </FormControl>
@@ -169,7 +231,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
             <Select
               value={control.type}
               variant="standard"
-              onChange={(e) => setControl({ ...control, type: e.target.value as ControlType })}
+              onChange={(e) => handleChange("type", e.target.value)}
             >
               {Object.keys(ControlType).map((key) => (
                 <MenuItem key={key} value={key.toLowerCase()}>{key}</MenuItem>
@@ -234,7 +296,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
             variant="contained"
             color="primary"
             sx={{ textTransform: "none" }}
-            onClick={() => props.onSave?.(control)}
+            onClick={handleSave}
           >
             Save
           </Button>
