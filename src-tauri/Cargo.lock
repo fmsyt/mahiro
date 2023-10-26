@@ -1615,6 +1615,7 @@ version = "0.9.0"
 dependencies = [
  "base64 0.13.1",
  "enigo",
+ "futures-channel",
  "futures-util",
  "log",
  "serde",
