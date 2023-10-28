@@ -199,24 +199,23 @@ impl EmitHandler for Control {
 pub fn get_control_list(config_dir: String) -> Vec<Control> {
     let control_file_path_str = format!("{}{}{}", config_dir, path::MAIN_SEPARATOR, "controls.json");
 
-    let control_config = std::fs::read_to_string(control_file_path_str.clone());
-    let controls: Vec<Control> = match control_config {
-        Ok(config) => {
-            let c: Result<Vec<Control>, serde_json::Error> = serde_json::from_str(&config);
-            match c {
-                Ok(controls) => controls,
-                Err(e) => {
-                    eprintln!("Error: {}: {}", e, control_file_path_str);
-                    vec![]
-                }
-            }
-        }
-        Err(_) => {
-            File::create(control_file_path_str.clone()).unwrap();
-            fs::write(control_file_path_str.clone(), "[]").unwrap();
-            vec![]
-        }
-    };
+    let try_control_config = std::fs::read_to_string(control_file_path_str.clone());
+    if let Err(_) = try_control_config {
+        File::create(control_file_path_str.clone()).unwrap();
+        fs::write(control_file_path_str.clone(), "[]").unwrap();
+
+        return vec![];
+    }
+
+    let control_config = try_control_config.unwrap();
+    let try_controls: Result<Vec<Control>, serde_json::Error> = serde_json::from_str(&control_config);
+
+    if let Err(e) = try_controls {
+        eprintln!("Error: {}: {}", e, control_file_path_str);
+        return vec![]
+    }
+
+    let controls = try_controls.unwrap();
 
     controls
 }
