@@ -1,7 +1,7 @@
 use std::process::Command;
 
+use axum::extract::ws::Message;
 use serde::{Deserialize, Serialize};
-use tokio_tungstenite::tungstenite::Message;
 
 use crate::control::{Control, Sheet, EmitHandler, get_control_list, get_sheet_list, ControlHandler};
 

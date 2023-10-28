@@ -1,9 +1,8 @@
 use std::{io::Error, sync::{Arc, Mutex}, collections::HashMap, net::SocketAddr};
 
-use axum::{Router, extract::{WebSocketUpgrade, ConnectInfo, Extension, ws::{WebSocket, self}}, TypedHeader, headers::UserAgent, response::IntoResponse, routing::get};
+use axum::{Router, extract::{WebSocketUpgrade, ConnectInfo, Extension, ws::{WebSocket, Message}}, TypedHeader, headers::UserAgent, response::IntoResponse, routing::get};
 use futures_channel::mpsc::{unbounded, UnboundedSender};
 use futures_util::{StreamExt, pin_mut, future, TryStreamExt};
-use tokio_tungstenite::{accept_async, tungstenite::Message, WebSocketStream};
 use tokio::net::{TcpListener, TcpStream};
 
 use tower_http::{self, add_extension::AddExtensionLayer};
@@ -65,7 +64,7 @@ async fn ws_handler(
     ws: WebSocketUpgrade,
     user_agent: Option<TypedHeader<UserAgent>>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    Extension(state): Extension<GlobalAppState>
+    Extension(app_state): Extension<GlobalAppState>
 ) -> impl IntoResponse {
     let user_agent = if let Some(TypedHeader(user_agent)) = user_agent {
         user_agent.to_string()
@@ -75,57 +74,74 @@ async fn ws_handler(
     println!("`{user_agent}` at {addr} connected.");
     // finalize the upgrade process by returning upgrade callback.
     // we can customize the callback by sending additional info such as address.
-    ws.on_upgrade(move |socket| handle_socket(state, socket, addr))
+    ws.on_upgrade(move |socket| handle_socket(app_state, socket, addr))
 }
 
 async fn handle_socket(app_state: GlobalAppState, mut socket: WebSocket, addr: SocketAddr) {
 
-    println!("{}", app_state.lock().unwrap().client.sheets.len());
 
+    let (outgoing, incoming) = socket.split();
 
-    let mut recv_task = tokio::spawn(async move {
-        while let Some(Ok(message)) = socket.next().await {
-            match message {
-                axum::extract::ws::Message::Text(text) => {
-                    println!("Received a message from {}: {}", addr, text);
-                    let try_json = serde_json::from_str::<ReceivedMessage>(text.as_str());
+    let broadcast_incoming = incoming.try_for_each(|message| {
 
-                    let json = try_json.unwrap();
+        match message {
+            Message::Text(text) => {
+                let try_json = serde_json::from_str::<ReceivedMessage>(text.as_str());
 
-                    match json.method.as_str() {
-                        "emit" => {
+                if let Err(_) = try_json {
+                    return future::ok(());
+                }
 
-                            if let Some(data) = json.data {
-                                let state = app_state.lock().unwrap();
-                                if let Err(e) = state.client.emit(data.action, data.event, data.context, None) {
-                                    eprintln!("Error: {}", e);
-                                }
+                let json = try_json.unwrap();
 
-                            } else {
-                                eprintln!("Warn: Invalid emit message")
-                            }
+                match json.method.as_str() {
+                    "emit" => {
 
-                        }
-                        "general.update" => {
-                        }
-                        "sheets.update" => {
+                        if let Some(data) = json.data {
+
                             let state = app_state.lock().unwrap();
 
-                            let message = state.client.sheets_update();
-                            let peer = state.peer_map.get(&addr).unwrap();
-                            peer.unbounded_send(message).unwrap();
+                            if let Err(e) = state.client.emit(data.action, data.event, data.context, None) {
+                                eprintln!("Error: {}", e);
+                            }
+
+                        } else {
+                            eprintln!("Warn: Invalid emit message")
                         }
-                        _ => {
-                            eprintln!("Warn: Invalid method")
-                        }
+
+                    }
+                    "general.update" => {
+                    }
+                    "sheets.update" => {
+                        let state = app_state.lock().unwrap();
+
+                        let message = state.client.sheets_update();
+                        let peer = state.peer_map.get(&addr).unwrap();
+                        peer.unbounded_send(message).unwrap();
+                    }
+                    _ => {
+                        eprintln!("Warn: Invalid method")
                     }
                 }
-                _ => {
-                    println!("Received a message from {}: {:?}", addr, message);
-                }
+
+            }
+            Message::Binary(_) => {
+                println!("Received a binary message from {}", addr);
+            }
+            Message::Ping(_) => {
+                println!("Received a ping from {}", addr);
+            }
+            Message::Pong(_) => {
+                println!("Received a pong from {}", addr);
+            }
+            Message::Close(_) => {
+                println!("Received a close from {}", addr);
             }
         }
+
+        future::ok(())
     });
+
 
     println!("{} disconnected", addr);
 }
