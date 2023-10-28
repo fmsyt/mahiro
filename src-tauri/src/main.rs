@@ -13,7 +13,7 @@ use tauri_plugin_log::{fern::colors::ColoredLevelConfig, LogTarget};
 
 mod client;
 mod control;
-mod ws;
+mod server;
 
 #[cfg(debug_assertions)]
 const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Stderr];
@@ -126,7 +126,7 @@ fn main() {
                 .unwrap()
                 .to_string();
 
-            tauri::async_runtime::spawn(ws::start_server(config_directory_path));
+            tauri::async_runtime::spawn(server::start(config_directory_path));
 
             Ok(())
         })

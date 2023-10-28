@@ -12,6 +12,11 @@ const useIcon = (name?: string) => {
 
     let alive = false;
 
+    if (!name) {
+      setSrc(null);
+      return;
+    }
+
     const load = async () => {
 
       if (alive) {

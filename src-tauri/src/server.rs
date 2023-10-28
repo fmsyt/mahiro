@@ -2,7 +2,7 @@ use std::{io::Error, sync::{Arc, Mutex}, collections::HashMap, net::SocketAddr};
 
 use futures_channel::mpsc::{unbounded, UnboundedSender};
 use futures_util::{StreamExt, pin_mut, future, TryStreamExt};
-use tokio_tungstenite::{accept_async, tungstenite::Message};
+use tokio_tungstenite::{accept_async, tungstenite::Message, WebSocketStream};
 use tokio::net::{TcpListener, TcpStream};
 
 use crate::client::{ReceivedMessage, load_state, State as ClientState, SendWebSocketClientMessage, ReceiveWebSocketClientMessage};
@@ -16,7 +16,7 @@ struct AppState {
 
 type GlobalAppState = Arc<Mutex<AppState>>;
 
-pub async fn start_server(config_directory_path: String) {
+pub async fn start(config_directory_path: String) {
     let addr: String = "0.0.0.0:17001".to_string();
 
     let try_socket: Result<TcpListener, Error> = TcpListener::bind(addr).await;
@@ -31,7 +31,7 @@ pub async fn start_server(config_directory_path: String) {
 
         println!("New WebSocket connection: {}", addr);
 
-        tokio::spawn(websocket_process(
+        tokio::spawn(process(
             app_state.clone(),
             socket,
             addr
@@ -40,16 +40,20 @@ pub async fn start_server(config_directory_path: String) {
 }
 
 
-async fn websocket_process(app_state: GlobalAppState, socket: TcpStream, addr: SocketAddr) {
-    let try_websocket = accept_async(socket).await;
+async fn process(app_state: GlobalAppState, socket: TcpStream, addr: SocketAddr) {
 
-    if let Err(e) = try_websocket {
-        eprintln!("Error during the websocket handshake occurred: {}", e);
+    // print protocol
+    println!("Protocol: {:?}", socket.peer_addr().unwrap().to_string());
+
+    if let Ok(websocket) = accept_async(socket).await {
+        ws_process(app_state, websocket, addr).await;
         return;
     }
 
-    let websocket = try_websocket.unwrap();
+}
 
+
+async fn ws_process(app_state: GlobalAppState, websocket: WebSocketStream<TcpStream>, addr: SocketAddr) {
     let (tx, rx) = unbounded();
     app_state.lock().unwrap().peer_map.insert(addr, tx);
 
@@ -104,5 +108,4 @@ async fn websocket_process(app_state: GlobalAppState, socket: TcpStream, addr: S
 
     app_state.lock().unwrap().peer_map.remove(&addr);
     println!("{} disconnected", addr);
-
 }
