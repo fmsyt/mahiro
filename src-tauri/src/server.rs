@@ -1,4 +1,4 @@
-use std::{io::Error, sync::{Arc, Mutex}, collections::HashMap, net::SocketAddr};
+use std::{io::Error, sync::{Arc, Mutex}, collections::HashMap, net::SocketAddr, ops::ControlFlow};
 
 use axum::{Router, extract::{WebSocketUpgrade, ConnectInfo, Extension, ws::{WebSocket, Message}}, TypedHeader, headers::UserAgent, response::IntoResponse, routing::get};
 use futures_channel::mpsc::{unbounded, UnboundedSender};
@@ -74,76 +74,101 @@ async fn ws_handler(
     println!("`{user_agent}` at {addr} connected.");
     // finalize the upgrade process by returning upgrade callback.
     // we can customize the callback by sending additional info such as address.
-    ws.on_upgrade(move |socket| handle_socket(app_state, socket, addr))
+    ws.on_upgrade(move |socket| handle_socket(app_state.clone(), socket, addr))
 }
 
-async fn handle_socket(app_state: GlobalAppState, mut socket: WebSocket, addr: SocketAddr) {
+async fn handle_socket(app_state: GlobalAppState, socket: WebSocket, addr: SocketAddr) {
+
+    // let (tx, rx) = unbounded();
+    // let mut s = app_state.lock().unwrap();
+    // s.peer_map.insert(addr, tx);
 
 
-    let (outgoing, incoming) = socket.split();
+    let (outgoing, mut incoming) = socket.split();
 
-    let broadcast_incoming = incoming.try_for_each(|message| {
-
-        match message {
-            Message::Text(text) => {
-                let try_json = serde_json::from_str::<ReceivedMessage>(text.as_str());
-
-                if let Err(_) = try_json {
-                    return future::ok(());
-                }
-
-                let json = try_json.unwrap();
-
-                match json.method.as_str() {
-                    "emit" => {
-
-                        if let Some(data) = json.data {
-
-                            let state = app_state.lock().unwrap();
-
-                            if let Err(e) = state.client.emit(data.action, data.event, data.context, None) {
-                                eprintln!("Error: {}", e);
-                            }
-
-                        } else {
-                            eprintln!("Warn: Invalid emit message")
-                        }
-
-                    }
-                    "general.update" => {
-                    }
-                    "sheets.update" => {
-                        let state = app_state.lock().unwrap();
-
-                        let message = state.client.sheets_update();
-                        let peer = state.peer_map.get(&addr).unwrap();
-                        peer.unbounded_send(message).unwrap();
-                    }
-                    _ => {
-                        eprintln!("Warn: Invalid method")
-                    }
-                }
-
-            }
-            Message::Binary(_) => {
-                println!("Received a binary message from {}", addr);
-            }
-            Message::Ping(_) => {
-                println!("Received a ping from {}", addr);
-            }
-            Message::Pong(_) => {
-                println!("Received a pong from {}", addr);
-            }
-            Message::Close(_) => {
-                println!("Received a close from {}", addr);
+    tokio::spawn(async move {
+        while let Some(Ok(message)) = incoming.next().await {
+            let app_state_clone = app_state.clone();
+            // print message and break if instructed to do so
+            if websocket_process(app_state_clone, message, addr).is_break() {
+                break;
             }
         }
 
-        future::ok(())
     });
 
 
     println!("{} disconnected", addr);
+}
+
+
+fn websocket_process(app_state: GlobalAppState, message: Message, addr: SocketAddr) -> ControlFlow<()> {
+    match message {
+        Message::Text(text) => {
+            let try_json = serde_json::from_str::<ReceivedMessage>(text.as_str());
+
+            if let Err(_) = try_json {
+                return ControlFlow::Continue(());
+            }
+
+            let json = try_json.unwrap();
+
+            match json.method.as_str() {
+                "emit" => {
+
+                    if let Some(data) = json.data {
+
+                        let state = app_state.lock().unwrap();
+
+                        if let Err(e) = state.client.emit(data.action, data.event, data.context, None) {
+                            eprintln!("Error: {}", e);
+                        }
+
+                    } else {
+                        eprintln!("Warn: Invalid emit message")
+                    }
+
+                }
+                "general.update" => {
+                }
+                "sheets.update" => {
+                    let state = app_state.lock().unwrap();
+
+                    let message = state.client.sheets_update();
+                    let peer = state.peer_map.get(&addr).unwrap();
+                    peer.unbounded_send(message).unwrap();
+                }
+                _ => {
+                    eprintln!("Warn: Invalid method")
+                }
+            }
+        }
+        Message::Binary(_) => {
+            println!("Received a binary message from {}", addr);
+        }
+        Message::Ping(_) => {
+            println!("Received a ping from {}", addr);
+        }
+        Message::Pong(_) => {
+            println!("Received a pong from {}", addr);
+        }
+        Message::Close(c) => {
+            if let Some(cf) = c {
+                println!(
+                    ">>> {} sent close with code {} and reason `{}`",
+                    addr, cf.code, cf.reason
+                );
+            } else {
+                println!(">>> {} somehow sent close message without CloseFrame", addr);
+            }
+
+            // app_state.lock().unwrap().peer_map.remove(&addr);
+            return ControlFlow::Break(());
+        }
+    }
+
+    ControlFlow::Continue(())
+
 }
 
 
