@@ -14,6 +14,8 @@ import fetchControls from "../fetchControls";
 import saveControls from "../saveControls";
 import useIcon from "../../icon/useIcon";
 
+import { iconsRoot } from "../../path";
+
 const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
 
 
@@ -32,6 +34,8 @@ const ControlAccordion = (props: ControlAccordionProps) => {
   const previewIconRef = useRef<HTMLImageElement>(null);
 
   const inputFileRef = useRef<HTMLInputElement>(null);
+  const inputFileExtensionRef = useRef<string>(null);
+
   const iconSrc = useIcon(control.icon);
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -87,8 +91,10 @@ const ControlAccordion = (props: ControlAccordionProps) => {
         return;
       }
 
-      const filename = `${control.id}.cache`;
-      const savePath = `icons/${filename}`;
+      const extention = inputFileExtensionRef.current;
+
+      const filename = `${control.id}.${extention}`;
+      const savePath = `${iconsRoot}/${filename}`;
 
       if (await fs.exists(savePath, { dir: fs.BaseDirectory.AppCache })) {
         await fs.removeFile(savePath, { dir: fs.BaseDirectory.AppCache });
@@ -112,16 +118,17 @@ const ControlAccordion = (props: ControlAccordionProps) => {
       return;
     }
 
-    const filename = `${control.id}.cache`;
-    const tempname = `${filename}.tmp`;
-    const dir = "icons";
+    const extention = inputFileExtensionRef.current;
 
-    if (await fs.exists(`${dir}/${filename}`, { dir: fs.BaseDirectory.AppCache })) {
-      await fs.removeFile(`${dir}/${filename}`, { dir: fs.BaseDirectory.AppCache });
+    const filename = `${control.id}.${extention}`;
+    const tempname = `${filename}.tmp`;
+
+    if (await fs.exists(`${iconsRoot}/${filename}`, { dir: fs.BaseDirectory.AppCache })) {
+      await fs.removeFile(`${iconsRoot}/${filename}`, { dir: fs.BaseDirectory.AppCache });
     }
 
-    if (await fs.exists(`${dir}/${tempname}`, { dir: fs.BaseDirectory.AppCache })) {
-      await fs.removeFile(`${dir}/${tempname}`, { dir: fs.BaseDirectory.AppCache });
+    if (await fs.exists(`${iconsRoot}/${tempname}`, { dir: fs.BaseDirectory.AppCache })) {
+      await fs.removeFile(`${iconsRoot}/${tempname}`, { dir: fs.BaseDirectory.AppCache });
     }
 
     setControl((prev) => ({ ...prev, icon: undefined }));
@@ -142,30 +149,40 @@ const ControlAccordion = (props: ControlAccordionProps) => {
       return;
     }
 
+    // assert file is image
+    if (!file.type.startsWith("image/")) {
+      return;
+    }
+
+    const extention = file.name.split(".").pop();
+
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
 
       const createTemp = async () => {
 
-        await fs.createDir("icons", { recursive: true, dir: fs.BaseDirectory.AppCache });
+        await fs.createDir(iconsRoot, { recursive: true, dir: fs.BaseDirectory.AppCache });
 
-        const filename = `${control.id}.cache`;
+        const filename = `${control.id}.${extention}`;
 
         const tempname = `${filename}.tmp`;
-        const savePath = `icons/${tempname}`;
+        const savePath = `${iconsRoot}/${tempname}`;
 
         if (await fs.exists(savePath, { dir: fs.BaseDirectory.AppCache })) {
           await fs.removeFile(savePath, { dir: fs.BaseDirectory.AppCache });
         }
 
         try {
-          await fs.writeTextFile(savePath, result, { dir: fs.BaseDirectory.AppCache, append: false });
+          const arrayBuffer = await fetch(result).then((res) => res.arrayBuffer());
+          await fs.writeBinaryFile(savePath, new Uint8Array(arrayBuffer), { dir: fs.BaseDirectory.AppCache, append: false });
 
         } catch (error) {
           console.error(error);
         }
 
+        inputFileExtensionRef.current = extention;
         setControl((prev) => ({ ...prev, icon: filename }));
       }
 
@@ -186,22 +203,23 @@ const ControlAccordion = (props: ControlAccordionProps) => {
         dir: fs.BaseDirectory.AppCache
       }
 
-      const filename = `${control.id}.cache`;
+      const extention = inputFileExtensionRef.current;
+
+      const filename = `${control.id}.${extention}`;
       const tempname = `${filename}.tmp`;
-      const dir = "icons";
 
       // exit if temp file does not exist
-      if (!await fs.exists(`${dir}/${tempname}`, config)) {
+      if (!await fs.exists(`${iconsRoot}/${tempname}`, config)) {
         return;
       }
 
       // exit if file already exists
-      if (await fs.exists(`${dir}/${filename}`, config)) {
-        await fs.removeFile(`${dir}/${filename}`, config);
+      if (await fs.exists(`${iconsRoot}/${filename}`, config)) {
+        await fs.removeFile(`${iconsRoot}/${filename}`, config);
       }
 
       if (control.icon) {
-        await fs.renameFile(`${dir}/${tempname}`, `${dir}/${filename}`, config);
+        await fs.renameFile(`${iconsRoot}/${tempname}`, `${iconsRoot}/${filename}`, config);
       }
 
       props.onSave?.(control);

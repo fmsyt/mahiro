@@ -1,5 +1,9 @@
-import { fs } from "@tauri-apps/api";
+import { BaseDirectory, appCacheDir, join } from "@tauri-apps/api/path";
+import { convertFileSrc } from '@tauri-apps/api/tauri';
+
 import { useEffect, useState } from "react";
+import { iconsRoot } from "../path";
+import { fs } from "@tauri-apps/api";
 
 const useIcon = (name?: string) => {
   const [src, setSrc] = useState<string | null>(null);
@@ -14,21 +18,18 @@ const useIcon = (name?: string) => {
         return;
       }
 
-      alive = true;
-
-      if (!name) {
+      const exists = await fs.exists(`${iconsRoot}/${name}`, { dir: BaseDirectory.AppCache });
+      if (!exists) {
         setSrc(null);
         return;
       }
 
-      const filepath = `icons/${name}`;
+      const dir = await appCacheDir();
+      const path = await join(dir, iconsRoot, name);
+      const url = convertFileSrc(path);
 
-      const exists = await fs.exists(filepath, { dir: fs.BaseDirectory.AppCache });
-      if (!exists) {
-        return;
-      }
+      import.meta.env.DEV && console.log('URL', url);
 
-      const url = await fs.readTextFile(filepath, { dir: fs.BaseDirectory.AppCache });
       setSrc(url);
     }
 
