@@ -201,9 +201,9 @@ pub fn load_state(config_dir: String) -> State {
     let controls = get_control_list(config_dir.clone());
 
     let state = State {
-        config_dir: config_dir,
-        controls: controls,
-        sheets: sheets,
+        config_dir,
+        controls,
+        sheets,
     };
 
     state

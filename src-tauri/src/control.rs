@@ -224,24 +224,21 @@ pub fn get_control_list(config_dir: String) -> Vec<Control> {
 pub fn get_sheet_list(config_dir: String) -> Vec<Sheet> {
     let sheet_file_path_str = format!("{}{}{}", config_dir, path::MAIN_SEPARATOR, "sheets.json");
 
-    let sheet_config = std::fs::read_to_string(sheet_file_path_str.clone());
-    let sheets: Vec<Sheet> = match sheet_config {
-        Ok(config) => {
-            let s: Result<Vec<Sheet>, serde_json::Error> = serde_json::from_str(&config);
-            match s {
-                Ok(sheets) => sheets,
-                Err(e) => {
-                    eprintln!("Error: {}: {}", e, sheet_file_path_str);
-                    vec![]
-                }
-            }
-        }
-        Err(_) => {
-            File::create(sheet_file_path_str.clone()).unwrap();
-            fs::write(sheet_file_path_str.clone(), "[]").unwrap();
+    let try_sheet_config = std::fs::read_to_string(sheet_file_path_str.clone());
+    if let Err(_) = try_sheet_config {
+        File::create(sheet_file_path_str.clone()).unwrap();
+        fs::write(sheet_file_path_str.clone(), "[]").unwrap();
+
+        return vec![];
+    }
+
+    let sheets_json = try_sheet_config.unwrap();
+    let try_sheets: Result<Vec<Sheet>, serde_json::Error> = serde_json::from_str(&sheets_json);
+    match try_sheets {
+        Ok(sheets) => sheets,
+        Err(e) => {
+            eprintln!("Error: {}: {}", e, sheet_file_path_str);
             vec![]
         }
-    };
-
-    sheets
+    }
 }
