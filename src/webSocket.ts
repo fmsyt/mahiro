@@ -20,7 +20,7 @@ const defaultWebSocketToken = localStorage.getItem("wsToken");
 
 export function toURL(conditions: WebSocketConnection): string {
   const { protocol, hostname, port, token } = conditions;
-  return `${protocol}://${hostname}:${port}${token ? `?token=${token}` : ""}`;
+  return `${protocol}://${hostname}:${port}/ws${token ? `?token=${token}` : ""}`;
 }
 
 export const defaultConnection: WebSocketConnection = {
