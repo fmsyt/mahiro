@@ -8,6 +8,7 @@ use tauri::{
     AppHandle, Manager, Menu, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
 };
 
+use tauri_plugin_autostart::{self, MacosLauncher};
 use tauri_plugin_log::{fern::colors::ColoredLevelConfig, LogTarget};
 
 mod client;
@@ -100,6 +101,7 @@ fn main() {
                 .build(),
         )
         .plugin(tauri_plugin_websocket::init())
+        .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))
         .on_window_event(handle_window)
         .menu(create_menu())
         .on_menu_event(handle_menu)

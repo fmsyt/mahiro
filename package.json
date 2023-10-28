@@ -26,6 +26,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.14.2",
     "react-use-websocket": "^4.5.0",
+    "tauri-plugin-autostart-api": "github:tauri-apps/tauri-plugin-autostart#v1",
     "tauri-plugin-websocket-api": "github:tauri-apps/tauri-plugin-websocket#v1"
   },
   "devDependencies": {

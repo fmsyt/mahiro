@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
@@ -6,6 +6,8 @@ import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import ThemeContext from "../ThemeContext";
 
 import { Button, ButtonGroup, Checkbox, Container, FormControl, FormControlLabel, FormLabel, Stack, Tooltip, Typography } from "@mui/material";
+
+import { enable, isEnabled, disable } from "tauri-plugin-autostart-api";
 
 /**
  * General tab for the config app.
@@ -21,6 +23,35 @@ import { Button, ButtonGroup, Checkbox, Container, FormControl, FormControlLabel
 export default function Application(): JSX.Element {
 
   const { themeMode, setThemeMode } = useContext(ThemeContext);
+  const [isAutoStart, setIsAutoStart] = useState<boolean | null>(null);
+
+  useEffect(() => {
+
+    const func = async () => {
+      const enabled = await isEnabled();
+      setIsAutoStart(enabled);
+    }
+
+    if (import.meta.env.DEV) {
+      console.info("Auto start is not available in development mode.");
+      return;
+    }
+
+    func();
+
+  }, []);
+
+  const handleChangeEnableAutoStart = async (toEnable: boolean) => {
+    setIsAutoStart(null);
+    if (toEnable) {
+      await enable();
+      setIsAutoStart(true);
+    } else {
+      await disable();
+      setIsAutoStart(false);
+    }
+  }
+
 
   return (
     <Container>
@@ -63,11 +94,24 @@ export default function Application(): JSX.Element {
           </ButtonGroup>
         </FormControl>
 
-        <FormControl>
+        {/* <FormControl>
           <FormLabel>最前面に表示</FormLabel>
           <FormControlLabel
-            control={<Checkbox />}
             label="最前面に表示する"
+            control={<Checkbox />}
+            />
+        </FormControl> */}
+        <FormControl>
+          <FormLabel>自動実行</FormLabel>
+          <FormControlLabel
+            label="システム起動時に実行する"
+            control={(
+              <Checkbox
+                disabled={isAutoStart === null}
+                checked={isAutoStart === true}
+                onChange={(e) => { handleChangeEnableAutoStart(e.target.checked) }}
+                />
+            )}
             />
         </FormControl>
       </Stack>
