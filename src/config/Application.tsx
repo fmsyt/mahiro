@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
 
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
@@ -25,17 +25,19 @@ export default function Application(): JSX.Element {
   const { themeMode, setThemeMode } = useContext(ThemeContext);
   const [isAutoStart, setIsAutoStart] = useState<boolean | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
 
     const func = async () => {
       const enabled = await isEnabled();
+      if (import.meta.env.DEV) {
+        console.info("Auto start is not available in development mode.");
+        enabled && await disable();
+        return;
+      }
+
       setIsAutoStart(enabled);
     }
 
-    if (import.meta.env.DEV) {
-      console.info("Auto start is not available in development mode.");
-      return;
-    }
 
     func();
 
