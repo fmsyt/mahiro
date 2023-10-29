@@ -13,8 +13,8 @@ const defaultPort = localStorage.getItem("lastConnectedPort")
   || 17001
 
 const defaultHost = localStorage.getItem("lastConnectedHost")
-  || "localhost"
   || window.location.hostname
+  || "localhost"
 
 const defaultWebSocketToken = localStorage.getItem("wsToken");
 

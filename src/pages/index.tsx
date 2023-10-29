@@ -6,6 +6,8 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
+import.meta.env.DEV && console.log(import.meta.env);
+
 root.render(
   <React.StrictMode>
     <App />
