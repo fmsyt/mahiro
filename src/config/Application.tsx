@@ -5,7 +5,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import ThemeContext from "../ThemeContext";
 
-import { Button, ButtonGroup, Checkbox, Container, FormControl, FormControlLabel, FormLabel, Stack, Tooltip, Typography } from "@mui/material";
+import { Button, ButtonGroup, Checkbox, Container, FormControl, FormControlLabel, FormHelperText, FormLabel, Stack, Tooltip, Typography } from "@mui/material";
 
 import { enable, isEnabled, disable } from "tauri-plugin-autostart-api";
 
@@ -115,6 +115,10 @@ export default function Application(): JSX.Element {
                 />
             )}
             />
+
+          {import.meta.env.DEV && (
+            <FormHelperText>開発ビルドではロックしています。</FormHelperText>
+          )}
         </FormControl>
       </Stack>
     </Container>
