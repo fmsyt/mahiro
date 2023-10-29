@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Box, Card, CardActionArea, CardContent, CardMedia, Button as MuiButton, Paper, Stack, Typography } from "@mui/material";
+import { Box, Card, CardActionArea, CardMedia, Typography } from "@mui/material";
 import { EmitControllerProps } from "../interface";
 
 import logo from "../logo.svg";
