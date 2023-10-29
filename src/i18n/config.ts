@@ -5,22 +5,22 @@ import translation_en from "./en.json";
 import translation_ja from "./ja.json";
 
 const resources = {
-    ja: {
-      translation: translation_ja
-    },
-    en: {
-      translation: translation_en
-    }
-  };
+  ja: {
+    translation: translation_ja
+  },
+  en: {
+    translation: translation_en
+  }
+};
 
-  i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: "ja",
-    interpolation: {
-      escapeValue: false
-    }
-  });
+i18n
+.use(initReactI18next)
+.init({
+  resources,
+  lng: "ja",
+  interpolation: {
+    escapeValue: false
+  }
+});
 
-  export default i18n;
+export default i18n;
