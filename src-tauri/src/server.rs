@@ -16,6 +16,7 @@ use axum::{
 
 use futures_util::{StreamExt, SinkExt};
 use tokio::sync::broadcast;
+use tower_http::services::ServeDir;
 
 use crate::client::{
     load_state,
@@ -44,10 +45,17 @@ pub async fn start(config_directory_path: String) {
         client: load_state(config_directory_path.clone()),
     });
 
+    let assets_dir = config_directory_path.clone() + "/assets";
+    println!("Assets dir: {}", assets_dir);
+
+    let serve_dir = ServeDir::new(assets_dir);
+
     let app: Router = Router::new()
         .route("/", get(root))
         .route("/ws", get(ws_handler))
         .with_state(app_state)
+        .nest_service("/assets", serve_dir)
+        // .fallback_service(serve_dir)
         ;
 
     println!("Listening on {}", addr);
