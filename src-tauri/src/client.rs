@@ -1,6 +1,4 @@
 use std::process::Command;
-
-use axum::extract::ws::Message;
 use serde::{Deserialize, Serialize};
 
 use crate::control::{Control, Sheet, EmitHandler, get_control_list, get_sheet_list, ControlHandler};
@@ -66,11 +64,11 @@ pub struct State {
 }
 
 pub trait SendWebSocketClientMessage {
-    fn sheets_update(&self) -> Message;
+    fn sheets_update(&self) -> SendSheetsUpdateMessage;
 }
 
 impl SendWebSocketClientMessage for State {
-    fn sheets_update(&self) -> Message {
+    fn sheets_update(&self) -> SendSheetsUpdateMessage {
 
         let controls = get_control_list(self.config_dir.clone());
         let data: Vec<ClientSheet> = self.sheets.iter().map(|s| {
@@ -164,7 +162,7 @@ impl SendWebSocketClientMessage for State {
             data,
         };
 
-        Message::Text(serde_json::to_string(&message).unwrap())
+        return message
     }
 }
 
