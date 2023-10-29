@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const CACHE_VERSION = "v1.1.14";
+const CACHE_VERSION = "v0.9.2";
 const CACHE_NAME = `${registration.scope}!${CACHE_VERSION}`;
 
 // キャッシュするファイルをセットする

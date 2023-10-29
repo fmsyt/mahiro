@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Box, Button as MuiButton, Paper, Stack, Typography } from "@mui/material";
+import { Box, Card, CardActionArea, CardContent, CardMedia, Button as MuiButton, Paper, Stack, Typography } from "@mui/material";
 import { EmitControllerProps } from "../interface";
 
 import logo from "../logo.svg";
@@ -31,45 +31,80 @@ const Button = (props: EmitControllerProps) => {
     }
   }, [disabled, emit, sheetItem.control_id]);
 
-  const Component = ({ children }: { children: React.ReactNode }) => {
-    return !disabled ? (
-      <MuiButton
-        variant="outlined"
-        disabled={disabled}
-        sx={{
-          width: "100%",
-          height: "100%",
-          padding: 0,
-          textTransform: "none"
-        }}
-        { ...events }
-      >
-        {children}
-      </MuiButton>
+  const Wrapper = ({ children }: { children: React.ReactNode }) => {
+
+    const sx = {
+      width: "100%",
+      height: "100%",
+      // position: "relative",
+      // backgroundColor: "transparent",
+    }
+
+    return disabled ? (
+      <Box sx={sx}>{children}</Box>
     ) : (
-      <Paper
-        variant="outlined"
-        sx={{
-          width: "100%",
-          height: "100%",
-          backgroundColor: "transparent"
-        }}
+      <CardActionArea
+        sx={sx}
+        { ...(disabled ? {} : events) }
       >
-        {children}
-      </Paper>
+        { children }
+      </CardActionArea>
     )
   }
 
 
   return (
-    <Component>
-      <Stack width="100%" height="100%" alignItems="center" justifyContent="space-between" padding={2}>
-        <Box>
-          <img src={src || logo} alt="" className="square-image" />
+    <Card variant="outlined" sx={{ width: "100%", height: "100%" }}>
+      <Wrapper>
+        <Box
+          sx={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <CardMedia
+              component="img"
+              image={src || logo}
+              alt=""
+              sx={{
+                width: "100%",
+                height: "100%",
+                overflow: "hidden",
+                marginTop: 0,
+              }}
+              />
+
+          </Box>
+          <Typography
+            variant="caption"
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              width: "100%",
+              textAlign: "center",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              color: "white",
+              padding: 1,
+            }}
+          >
+            {label}
+          </Typography>
         </Box>
-        <Typography variant="caption">{label}</Typography>
-      </Stack>
-    </Component>
+      </Wrapper>
+    </Card>
   )
 }
 

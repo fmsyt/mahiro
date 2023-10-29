@@ -11,7 +11,11 @@ const Page = (props: PageProps) => {
   const gridTemplateRows = useMemo(() => `repeat(${Math.ceil(items.length / columns)}, 1fr)`, [items, columns]);
 
   return (
-    <Box gap={2} sx={{ display: "grid", height: "100%", gridTemplateColumns, gridTemplateRows }}>
+    <Box
+      gap={2}
+      alignItems="stretch"
+      sx={{ display: "grid", height: "100%", gridTemplateColumns, gridTemplateRows }}
+    >
       {items.map((control, i) => (
         <Control
           key={i}

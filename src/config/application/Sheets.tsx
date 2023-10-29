@@ -46,15 +46,15 @@ const SheetPageControl = (props: SheetPageControlProps) => {
     <>
       <Button
         variant="outlined"
-        sx={{ textTransform: "none" }}
         disabled={item.disabled}
+        onClick={() => setOpen(true)}
         startIcon={isError && (
           <ErrorIcon color="error" />
         )}
-        onClick={() => setOpen(true)}
+        sx={{ textTransform: "none", padding: 0 }}
       >
         <Control
-          sheetItem={{ ...item, style: item.type }}
+          sheetItem={{ ...item, style: item.type, icon: control?.icon }}
           disabled={true}
           emit={() => {}}
           />
@@ -313,6 +313,7 @@ export default function Sheets() {
                     sx={{
                       display: "grid",
                       width: "100%",
+                      height: "50vh",
                       gridTemplateColumns: `repeat(${columns}, 1fr)`,
                       gridTemplateRows: `repeat(${Math.ceil(sheets[pageIndex].items.length / columns)}, 1fr)`
                     }}>
@@ -329,8 +330,8 @@ export default function Sheets() {
                       variant="outlined"
                       color="secondary"
                       onClick={addEmptyControl}
-                      >
-                        <AddIcon />
+                    >
+                      <AddIcon />
                     </Button>
                   </Box>
                 </Stack>

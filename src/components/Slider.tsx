@@ -73,7 +73,7 @@ const Slider = (props: EmitControllerProps) => {
   }
 
   return (
-    <Paper variant="outlined">
+    <Paper variant="outlined" sx={{ width: "100%", height: "100%" }}>
       <Stack padding={1} spacing={2} direction="column" sx={{ width: "100%", height: "100%" }} alignItems="center">
         {/* <VolumeDown /> */}
         <BoldSlider

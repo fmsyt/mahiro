@@ -5,7 +5,7 @@ use std::process::exit;
 
 use log::LevelFilter;
 use tauri::{
-    AppHandle, Manager, Menu, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
+    AppHandle, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
 };
 
 use tauri_plugin_autostart::{self, MacosLauncher};
@@ -21,27 +21,6 @@ const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Stderr];
 #[cfg(not(debug_assertions))]
 const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stderr, LogTarget::LogDir];
 
-// reference: https://qiita.com/namn1125/items/8ed4d91d3d00af8750f8
-
-fn create_menu() -> Menu {
-    let quit = tauri::CustomMenuItem::new("quit".to_string(), "Quit");
-
-    let submenu_file_items = Menu::new().add_item(quit);
-    let submenu_file = tauri::Submenu::new("File", submenu_file_items);
-
-    let menu = Menu::new().add_submenu(submenu_file);
-
-    menu
-}
-
-fn handle_menu(event: tauri::WindowMenuEvent<Wry>) {
-    match event.menu_item_id() {
-        "quit" => {
-            exit(0);
-        }
-        _ => {}
-    }
-}
 
 fn handle_window(event: tauri::GlobalWindowEvent) {
     match event.event() {
@@ -103,8 +82,6 @@ fn main() {
         .plugin(tauri_plugin_websocket::init())
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))
         .on_window_event(handle_window)
-        .menu(create_menu())
-        .on_menu_event(handle_menu)
         .system_tray(create_systemtray())
         .on_system_tray_event(handle_systemtray)
         .setup(|app: &mut tauri::App| {
