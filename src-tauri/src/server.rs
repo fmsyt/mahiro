@@ -15,6 +15,7 @@ use axum::{
 };
 
 use futures_util::{StreamExt, SinkExt};
+use tauri::PathResolver;
 use tokio::sync::broadcast;
 use tower_http::services::ServeDir;
 
@@ -35,28 +36,36 @@ type GlobalAppState = Arc<AppState>;
 
 
 // https://github.com/tokio-rs/axum/blob/axum-v0.6.20/examples/chat/src/main.rs
-pub async fn start(config_directory_path: String) {
+pub async fn start(resolver: PathResolver) {
     let addr: String = "0.0.0.0:17001".to_string();
 
     let (tx, _rx) = broadcast::channel(100);
 
+    let config_directory_path = resolver.app_local_data_dir().unwrap();
     let app_state = Arc::new(AppState {
         tx,
         client: load_state(config_directory_path.clone()),
     });
 
-    let assets_dir = config_directory_path.clone() + "/assets";
-    println!("Assets dir: {}", assets_dir);
 
-    let serve_dir = ServeDir::new(assets_dir);
+    let uploads_serve_dir = ServeDir::new(config_directory_path.join("assets"));
 
+    #[cfg(debug_assertions)]
     let app: Router = Router::new()
-        .route("/", get(root))
         .route("/ws", get(ws_handler))
         .with_state(app_state)
-        .nest_service("/assets", serve_dir)
-        // .fallback_service(serve_dir)
+        .nest_service("/uploads", uploads_serve_dir)
         ;
+
+
+    #[cfg(not(debug_assertions))]
+    let app: Router = Router::new()
+        .nest_service("/", ServeDir::new(resolver.resource_dir().unwrap().join("static")))
+        .route("/ws", get(ws_handler))
+        .with_state(app_state)
+        .nest_service("/uploads", uploads_serve_dir)
+        ;
+
 
     println!("Listening on {}", addr);
 
@@ -68,9 +77,6 @@ pub async fn start(config_directory_path: String) {
 
 }
 
-async fn root() -> &'static str {
-    "Hello, World!"
-}
 
 async fn ws_handler(
     ws: WebSocketUpgrade,

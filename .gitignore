@@ -1,6 +1,5 @@
 # project
-/public/uploads/*
-!/public/uploads/.gitkeep
+/static
 
 # Editor directories and files
 .vscode/*

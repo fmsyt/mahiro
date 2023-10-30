@@ -7,7 +7,7 @@ import react from '@vitejs/plugin-react-swc'
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
-    outDir: 'dist',
+    outDir: 'static',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
@@ -22,7 +22,8 @@ export default defineConfig({
         'favicon.svg',
         'favicon.ico',
         'robots.txt',
-        'apple-touch-icon.png'
+        'apple-touch-icon.png',
+        '.gitkeep'
       ],
       manifest: {
         name: 'mahiro',

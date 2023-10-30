@@ -5,15 +5,15 @@
   "type": "module",
   "scripts": {
     "web:dev": "vite --host 0.0.0.0",
-    "web:build": "eslint src && tsc && vite build",
-    "tauri:dev:ui": "vite --config vite.tauri.config.ts --host 0.0.0.0",
-    "tauri:build:ui": "eslint src &&tsc && vite build --config vite.tauri.config.ts",
+    "web:build": "eslint src --fix && tsc && vite build",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "tauri:dev:ui": "eslint src --fix && tsc && vite build && vite --config vite.tauri.config.ts --host 0.0.0.0",
+    "tauri:build:ui": "eslint src --fix && tsc && vite build && vite build --config vite.tauri.config.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",

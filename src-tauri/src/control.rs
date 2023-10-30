@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path, fs::{File, self}, process::Command};
+use std::{collections::HashMap, path::PathBuf, fs::{File, self}, process::Command};
 use serde::{Deserialize, Serialize};
 
 use crate::{control::hotkey::{KeySequence, KeybdKeyStreamInitializer, KeybdKeyStreamHandler}, client::ReceivedEmitMessageData};
@@ -196,8 +196,8 @@ impl EmitHandler for Control {
 
 
 
-pub fn get_control_list(config_dir: String) -> Vec<Control> {
-    let control_file_path_str = format!("{}{}{}", config_dir, path::MAIN_SEPARATOR, "controls.json");
+pub fn get_control_list(config_dir: PathBuf) -> Vec<Control> {
+    let control_file_path_str = config_dir.join("controls.json");
 
     let try_control_config = std::fs::read_to_string(control_file_path_str.clone());
     if let Err(_) = try_control_config {
@@ -211,7 +211,7 @@ pub fn get_control_list(config_dir: String) -> Vec<Control> {
     let try_controls: Result<Vec<Control>, serde_json::Error> = serde_json::from_str(&control_config);
 
     if let Err(e) = try_controls {
-        eprintln!("Error: {}: {}", e, control_file_path_str);
+        eprintln!("Error: {}: {}", e, control_file_path_str.to_str().unwrap());
         return vec![]
     }
 
@@ -221,8 +221,8 @@ pub fn get_control_list(config_dir: String) -> Vec<Control> {
 }
 
 
-pub fn get_sheet_list(config_dir: String) -> Vec<Sheet> {
-    let sheet_file_path_str = format!("{}{}{}", config_dir, path::MAIN_SEPARATOR, "sheets.json");
+pub fn get_sheet_list(config_dir: PathBuf) -> Vec<Sheet> {
+    let sheet_file_path_str = config_dir.join("sheets.json");
 
     let try_sheet_config = std::fs::read_to_string(sheet_file_path_str.clone());
     if let Err(_) = try_sheet_config {
@@ -237,7 +237,7 @@ pub fn get_sheet_list(config_dir: String) -> Vec<Sheet> {
     match try_sheets {
         Ok(sheets) => sheets,
         Err(e) => {
-            eprintln!("Error: {}: {}", e, sheet_file_path_str);
+            eprintln!("Error: {}: {}", e, sheet_file_path_str.to_str().unwrap());
             vec![]
         }
     }

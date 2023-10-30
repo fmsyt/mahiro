@@ -95,13 +95,7 @@ fn main() {
             }
 
             // let _config_window = app.get_window("config").unwrap();
-            let config_directory_path = app
-                .path_resolver()
-                .app_local_data_dir()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_string();
+            let config_directory_path = app.path_resolver();
 
             tauri::async_runtime::spawn(server::start(config_directory_path));
 
