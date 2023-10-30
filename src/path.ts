@@ -1,2 +1,2 @@
-export const assetsRoot = 'assets';
-export const iconsRoot = 'assets/icons';
+export const assetsRoot = 'uploads';
+export const iconsRoot = 'uploads/icons';

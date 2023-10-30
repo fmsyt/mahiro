@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::{process::Command, path::PathBuf};
 use serde::{Deserialize, Serialize};
 
 use crate::control::{Control, Sheet, EmitHandler, get_control_list, get_sheet_list, ControlHandler};
@@ -58,7 +58,7 @@ pub struct ReceivedEmitMessageData {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct State {
-    pub config_dir: String,
+    pub config_dir: PathBuf,
     pub controls: Vec<Control>,
     pub sheets: Vec<Sheet>,
 }
@@ -193,7 +193,7 @@ impl ReceiveWebSocketClientMessage for State {
 }
 
 
-pub fn load_state(config_dir: String) -> State {
+pub fn load_state(config_dir: PathBuf) -> State {
 
     let sheets = get_sheet_list(config_dir.clone());
     let controls = get_control_list(config_dir.clone());

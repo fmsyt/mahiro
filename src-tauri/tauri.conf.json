@@ -21,7 +21,8 @@
         "all": true,
         "scope": [
           "$APPLOCALDATA/*",
-          "$APPLOCALDATA/assets/**"
+          "$APPLOCALDATA/assets/**",
+          "$RESOURCE/*"
         ]
       },
       "path": {
@@ -50,7 +51,10 @@
         "wix": {
           "language": ["en-US", "ja-JP"]
         }
-      }
+      },
+      "resources": [
+        "../static"
+      ]
     },
     "security": {
       "csp": null
