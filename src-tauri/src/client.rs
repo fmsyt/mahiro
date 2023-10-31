@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::control::{Control, Sheet, EmitHandler, get_control_list, get_sheet_list, ControlHandler};
 
 #[derive(Serialize, Deserialize, Debug)]
-enum ClientSheetItemDefault {
+enum ClientSheetItemInitialize {
     String(String),
     Number(i32),
 }
@@ -15,7 +15,7 @@ pub struct ClientSheetItem {
     control_id: Option<String>,
     label: Option<String>,
     disabled: Option<bool>,
-    default: Option<ClientSheetItemDefault>,
+    initialize: Option<ClientSheetItemInitialize>,
     value: Option<String>,
     icon: Option<String>,
 }
@@ -81,7 +81,7 @@ impl SendWebSocketClientMessage for State {
                         match control {
                             Some(c) => {
 
-                                let mut default: Option<ClientSheetItemDefault> = None;
+                                let mut default: Option<ClientSheetItemInitialize> = None;
                                 let mut value = None;
                                 if let Some(ref hooks) = c.hooks {
                                     println!("hooks: {:?}", hooks);
@@ -102,7 +102,7 @@ impl SendWebSocketClientMessage for State {
                                         match d.command {
                                             Some(ref command_str) => {
                                                 let command_result = Command::new(command_str).output().expect("failed to execute process");
-                                                default = String::from_utf8(command_result.stdout).unwrap().trim().parse::<i32>().ok().map(|n| ClientSheetItemDefault::Number(n));
+                                                default = String::from_utf8(command_result.stdout).unwrap().trim().parse::<i32>().ok().map(|n| ClientSheetItemInitialize::Number(n));
                                             },
                                             None => {
 
@@ -117,7 +117,7 @@ impl SendWebSocketClientMessage for State {
                                     control_id: i.control_id.clone(),
                                     label: i.label.clone(),
                                     disabled: Some(false),
-                                    default,
+                                    initialize: default,
                                     value,
                                     icon,
                                 }
@@ -128,7 +128,7 @@ impl SendWebSocketClientMessage for State {
                                     control_id: None,
                                     label: None,
                                     disabled: None,
-                                    default: None,
+                                    initialize: None,
                                     value: None,
                                     icon: None,
                                 }
@@ -142,7 +142,7 @@ impl SendWebSocketClientMessage for State {
                             control_id: None,
                             label: None,
                             disabled: None,
-                            default: None,
+                            initialize: None,
                             value: None,
                             icon: None,
                         }
