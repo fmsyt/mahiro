@@ -15,7 +15,6 @@ pub struct ClientSheetItem {
     control_id: Option<String>,
     label: Option<String>,
     disabled: Option<bool>,
-    initialize: Option<ClientSheetItemInitialize>,
     value: Option<String>,
     icon: Option<String>,
 }
@@ -80,7 +79,6 @@ impl SendWebSocketClientMessage for State {
                         control_id: None,
                         label: None,
                         disabled: None,
-                        initialize: None,
                         value: None,
                         icon: None,
                     }
@@ -95,7 +93,6 @@ impl SendWebSocketClientMessage for State {
                         control_id: None,
                         label: None,
                         disabled: None,
-                        initialize: None,
                         value: None,
                         icon: None,
                     }
@@ -103,7 +100,6 @@ impl SendWebSocketClientMessage for State {
 
                 let control = control_option.unwrap();
 
-                let mut default: Option<ClientSheetItemInitialize> = None;
                 let mut value = None;
                 if let Some(ref hooks) = control.hooks {
                     println!("hooks: {:?}", hooks);
@@ -118,28 +114,28 @@ impl SendWebSocketClientMessage for State {
                     None => None,
                 };
 
-                match control.default {
-                    Some(ref d) => {
+                if let Some(ref d) = control.initialize {
+                    if let Some(ref commands) = d.commands {
 
-                        match d.command {
-                            Some(ref command_str) => {
-                                let command_result = Command::new(command_str).output().expect("failed to execute process");
-                                default = String::from_utf8(command_result.stdout).unwrap().trim().parse::<i32>().ok().map(|n| ClientSheetItemInitialize::Number(n));
-                            },
-                            None => {
+                        let first = commands.first().unwrap();
+                        let args = &commands[1..].to_vec();
+                        println!("first: {:?}", first);
+                        println!("args: {:?}", args);
 
-                            }
-                        }
-                    },
-                    None => {}
+                        let command_result = Command::new(first).args(args).output().expect("failed to execute process");
+
+                        println!("command_result: {:?}", command_result);
+
+                        value = Some(String::from_utf8(command_result.stdout).unwrap())
+                    }
                 }
+
 
                 ClientSheetItem {
                     style: i.r#type.clone(),
                     control_id: i.control_id.clone(),
                     label: i.label.clone(),
                     disabled: Some(false),
-                    initialize: default,
                     value,
                     icon,
                 }

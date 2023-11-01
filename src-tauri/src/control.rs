@@ -34,8 +34,8 @@ pub enum ControlDefaultValueType {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ControlDefault {
-    pub command: Option<String>,
+pub struct ControlInitialize {
+    pub commands: Option<Vec<String>>,
     pub value: i32,
 }
 
@@ -73,7 +73,7 @@ pub struct Control {
     pub id: String,
     pub r#type: String,
     pub style: Option<String>,
-    pub default: Option<ControlDefault>,
+    pub initialize: Option<ControlInitialize>,
     pub props: Option<HashMap<String, i32>>,
     pub platform: Option<String>,
     pub url: Option<String>,
@@ -84,6 +84,11 @@ pub struct Control {
     pub icon: Option<String>,
     pub description: Option<String>,
     pub hooks: Option<ControlHooks>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Initialize {
+
 }
 
 

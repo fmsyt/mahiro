@@ -78,7 +78,7 @@ const Slider = (props: EmitControllerProps) => {
         {/* <VolumeDown /> */}
         <BoldSlider
           aria-label="Volume"
-          defaultValue={Number(sheetItem.value || sheetItem.default || 0)}
+          defaultValue={Number(sheetItem.value || 0)}
           disabled={disabled}
           orientation="vertical"
           sx={{ width: "100%", height: "100%" }}
