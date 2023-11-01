@@ -74,79 +74,74 @@ impl SendWebSocketClientMessage for State {
         let data: Vec<ClientSheet> = self.sheets.iter().map(|s| {
             let items: Vec<ClientSheetItem> = s.items.iter().map(|i| {
 
-                match i.control_id {
-                    Some(ref control_id) => {
-                        let control = controls.iter().find(|&c| c.id == control_id.as_str());
+                if i.control_id.is_none() {
+                    return ClientSheetItem {
+                        style: "empty".to_string(),
+                        control_id: None,
+                        label: None,
+                        disabled: None,
+                        initialize: None,
+                        value: None,
+                        icon: None,
+                    }
+                }
 
-                        match control {
-                            Some(c) => {
+                let control_id = i.control_id.clone().unwrap();
+                let control_option = controls.iter().find(|&c| c.id == control_id.as_str());
 
-                                let mut default: Option<ClientSheetItemInitialize> = None;
-                                let mut value = None;
-                                if let Some(ref hooks) = c.hooks {
-                                    println!("hooks: {:?}", hooks);
-                                    if let Ok(stdout) = hooks.get_value() {
-                                        println!("stdout: {}", stdout);
-                                        value = Some(stdout);
-                                    }
-                                }
+                if control_option.is_none() {
+                    return ClientSheetItem {
+                        style: "empty".to_string(),
+                        control_id: None,
+                        label: None,
+                        disabled: None,
+                        initialize: None,
+                        value: None,
+                        icon: None,
+                    }
+                }
 
-                                let icon = match c.icon {
-                                    Some(ref i) => Some(i.clone()),
-                                    None => None,
-                                };
+                let control = control_option.unwrap();
 
-                                match c.default {
-                                    Some(ref d) => {
+                let mut default: Option<ClientSheetItemInitialize> = None;
+                let mut value = None;
+                if let Some(ref hooks) = control.hooks {
+                    println!("hooks: {:?}", hooks);
+                    if let Ok(stdout) = hooks.get_value() {
+                        println!("stdout: {}", stdout);
+                        value = Some(stdout);
+                    }
+                }
 
-                                        match d.command {
-                                            Some(ref command_str) => {
-                                                let command_result = Command::new(command_str).output().expect("failed to execute process");
-                                                default = String::from_utf8(command_result.stdout).unwrap().trim().parse::<i32>().ok().map(|n| ClientSheetItemInitialize::Number(n));
-                                            },
-                                            None => {
+                let icon = match control.icon {
+                    Some(ref i) => Some(i.clone()),
+                    None => None,
+                };
 
-                                            }
-                                        }
-                                    },
-                                    None => {}
-                                }
+                match control.default {
+                    Some(ref d) => {
 
-                                ClientSheetItem {
-                                    style: i.r#type.clone(),
-                                    control_id: i.control_id.clone(),
-                                    label: i.label.clone(),
-                                    disabled: Some(false),
-                                    initialize: default,
-                                    value,
-                                    icon,
-                                }
+                        match d.command {
+                            Some(ref command_str) => {
+                                let command_result = Command::new(command_str).output().expect("failed to execute process");
+                                default = String::from_utf8(command_result.stdout).unwrap().trim().parse::<i32>().ok().map(|n| ClientSheetItemInitialize::Number(n));
                             },
                             None => {
-                                ClientSheetItem {
-                                    style: "empty".to_string(),
-                                    control_id: None,
-                                    label: None,
-                                    disabled: None,
-                                    initialize: None,
-                                    value: None,
-                                    icon: None,
-                                }
+
                             }
                         }
-
                     },
-                    None => {
-                        ClientSheetItem {
-                            style: "empty".to_string(),
-                            control_id: None,
-                            label: None,
-                            disabled: None,
-                            initialize: None,
-                            value: None,
-                            icon: None,
-                        }
-                    }
+                    None => {}
+                }
+
+                ClientSheetItem {
+                    style: i.r#type.clone(),
+                    control_id: i.control_id.clone(),
+                    label: i.label.clone(),
+                    disabled: Some(false),
+                    initialize: default,
+                    value,
+                    icon,
                 }
 
             }).collect();
