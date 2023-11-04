@@ -52,20 +52,11 @@ pub async fn start(resolver: PathResolver) {
 
     #[cfg(debug_assertions)]
     let app: Router = Router::new()
-        .route("/ws", get(ws_handler))
-        .with_state(app_state)
-        .nest_service("/uploads", uploads_serve_dir)
-        ;
-
-
-    #[cfg(not(debug_assertions))]
-    let app: Router = Router::new()
         .nest_service("/", ServeDir::new(resolver.resource_dir().unwrap().join("static")))
         .route("/ws", get(ws_handler))
         .with_state(app_state)
         .nest_service("/uploads", uploads_serve_dir)
         ;
-
 
     println!("Listening on {}", addr);
 
@@ -73,7 +64,6 @@ pub async fn start(resolver: PathResolver) {
         .serve(app.into_make_service())
         .await
         .unwrap();
-
 
 }
 

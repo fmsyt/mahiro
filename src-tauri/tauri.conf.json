@@ -21,7 +21,7 @@
         "all": true,
         "scope": [
           "$APPLOCALDATA/*",
-          "$APPLOCALDATA/assets/**",
+          "$APPLOCALDATA/uploads/**",
           "$RESOURCE/*"
         ]
       },
@@ -32,7 +32,7 @@
         "all": false,
         "asset": true,
         "assetScope": [
-          "$APPLOCALDATA/assets/icons/*"
+          "$APPLOCALDATA/uploads/icons/*"
         ]
       }
     },
@@ -53,7 +53,7 @@
         }
       },
       "resources": [
-        "../static"
+        "static"
       ]
     },
     "security": {

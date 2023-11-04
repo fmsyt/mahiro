@@ -1,10 +1,16 @@
 use std::{process::Command, path::PathBuf};
 use serde::{Deserialize, Serialize};
 
-use crate::control::{Control, Sheet, EmitHandler, get_control_list, get_sheet_list, ControlHandler};
+use crate::control::{
+    Control,
+    Sheet,
+    EmitHandler,
+    get_control_list,
+    get_sheet_list
+};
 
 #[derive(Serialize, Deserialize, Debug)]
-enum ClientSheetItemDefault {
+enum ClientSheetItemInitialize {
     String(String),
     Number(i32),
 }
@@ -15,7 +21,6 @@ pub struct ClientSheetItem {
     control_id: Option<String>,
     label: Option<String>,
     disabled: Option<bool>,
-    default: Option<ClientSheetItemDefault>,
     value: Option<String>,
     icon: Option<String>,
 }
@@ -74,79 +79,63 @@ impl SendWebSocketClientMessage for State {
         let data: Vec<ClientSheet> = self.sheets.iter().map(|s| {
             let items: Vec<ClientSheetItem> = s.items.iter().map(|i| {
 
-                match i.control_id {
-                    Some(ref control_id) => {
-                        let control = controls.iter().find(|&c| c.id == control_id.as_str());
-
-                        match control {
-                            Some(c) => {
-
-                                let mut default: Option<ClientSheetItemDefault> = None;
-                                let mut value = None;
-                                if let Some(ref hooks) = c.hooks {
-                                    println!("hooks: {:?}", hooks);
-                                    if let Ok(stdout) = hooks.get_value() {
-                                        println!("stdout: {}", stdout);
-                                        value = Some(stdout);
-                                    }
-                                }
-
-                                let icon = match c.icon {
-                                    Some(ref i) => Some(i.clone()),
-                                    None => None,
-                                };
-
-                                match c.default {
-                                    Some(ref d) => {
-
-                                        match d.command {
-                                            Some(ref command_str) => {
-                                                let command_result = Command::new(command_str).output().expect("failed to execute process");
-                                                default = String::from_utf8(command_result.stdout).unwrap().trim().parse::<i32>().ok().map(|n| ClientSheetItemDefault::Number(n));
-                                            },
-                                            None => {
-
-                                            }
-                                        }
-                                    },
-                                    None => {}
-                                }
-
-                                ClientSheetItem {
-                                    style: i.r#type.clone(),
-                                    control_id: i.control_id.clone(),
-                                    label: i.label.clone(),
-                                    disabled: Some(false),
-                                    default,
-                                    value,
-                                    icon,
-                                }
-                            },
-                            None => {
-                                ClientSheetItem {
-                                    style: "empty".to_string(),
-                                    control_id: None,
-                                    label: None,
-                                    disabled: None,
-                                    default: None,
-                                    value: None,
-                                    icon: None,
-                                }
-                            }
-                        }
-
-                    },
-                    None => {
-                        ClientSheetItem {
-                            style: "empty".to_string(),
-                            control_id: None,
-                            label: None,
-                            disabled: None,
-                            default: None,
-                            value: None,
-                            icon: None,
-                        }
+                if i.control_id.is_none() {
+                    return ClientSheetItem {
+                        style: "empty".to_string(),
+                        control_id: None,
+                        label: None,
+                        disabled: None,
+                        value: None,
+                        icon: None,
                     }
+                }
+
+                let control_id = i.control_id.clone().unwrap();
+                let control_option = controls.iter().find(|&c| c.id == control_id.as_str());
+
+                if control_option.is_none() {
+                    return ClientSheetItem {
+                        style: "empty".to_string(),
+                        control_id: None,
+                        label: None,
+                        disabled: None,
+                        value: None,
+                        icon: None,
+                    }
+                }
+
+                let control = control_option.unwrap();
+
+                let mut value = None;
+                let icon = match control.icon {
+                    Some(ref i) => Some(i.clone()),
+                    None => None,
+                };
+
+                if let Some(ref d) = control.initialize {
+                    if let Some(ref commands) = d.commands {
+
+                        let first = commands.first().unwrap();
+                        let args = &commands[1..].to_vec();
+                        println!("first: {:?}", first);
+                        println!("args: {:?}", args);
+
+                        let command_result = Command::new(first).args(args).output().expect("failed to execute process");
+
+                        println!("command_result: {:?}", command_result);
+
+                        value = Some(String::from_utf8(command_result.stdout).unwrap())
+                    }
+                }
+
+
+                ClientSheetItem {
+                    style: i.r#type.clone(),
+                    control_id: i.control_id.clone(),
+                    label: i.label.clone(),
+                    disabled: Some(false),
+                    value,
+                    icon,
                 }
 
             }).collect();
