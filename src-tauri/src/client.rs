@@ -1,7 +1,13 @@
 use std::{process::Command, path::PathBuf};
 use serde::{Deserialize, Serialize};
 
-use crate::control::{Control, Sheet, EmitHandler, get_control_list, get_sheet_list, ControlHandler};
+use crate::control::{
+    Control,
+    Sheet,
+    EmitHandler,
+    get_control_list,
+    get_sheet_list
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 enum ClientSheetItemInitialize {
@@ -101,14 +107,6 @@ impl SendWebSocketClientMessage for State {
                 let control = control_option.unwrap();
 
                 let mut value = None;
-                if let Some(ref hooks) = control.hooks {
-                    println!("hooks: {:?}", hooks);
-                    if let Ok(stdout) = hooks.get_value() {
-                        println!("stdout: {}", stdout);
-                        value = Some(stdout);
-                    }
-                }
-
                 let icon = match control.icon {
                     Some(ref i) => Some(i.clone()),
                     None => None,

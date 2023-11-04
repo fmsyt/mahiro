@@ -1,7 +1,18 @@
-use std::{collections::HashMap, path::PathBuf, fs::{File, self}, process::Command};
-use serde::{Deserialize, Serialize};
+use std::{
+    collections::HashMap,
+    path::PathBuf,
+    fs::{self, File},
+};
 
-use crate::{control::hotkey::{KeySequence, KeybdKeyStreamInitializer, KeybdKeyStreamHandler}, client::ReceivedEmitMessageData};
+use serde::{Deserialize, Serialize};
+use crate::{
+    control::hotkey::{
+        KeySequence,
+        KeybdKeyStreamInitializer,
+        KeybdKeyStreamHandler
+    },
+    client::ReceivedEmitMessageData
+};
 
 mod command;
 mod browser;
@@ -39,34 +50,6 @@ pub struct ControlInitialize {
     pub value: i32,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ControlHooks {
-    value: Vec<String>
-}
-
-pub trait ControlHandler {
-    fn get_value(&self) -> Result<String, String>;
-}
-
-impl ControlHandler for ControlHooks {
-    fn get_value(&self) -> Result<String, String> {
-
-        let first = self.value.first();
-        if first.is_none() {
-            return Err("Invalid hook".to_string());
-        }
-
-        let args = &self.value[1..];
-
-        let stdout = Command::new(first.unwrap())
-            .args(args)
-            .output()
-            .expect("failed to execute process");
-
-        return Ok(String::from_utf8(stdout.stdout).unwrap());
-    }
-}
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Control {
@@ -83,7 +66,6 @@ pub struct Control {
     pub text: Option<String>,
     pub icon: Option<String>,
     pub description: Option<String>,
-    pub hooks: Option<ControlHooks>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
