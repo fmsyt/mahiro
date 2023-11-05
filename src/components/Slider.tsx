@@ -101,20 +101,53 @@ const Slider = (props: EmitControllerProps) => {
     })
   }
 
+  const wheel = (e: React.WheelEvent) => {
+
+    if (sliderRef.current === null) {
+      return;
+    }
+
+    if (!sheetItem.control_id) {
+      return;
+    }
+
+    // console.log(sliderRef.current)
+
+    if (e.deltaY > 0) {
+      sliderRef.current.stepDown();
+    } else {
+      sliderRef.current.stepUp();
+    }
+
+    const value = Number(sliderRef.current.value);
+    console.log(value)
+
+    sliderRef.current.value = value.toString();
+
+    // emit({
+    //   action: sheetItem.control_id,
+    //   event: Events.keyUp,
+    //   context: JSON.stringify(value)
+    // })
+  }
+
   return (
     <Paper variant="outlined" sx={{ width: "100%", height: "100%" }}>
       <Stack padding={1} spacing={2} direction="column" sx={{ width: "100%", height: "100%" }} alignItems="center">
         {/* <VolumeDown /> */}
         <BoldSlider
-          ref={sliderRef}
+          slotProps={{
+            input: { ref: sliderRef }
+          }}
           aria-label="Volume"
           defaultValue={initialValue}
           disabled={disabled}
           orientation="vertical"
           sx={{ width: "100%", height: "100%" }}
           { ...(sheetItem.props || {}) }
-          onChange={handleChange}
+          onChangeCommitted={handleChange}
           onMouseUp={handleMouseUp}
+          onWheel={wheel}
           />
         {/* <VolumeUp /> */}
         <Typography variant="caption">{sheetItem.label}</Typography>
