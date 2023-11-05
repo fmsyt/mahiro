@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import { Slider as MuiSlider, Paper, Stack, styled, Typography } from "@mui/material";
 
 import { EmitControllerProps } from "../interface";
@@ -49,18 +49,20 @@ const BoldSlider = styled(MuiSlider)(({ theme: _ }) => ({
 const Slider = (props: EmitControllerProps) => {
 
   const { sheetItem, emit } = props;
-
   const disabled = props.disabled || sheetItem.disabled || false;
-  const [value, setValue] = useState<number | number[]>(Number(sheetItem.value || 0));
 
-  useLayoutEffect(() => {
-    setValue(Number(sheetItem.value || 0));
-  }, [sheetItem.value])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const initialValue = useMemo(() => Number(sheetItem.value) || 0, []);
 
-
+  const sliderRef = useRef<HTMLInputElement>(null);
   const isActiveRef = useRef(false);
   const handleChange = (e: Event, value: number | number[]) => {
-    setValue(value);
+
+    if (sliderRef.current === null) {
+      return;
+    }
+
+    sliderRef.current.value = value.toString();
 
     if (isActiveRef.current) {
       return;
@@ -71,7 +73,26 @@ const Slider = (props: EmitControllerProps) => {
     }
 
     isActiveRef.current = true;
-    setTimeout(() => { isActiveRef.current = false }, 10);
+    setTimeout(() => { isActiveRef.current = false }, 100);
+
+    emit({
+      action: sheetItem.control_id,
+      event: Events.keyUp,
+      context: JSON.stringify(value)
+    })
+  }
+
+  const handleMouseUp = () => {
+
+    if (sliderRef.current === null) {
+      return;
+    }
+
+    if (!sheetItem.control_id) {
+      return;
+    }
+
+    const value = Number(sliderRef.current.value);
 
     emit({
       action: sheetItem.control_id,
@@ -85,13 +106,15 @@ const Slider = (props: EmitControllerProps) => {
       <Stack padding={1} spacing={2} direction="column" sx={{ width: "100%", height: "100%" }} alignItems="center">
         {/* <VolumeDown /> */}
         <BoldSlider
+          ref={sliderRef}
           aria-label="Volume"
-          value={value}
+          defaultValue={initialValue}
           disabled={disabled}
           orientation="vertical"
           sx={{ width: "100%", height: "100%" }}
           { ...(sheetItem.props || {}) }
           onChange={handleChange}
+          onMouseUp={handleMouseUp}
           />
         {/* <VolumeUp /> */}
         <Typography variant="caption">{sheetItem.label}</Typography>
