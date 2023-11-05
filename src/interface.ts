@@ -340,32 +340,80 @@ export interface ReceiveSheetUpdateMessage extends ReceiveJsonMessage {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isTypeOfReceiveSheetUpdateMessage(data: any): data is ReceiveSheetUpdateMessage {
-  if (typeof data !== "object") {
-    throw new Error("data is not object");
-  }
 
-  if (typeof data.method !== "string") {
-    throw new Error("data.method is not string");
-  }
+  try {
+    if (typeof data !== "object") {
+      throw new Error("data is not object");
+    }
 
-  if (typeof data.data !== "object") {
-    throw new Error("data.data is not object");
-  }
+    if (typeof data.method !== "string") {
+      throw new Error("data.method is not string");
+    }
 
-  if (!Array.isArray(data.data)) {
-    throw new Error("data.data is not array");
-  }
+    if (typeof data.data !== "object") {
+      throw new Error("data.data is not object");
+    }
 
-  const items = data.data as Array<ReceiveSheetUpdateData>;
-  const passed = items.every((item) => isTypeOfSheetUpdateData(item));
-  if (!passed) {
-    throw new Error("data.data is not ReceiveSheetUpdateData[]");
-  }
+    if (!Array.isArray(data.data)) {
+      throw new Error("data.data is not array");
+    }
 
-  return true;
+    const items = data.data as Array<ReceiveSheetUpdateData>;
+    const passed = items.every((item) => isTypeOfSheetUpdateData(item));
+    if (!passed) {
+      throw new Error("data.data is not ReceiveSheetUpdateData[]");
+    }
+
+    return true;
+
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
 }
 
 
+
+export interface SheetItemUpdate {
+  control_id: string;
+  value?: string;
+}
+
+export interface ReceiveSheetItemUpdateMessage extends ReceiveJsonMessage {
+  data: SheetItemUpdate;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isTypeOfReceiveSheetItemUpdateMessage(data: any): data is ReceiveSheetItemUpdateMessage {
+
+  try {
+    if (typeof data !== "object") {
+      throw new Error("data is not object");
+    }
+
+    if (typeof data.method !== "string") {
+      throw new Error("data.method is not string");
+    }
+
+    if (typeof data.data !== "object") {
+      throw new Error("data.data is not object");
+    }
+
+    if (typeof data.data.control_id !== "string") {
+      throw new Error("data.data.control_id is not string");
+    }
+
+    if (typeof data.data.value !== "string" && data.data.value != null) {
+      throw new Error("data.data.value is not string or null");
+    }
+
+    return true;
+
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
 
 
 export interface PageProps extends ReceiveSheetUpdateData {

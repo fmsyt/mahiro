@@ -24,7 +24,7 @@ use crate::client::{
     ReceivedMessage,
     State as ClientState,
     SendWebSocketClientMessage,
-    ReceiveWebSocketClientMessage
+    ReceiveWebSocketClientMessage, SendSheetItemUpdateMessage
 };
 
 struct AppState {
@@ -127,17 +127,31 @@ fn websocket_process(app_state: &GlobalAppState, message: Message) {
             match json.method.as_str() {
                 "emit" => {
 
-                    if let Some(data) = json.data {
-
-                        let state = app_state;
-
-                        if let Err(e) = state.client.emit(data.action, data.event, data.context, None) {
-                            eprintln!("Error: {}", e);
-                        }
-
-                    } else {
-                        eprintln!("Warn: Invalid emit message")
+                    if json.data.is_none() {
+                        eprintln!("Warn: Invalid emit message");
+                        return;
                     }
+
+                    let data = json.data.unwrap();
+                    let state = app_state;
+
+                    let emit_result = state.client.emit(data.action, data.event, data.context, data.payload);
+                    if let Err(e) = emit_result {
+                        eprintln!("Error: {}", e);
+                        return;
+                    }
+
+                    let option_delta = emit_result.unwrap();
+                    if option_delta.is_none() {
+                        return;
+                    }
+
+                    let delta = option_delta.unwrap();
+
+                    let tx = state.tx.clone();
+                    let send_text = serde_json::to_string(&SendSheetItemUpdateMessage::from(delta)).unwrap();
+
+                    tx.send(send_text).unwrap();
 
                 }
                 "general.update" => {

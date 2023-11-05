@@ -1,8 +1,8 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { Slider as MuiSlider, Paper, Stack, styled, Typography } from "@mui/material";
-import { EmitControllerProps } from "../interface";
 
+import { EmitControllerProps } from "../interface";
 import { Events } from "../enum";
-import { useRef } from "react";
 
 const sliderSize = "100%";
 const BoldSlider = styled(MuiSlider)(({ theme: _ }) => ({
@@ -51,9 +51,17 @@ const Slider = (props: EmitControllerProps) => {
   const { sheetItem, emit } = props;
 
   const disabled = props.disabled || sheetItem.disabled || false;
+  const [value, setValue] = useState<number | number[]>(Number(sheetItem.value || 0));
+
+  useLayoutEffect(() => {
+    setValue(Number(sheetItem.value || 0));
+  }, [sheetItem.value])
+
 
   const isActiveRef = useRef(false);
   const handleChange = (e: Event, value: number | number[]) => {
+    setValue(value);
+
     if (isActiveRef.current) {
       return;
     }
@@ -63,7 +71,7 @@ const Slider = (props: EmitControllerProps) => {
     }
 
     isActiveRef.current = true;
-    setTimeout(() => { isActiveRef.current = false }, 100);
+    setTimeout(() => { isActiveRef.current = false }, 10);
 
     emit({
       action: sheetItem.control_id,
@@ -78,7 +86,7 @@ const Slider = (props: EmitControllerProps) => {
         {/* <VolumeDown /> */}
         <BoldSlider
           aria-label="Volume"
-          defaultValue={Number(sheetItem.value || 0)}
+          value={value}
           disabled={disabled}
           orientation="vertical"
           sx={{ width: "100%", height: "100%" }}
