@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, MenuItem, Paper, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { SyntheticEvent, useCallback, useLayoutEffect, useRef, useState } from "react";
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, Menu, MenuItem, Paper, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 
 import AddIcon from '@mui/icons-material/Add';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -19,12 +19,42 @@ interface SheetPageControlProps {
   controls: ConfigControlProps[];
   defaultItem: ConfigSheetItemProps;
   onChange?: (item: ConfigSheetItemProps) => void;
+  deleteItem?: () => void;
 }
 
 const SheetPageControl = (props: SheetPageControlProps) => {
 
-  const [open, setOpen] = useState(false);
   const { control, controls, defaultItem, onChange } = props;
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+
+  const [openMenu, setOpenMenu] = useState(false);
+  const anchorRef = useRef<HTMLButtonElement>(null);
+
+  const handleOpenMenu = useCallback((event: Event | SyntheticEvent) => {
+    setOpenMenu(true);
+    anchorRef.current = event.currentTarget as HTMLButtonElement;
+  }, []);
+
+  const handleCloseMenu = useCallback(() => {
+    setOpenMenu(false);
+    anchorRef.current = null;
+  }, []);
+
+  const handleOpenEdit = useCallback(() => {
+    setOpenEdit(true);
+    setOpenMenu(false);
+
+    anchorRef.current = null;
+  }, []);
+
+  const handleCloseEdit = useCallback(() => {
+    setOpenEdit(false);
+    setOpenMenu(false);
+
+    anchorRef.current = null;
+  }, []);
+
 
   const [item, setItem] = useState<ConfigSheetItemProps>(defaultItem);
   const isError = item.type !== ControlStyle.Empty && !control;
@@ -47,7 +77,7 @@ const SheetPageControl = (props: SheetPageControlProps) => {
       <Button
         variant="outlined"
         disabled={item.disabled}
-        onClick={() => setOpen(true)}
+        onClick={handleOpenMenu}
         startIcon={isError && (
           <ErrorIcon color="error" />
         )}
@@ -59,7 +89,15 @@ const SheetPageControl = (props: SheetPageControlProps) => {
           emit={() => {}}
           />
       </Button>
-      <Dialog open={open} onClose={() => item.type !== ControlStyle.Empty && setOpen(false)}>
+      <Menu
+        open={openMenu}
+        anchorEl={anchorRef.current}
+        onClose={handleCloseMenu}
+      >
+        <MenuItem onClick={handleOpenEdit}>編集</MenuItem>
+        <MenuItem onClick={() => setOpenDelete(true)}>削除</MenuItem>
+      </Menu>
+      <Dialog open={openEdit} onClose={() => item.type !== ControlStyle.Empty && handleCloseEdit()}>
         <DialogContent>
           <Stack
             direction="column"
@@ -110,9 +148,34 @@ const SheetPageControl = (props: SheetPageControlProps) => {
             variant="outlined"
             color="primary"
             sx={{ textTransform: "none" }}
-            onClick={() => setOpen(false)}
+            onClick={handleCloseEdit}
             >
             Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
+        <DialogContent>
+          <DialogContentText>
+            このコントロールを削除しますか？
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => {
+              props.deleteItem?.();
+              setOpenDelete(false);
+            }}
+          >
+            削除
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => setOpenDelete(false)}
+          >
+            キャンセル
           </Button>
         </DialogActions>
       </Dialog>
@@ -136,7 +199,7 @@ export default function Sheets() {
 
   const [columns, setColumns] = useState(sheets?.[pageIndex].columns || 4);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
 
     const read = async () => {
 
@@ -215,6 +278,14 @@ export default function Sheets() {
 
   }, []);
 
+  const deleteItem = useCallback((itemIndex: number) => {
+    setSheets((prev) => {
+      const newSheets = [...(prev || [])];
+      newSheets[pageIndex].items.splice(itemIndex, 1);
+      return newSheets;
+    });
+  }, [pageIndex]);
+
   const handleSave = useCallback(() => {
     saveSheets(sheets || []);
   }, [sheets]);
@@ -229,7 +300,7 @@ export default function Sheets() {
           sx={{ textTransform: "none" }}
           startIcon={<SaveIcon />}
           onClick={() => setOpenSaveDialog(true)}
-          >
+        >
           Save
         </Button>
       </Stack>
@@ -319,11 +390,12 @@ export default function Sheets() {
                     }}>
                     {sheets[pageIndex].items.map((item, index) => (
                       <SheetPageControl
-                        key={`${pageIndex * 10000 + index}`}
+                        key={`${pageIndex * 10000 + index}.${item.control_id}`}
                         control={findControl(item.control_id)}
                         controls={controls || []}
                         defaultItem={item}
                         onChange={(item) => handleSheetItemChange(item, pageIndex, index)}
+                        deleteItem={() => deleteItem(index)}
                         />
                     ))}
                     <Button
@@ -353,14 +425,14 @@ export default function Sheets() {
                   handleSave();
                   setOpenSaveDialog(false);
                 }}
-                >
+              >
                 保存
               </Button>
               <Button
                 variant="outlined"
                 color="secondary"
                 onClick={() => setOpenSaveDialog(false)}
-                >
+              >
                 キャンセル
               </Button>
             </DialogActions>
@@ -380,13 +452,13 @@ export default function Sheets() {
                   deletePage(pageIndex);
                   setOpenDeletePageDialog(false);
                 }}
-                >
+              >
                 削除
               </Button>
               <Button
                 variant="outlined"
                 onClick={() => setOpenDeletePageDialog(false)}
-                >
+              >
                 キャンセル
               </Button>
             </DialogActions>
