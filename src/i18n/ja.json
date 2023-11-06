@@ -1,0 +1,63 @@
+{
+  "edit": "編集",
+  "save": "保存",
+  "add": "追加",
+  "delete": "削除",
+  "cancel": "キャンセル",
+  "close": "閉じる",
+  "reset": "リセット",
+
+  "noun": {
+    "Command": "コマンド",
+    "Browser": "ブラウザ",
+    "Keyboard": "キーボード",
+    "Hotkey": "ホットキー",
+    "Button": "ボタン",
+    "Slider": "スライダー",
+    "Empty": "空"
+  },
+
+  "window": {
+    "config": {
+      "Application": "アプリケーション",
+      "Security": "セキュリティ",
+      "Debug": "デバッグ",
+      "page": {
+        "general": {
+          "title": "全般",
+          "Display Mode": "表示モード",
+          "Run on system startup": "システム起動時に実行する",
+          "Locked on development build": "開発ビルドではロックしています。"
+        },
+        "EditPanels": {
+          "title": "画面編集",
+          "Controls": "コントロール",
+          "Sheets": "シート",
+          "Add Control": "コントロールを追加",
+          "Description": "説明",
+          "Control Type": "コントロールタイプ",
+          "Icon": "アイコン",
+          "Arguments": "引数",
+          "Add Argument": "引数を追加",
+          "Remove this argument": "この引数を削除",
+
+          "Page": "ページ",
+          "Add page": "ページを追加",
+
+          "Are you sure you want to save the changes?": "変更を保存しますか?",
+
+          "Delete this page": "このページを削除",
+          "Do you want to delete this page?": "このページを削除しますか?",
+          "Columns": "列",
+          "UI Type": "UIタイプ",
+          "Label": "ラベル",
+          "Do you want to delete this control?": "このコントロールを削除しますか?"
+        },
+        "Connection": {
+          "title": "接続"
+        }
+      }
+
+    }
+  }
+}
