@@ -7,10 +7,11 @@ import Security from './config/security/Connection';
 import ThemeContextProvider from './ThemeContextProvider';
 import Path from './config/debug/Path';
 
+import i18n from './i18n/config';
+
 const drawerWidth = 180;
 
 export default function ConfigApp() {
-
   const [currentTab, setCurrentTab] = React.useState("application");
 
   return (
@@ -32,18 +33,18 @@ export default function ConfigApp() {
             sx={{ width: drawerWidth }}
             subheader={
               <ListSubheader component="div">
-                アプリケーション
+                {i18n.t("window.config.Application")}
               </ListSubheader>
             }
           >
             <ListItem disablePadding>
               <ListItemButton onClick={() => setCurrentTab("application")} selected={currentTab === "application"}>
-                <ListItemText primary="全般" />
+                <ListItemText primary={i18n.t("window.config.page.general.title")} />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton onClick={() => setCurrentTab("application.edit")} selected={currentTab === "application.edit"}>
-                <ListItemText primary="画面編集" />
+                <ListItemText primary={i18n.t("window.config.page.EditPanels.title")} />
               </ListItemButton>
             </ListItem>
 
@@ -53,13 +54,13 @@ export default function ConfigApp() {
             dense
             subheader={
               <ListSubheader component="div">
-                セキュリティ
+                {i18n.t("window.config.Security")}
               </ListSubheader>
             }
           >
             <ListItem disablePadding>
               <ListItemButton onClick={() => setCurrentTab("security")} selected={currentTab === "security"}>
-                <ListItemText primary="接続" />
+                <ListItemText primary={i18n.t("window.config.page.Connection.title")} />
               </ListItemButton>
             </ListItem>
           </List>
@@ -70,12 +71,12 @@ export default function ConfigApp() {
               dense
               subheader={
                 <ListSubheader component="div">
-                  デバッグ
+                  {i18n.t("window.config.Debug")}
                 </ListSubheader>
               }
             >
               <ListItem disablePadding>
-                <ListItemButton onClick={() => setCurrentTab("debug")} selected={currentTab === "security"}>
+                <ListItemButton onClick={() => setCurrentTab("path")} selected={currentTab === "path"}>
                   <ListItemText primary="Path" />
                 </ListItemButton>
               </ListItem>
@@ -93,12 +94,10 @@ export default function ConfigApp() {
           <CustomTabPanel value={currentTab} index="security">
             <Security />
           </CustomTabPanel>
-          <CustomTabPanel value={currentTab} index="debug">
+          <CustomTabPanel value={currentTab} index="path">
             <Path />
           </CustomTabPanel>
-
         </Box>
-
       </Box>
     </ThemeContextProvider>
   );
