@@ -83,6 +83,7 @@ const Button = (props: EmitControllerProps) => {
                 height: "100%",
                 overflow: "hidden",
                 marginTop: 0,
+                objectFit: "contain",
               }}
               />
 
