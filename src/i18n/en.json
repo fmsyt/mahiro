@@ -1,1 +1,61 @@
-{}
+{
+  "edit": "Edit",
+  "save": "Save",
+  "add": "Add",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "close": "Close",
+  "reset": "Reset",
+
+  "noun": {
+    "Command": "Command",
+    "Browser": "Browser",
+    "Keyboard": "Keyboard",
+    "Hotkey": "Hotkey",
+    "Button": "Button",
+    "Slider": "Slider",
+    "Empty": "Empty"
+  },
+
+  "config": {
+    "Application": "Application",
+    "Security": "Security",
+    "Debug": "Debug",
+    "page": {
+      "general": {
+        "title": "General",
+        "Display Mode": "Display Mode",
+        "Run on system startup": "Run on system startup",
+        "Locked on development build": "Locked on development build"
+      },
+      "Edit Panels": {
+        "title": "Edit Panels",
+        "Controls": "Controls",
+        "Sheets": "Sheets",
+        "Add Control": "Add Control",
+        "Description": "Description",
+        "Control Type": "Control Type",
+        "Icon": "Icon",
+        "Arguments": "Arguments",
+        "Add Argument": "Add Argument",
+        "Remove this argument": "Remove this argument",
+
+        "Page": "Page",
+        "Add page": "Add page",
+
+        "Are you sure you want to save the changes?": "Are you sure you want to save the changes?",
+
+        "Delete this page": "Delete this page",
+        "Do you want to delete this page?": "Do you want to delete this page?",
+        "Columns": "Columns",
+        "UI Type": "UI Type",
+        "Label": "Label",
+        "Do you want to delete this control?": "Do you want to delete this control?"
+      },
+      "Connection": {
+        "title": "Connection"
+      }
+    }
+
+  }
+}
