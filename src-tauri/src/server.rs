@@ -50,7 +50,6 @@ pub async fn start(resolver: PathResolver) {
 
     let uploads_serve_dir = ServeDir::new(config_directory_path.join("assets"));
 
-    #[cfg(debug_assertions)]
     let app: Router = Router::new()
         .nest_service("/", ServeDir::new(resolver.resource_dir().unwrap().join("static")))
         .route("/ws", get(ws_handler))
