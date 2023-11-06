@@ -5,6 +5,7 @@ import Application from './config/Application';
 import ApplicationEdit from './config/application/Edit';
 import Security from './config/security/Connection';
 import ThemeContextProvider from './ThemeContextProvider';
+import Path from './config/debug/Path';
 
 const drawerWidth = 180;
 
@@ -62,6 +63,24 @@ export default function ConfigApp() {
               </ListItemButton>
             </ListItem>
           </List>
+
+          {import.meta.env.MODE === "development" && (
+            <List
+              component="nav"
+              dense
+              subheader={
+                <ListSubheader component="div">
+                  デバッグ
+                </ListSubheader>
+              }
+            >
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => setCurrentTab("debug")} selected={currentTab === "security"}>
+                  <ListItemText primary="Path" />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          )}
         </Drawer>
 
         <Box component="main" sx={{ flexGrow: 1 }}>
@@ -74,6 +93,10 @@ export default function ConfigApp() {
           <CustomTabPanel value={currentTab} index="security">
             <Security />
           </CustomTabPanel>
+          <CustomTabPanel value={currentTab} index="debug">
+            <Path />
+          </CustomTabPanel>
+
         </Box>
 
       </Box>
