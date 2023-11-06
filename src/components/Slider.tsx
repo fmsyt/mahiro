@@ -1,8 +1,8 @@
+import { useMemo, useRef } from "react";
 import { Slider as MuiSlider, Paper, Stack, styled, Typography } from "@mui/material";
-import { EmitControllerProps } from "../interface";
 
+import { EmitControllerProps } from "../interface";
 import { Events } from "../enum";
-import { useRef } from "react";
 
 const sliderSize = "100%";
 const BoldSlider = styled(MuiSlider)(({ theme: _ }) => ({
@@ -49,11 +49,21 @@ const BoldSlider = styled(MuiSlider)(({ theme: _ }) => ({
 const Slider = (props: EmitControllerProps) => {
 
   const { sheetItem, emit } = props;
-
   const disabled = props.disabled || sheetItem.disabled || false;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const initialValue = useMemo(() => Number(sheetItem.value) || 0, []);
+
+  const sliderRef = useRef<HTMLInputElement>(null);
   const isActiveRef = useRef(false);
   const handleChange = (e: Event, value: number | number[]) => {
+
+    if (sliderRef.current === null) {
+      return;
+    }
+
+    sliderRef.current.value = value.toString();
+
     if (isActiveRef.current) {
       return;
     }
@@ -72,18 +82,72 @@ const Slider = (props: EmitControllerProps) => {
     })
   }
 
+  const handleMouseUp = () => {
+
+    if (sliderRef.current === null) {
+      return;
+    }
+
+    if (!sheetItem.control_id) {
+      return;
+    }
+
+    const value = Number(sliderRef.current.value);
+
+    emit({
+      action: sheetItem.control_id,
+      event: Events.keyUp,
+      context: JSON.stringify(value)
+    })
+  }
+
+  const wheel = (e: React.WheelEvent) => {
+
+    if (sliderRef.current === null) {
+      return;
+    }
+
+    if (!sheetItem.control_id) {
+      return;
+    }
+
+    // console.log(sliderRef.current)
+
+    if (e.deltaY > 0) {
+      sliderRef.current.stepDown();
+    } else {
+      sliderRef.current.stepUp();
+    }
+
+    const value = Number(sliderRef.current.value);
+    console.log(value)
+
+    sliderRef.current.value = value.toString();
+
+    // emit({
+    //   action: sheetItem.control_id,
+    //   event: Events.keyUp,
+    //   context: JSON.stringify(value)
+    // })
+  }
+
   return (
     <Paper variant="outlined" sx={{ width: "100%", height: "100%" }}>
       <Stack padding={1} spacing={2} direction="column" sx={{ width: "100%", height: "100%" }} alignItems="center">
         {/* <VolumeDown /> */}
         <BoldSlider
+          slotProps={{
+            input: { ref: sliderRef }
+          }}
           aria-label="Volume"
-          defaultValue={Number(sheetItem.value || 0)}
+          defaultValue={initialValue}
           disabled={disabled}
           orientation="vertical"
           sx={{ width: "100%", height: "100%" }}
           { ...(sheetItem.props || {}) }
-          onChange={handleChange}
+          onChangeCommitted={handleChange}
+          onMouseUp={handleMouseUp}
+          onWheel={wheel}
           />
         {/* <VolumeUp /> */}
         <Typography variant="caption">{sheetItem.label}</Typography>

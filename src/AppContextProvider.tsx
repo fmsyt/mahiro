@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useLayoutEffect } from "react";
-import { EmitTypes, isTypeOfReceiveSheetUpdateMessage, PageProps } from "./interface";
+import { EmitTypes, isTypeOfReceiveSheetItemUpdateMessage, isTypeOfReceiveSheetUpdateMessage, PageProps } from "./interface";
 
 import AppContext from "./AppContext";
 import WebSocketContext from "./WebSocketContext";
@@ -45,6 +45,37 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
         setPages(list);
 
         return;
+      }
+      case "sheet.item.update": {
+        if (!isTypeOfReceiveSheetItemUpdateMessage(lastJsonMessage)) {
+          return;
+        }
+
+        const data = lastJsonMessage.data;
+
+        setPages((prev) => {
+          if (!prev) {
+            return prev;
+          }
+
+          const list = prev.reduce(
+            (acc, page) => {
+
+            const items = page.items.map((item) => {
+              if (item.control_id !== data.control_id) {
+                return item;
+              }
+
+              return { ...item, ...data };
+            });
+
+            return [...acc, { ...page, items }];
+            },
+            [] as PageProps[]
+          );
+
+          return list;
+        });
       }
 
     }

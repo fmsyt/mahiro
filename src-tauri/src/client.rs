@@ -1,12 +1,16 @@
-use std::{process::Command, path::PathBuf};
+use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
-use crate::control::{
-    Control,
-    Sheet,
-    EmitHandler,
-    get_control_list,
-    get_sheet_list
+use crate::{
+    control::{
+        Control,
+        EmitHandler,
+        get_control_list, InitializeHandler,
+    },
+    sheet::{
+        Sheet,
+        get_sheet_list, SheetItem
+    }
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -26,17 +30,100 @@ pub struct ClientSheetItem {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct ClientSheetItemDelta {
+    pub control_id: String,
+    pub value: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ClientSheet {
     columns: i32,
     items: Vec<ClientSheetItem>,
 }
 
 
+pub trait Convert {
+    fn to_client_sheet_item(&self, controls: &Vec<Control>) -> ClientSheetItem;
+}
+
+impl Convert for SheetItem {
+    fn to_client_sheet_item(&self, controls: &Vec<Control>) -> ClientSheetItem {
+
+        if self.control_id.is_none() {
+            return ClientSheetItem {
+                style: "empty".to_string(),
+                control_id: None,
+                label: None,
+                disabled: None,
+                value: None,
+                icon: None,
+            }
+        }
+
+        let control_id = self.control_id.clone().unwrap();
+        let control_option = controls.iter().find(|&c| c.id == control_id.as_str());
+
+        if control_option.is_none() {
+            return ClientSheetItem {
+                style: "empty".to_string(),
+                control_id: None,
+                label: None,
+                disabled: None,
+                value: None,
+                icon: None,
+            }
+        }
+
+        let control = control_option.unwrap();
+
+        let value = control.get_value();
+        let icon = match control.icon {
+            Some(ref i) => Some(i.clone()),
+            None => None,
+        };
+
+        ClientSheetItem {
+            style: self.r#type.clone(),
+            control_id: self.control_id.clone(),
+            label: self.label.clone(),
+            disabled: Some(false),
+            value,
+            icon,
+        }
+
+    }
+}
+
+
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SendSheetItemUpdateMessage {
+    pub method: String,
+    pub data: ClientSheetItemDelta,
+}
+
+impl From<ClientSheetItemDelta> for SendSheetItemUpdateMessage {
+    fn from(value: ClientSheetItemDelta) -> Self {
+        SendSheetItemUpdateMessage {
+            method: "sheet.item.update".to_string(),
+            data: value,
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SendSheetsUpdateMessage {
     pub method: String,
     pub data: Vec<ClientSheet>,
+}
+
+impl From<Vec<ClientSheet>> for SendSheetsUpdateMessage {
+    fn from(value: Vec<ClientSheet>) -> Self {
+        SendSheetsUpdateMessage {
+            method: "sheets.update".to_string(),
+            data: value,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -76,108 +163,52 @@ impl SendWebSocketClientMessage for State {
     fn sheets_update(&self) -> SendSheetsUpdateMessage {
 
         let controls = get_control_list(self.config_dir.clone());
-        let data: Vec<ClientSheet> = self.sheets.iter().map(|s| {
-            let items: Vec<ClientSheetItem> = s.items.iter().map(|i| {
-
-                if i.control_id.is_none() {
-                    return ClientSheetItem {
-                        style: "empty".to_string(),
-                        control_id: None,
-                        label: None,
-                        disabled: None,
-                        value: None,
-                        icon: None,
-                    }
-                }
-
-                let control_id = i.control_id.clone().unwrap();
-                let control_option = controls.iter().find(|&c| c.id == control_id.as_str());
-
-                if control_option.is_none() {
-                    return ClientSheetItem {
-                        style: "empty".to_string(),
-                        control_id: None,
-                        label: None,
-                        disabled: None,
-                        value: None,
-                        icon: None,
-                    }
-                }
-
-                let control = control_option.unwrap();
-
-                let mut value = None;
-                let icon = match control.icon {
-                    Some(ref i) => Some(i.clone()),
-                    None => None,
-                };
-
-                if let Some(ref d) = control.initialize {
-                    if let Some(ref commands) = d.commands {
-
-                        let first = commands.first().unwrap();
-                        let args = &commands[1..].to_vec();
-                        println!("first: {:?}", first);
-                        println!("args: {:?}", args);
-
-                        let command_result = Command::new(first).args(args).output().expect("failed to execute process");
-
-                        println!("command_result: {:?}", command_result);
-
-                        value = Some(String::from_utf8(command_result.stdout).unwrap())
-                    }
-                }
-
-
-                ClientSheetItem {
-                    style: i.r#type.clone(),
-                    control_id: i.control_id.clone(),
-                    label: i.label.clone(),
-                    disabled: Some(false),
-                    value,
-                    icon,
-                }
-
-            }).collect();
+        let data: Vec<ClientSheet> = self.sheets.iter().map(|sheet| {
+            let items = sheet.items.iter().map(|sheet_item| sheet_item.to_client_sheet_item(&controls)).collect();
 
             ClientSheet {
-                columns: s.columns,
+                columns: sheet.columns,
                 items,
             }
         }).collect();
 
-        let message = SendSheetsUpdateMessage {
-            method: "sheets.update".to_string(),
-            data,
-        };
-
-        return message
+        SendSheetsUpdateMessage::from(data)
     }
 }
 
 pub trait ReceiveWebSocketClientMessage {
-    fn emit(&self, control_id: String, event_name: String, context: Option<String>, payload: Option<ReceivedEmitMessageData>) -> Result<(), String>;
+    fn emit(&self, control_id: String, event_name: String, context: Option<String>, payload: Option<ReceivedEmitMessageData>) -> Result<Option<ClientSheetItemDelta>, String>;
 }
 
 impl ReceiveWebSocketClientMessage for State {
-    fn emit(&self, control_id: String, event_name: String, context: Option<String>, payload: Option<ReceivedEmitMessageData>) -> Result<(), String> {
+    fn emit(&self, control_id: String, event_name: String, context: Option<String>, payload: Option<ReceivedEmitMessageData>) -> Result<Option<ClientSheetItemDelta>, String> {
 
-        let control = self.controls.iter().find(|&c| c.id == control_id);
-
-        match control {
-            Some(c) => {
-                if let Err(e) = c.emit(event_name, context, payload) {
-                    println!("Error: {}", e);
-                    Err(e)
-                } else {
-                    Ok(())
-                }
-            },
-            None => {
-                println!("Unknown control: {:?}", control_id);
-                Err("control not found".to_string())
-            }
+        let option_control = self.controls.iter().find(|&c| c.id == control_id);
+        if option_control.is_none() {
+            return Err("control not found".to_string())
         }
+
+        let control = option_control.unwrap();
+        if let Err(e) = control.emit(event_name, context, payload) {
+            println!("Error: {}", e);
+            return Err(e);
+        }
+
+        let mut delta: Option<ClientSheetItemDelta> = None;
+        let value: Option<String> = control.get_value();
+
+        // if let Some(ref i) = control.icon {
+        //     icon = Some(i.clone());
+        // }
+
+        if value.is_some() {
+            delta = Some(ClientSheetItemDelta {
+                control_id: control_id.clone(),
+                value,
+            });
+        }
+
+        Ok(delta)
     }
 }
 

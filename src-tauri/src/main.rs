@@ -5,7 +5,13 @@ use std::process::exit;
 
 use log::LevelFilter;
 use tauri::{
-    AppHandle, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
+    AppHandle,
+    Manager,
+    SystemTray,
+    SystemTrayEvent,
+    SystemTrayMenu,
+    SystemTrayMenuItem,
+    Wry,
 };
 
 use tauri_plugin_autostart::{self, MacosLauncher};
@@ -14,6 +20,7 @@ use tauri_plugin_log::{fern::colors::ColoredLevelConfig, LogTarget};
 mod client;
 mod control;
 mod server;
+mod sheet;
 
 #[cfg(debug_assertions)]
 const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Stderr];
