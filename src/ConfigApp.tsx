@@ -33,7 +33,7 @@ export default function ConfigApp() {
             sx={{ width: drawerWidth }}
             subheader={
               <ListSubheader component="div">
-                {i18n.t("window.config.Application")}
+                {i18n.t("window.config.application")}
               </ListSubheader>
             }
           >
@@ -44,7 +44,7 @@ export default function ConfigApp() {
             </ListItem>
             <ListItem disablePadding>
               <ListItemButton onClick={() => setCurrentTab("application.edit")} selected={currentTab === "application.edit"}>
-                <ListItemText primary={i18n.t("window.config.page.EditPanels.title")} />
+                <ListItemText primary={i18n.t("window.config.page.edit_panels.title")} />
               </ListItemButton>
             </ListItem>
 
@@ -54,13 +54,13 @@ export default function ConfigApp() {
             dense
             subheader={
               <ListSubheader component="div">
-                {i18n.t("window.config.Security")}
+                {i18n.t("window.config.security")}
               </ListSubheader>
             }
           >
             <ListItem disablePadding>
               <ListItemButton onClick={() => setCurrentTab("security")} selected={currentTab === "security"}>
-                <ListItemText primary={i18n.t("window.config.page.Connection.title")} />
+                <ListItemText primary={i18n.t("window.config.page.connection.title")} />
               </ListItemButton>
             </ListItem>
           </List>
@@ -71,7 +71,7 @@ export default function ConfigApp() {
               dense
               subheader={
                 <ListSubheader component="div">
-                  {i18n.t("window.config.Debug")}
+                  {i18n.t("window.config.debug")}
                 </ListSubheader>
               }
             >

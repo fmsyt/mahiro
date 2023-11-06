@@ -8,52 +8,52 @@
   "reset": "リセット",
 
   "noun": {
-    "Command": "コマンド",
-    "Browser": "ブラウザ",
-    "Keyboard": "キーボード",
-    "Hotkey": "ホットキー",
-    "Button": "ボタン",
-    "Slider": "スライダー",
-    "Empty": "空"
+    "command": "コマンド",
+    "browser": "ブラウザ",
+    "keyboard": "キーボード",
+    "hotkey": "ホットキー",
+    "button": "ボタン",
+    "slider": "スライダー",
+    "empty": "空"
   },
 
   "window": {
     "config": {
-      "Application": "アプリケーション",
-      "Security": "セキュリティ",
-      "Debug": "デバッグ",
+      "application": "アプリケーション",
+      "security": "セキュリティ",
+      "debug": "デバッグ",
       "page": {
         "general": {
           "title": "全般",
-          "Display Mode": "表示モード",
-          "Run on system startup": "システム起動時に実行する",
-          "Locked on development build": "開発ビルドではロックしています。"
+          "display_mode": "表示モード",
+          "run_on_system_startup": "システム起動時に実行する",
+          "locked_on_development_build": "開発ビルドではロックしています。"
         },
-        "EditPanels": {
+        "edit_panels": {
           "title": "画面編集",
-          "Controls": "コントロール",
-          "Sheets": "シート",
-          "Add Control": "コントロールを追加",
-          "Description": "説明",
-          "Control Type": "コントロールタイプ",
-          "Icon": "アイコン",
-          "Arguments": "引数",
-          "Add Argument": "引数を追加",
-          "Remove this argument": "この引数を削除",
+          "controls": "コントロール",
+          "sheets": "シート",
+          "add_control": "コントロールを追加",
+          "description": "説明",
+          "control_type": "コントロールタイプ",
+          "icon": "アイコン",
+          "arguments": "引数",
+          "add_argument": "引数を追加",
+          "remove_argument": "この引数を削除",
 
-          "Page": "ページ",
-          "Add page": "ページを追加",
+          "page": "ページ",
+          "add_page": "ページを追加",
 
-          "Are you sure you want to save the changes?": "変更を保存しますか?",
+          "save_changes_confirmation": "変更を保存しますか?",
 
-          "Delete this page": "このページを削除",
-          "Do you want to delete this page?": "このページを削除しますか?",
-          "Columns": "列",
-          "UI Type": "UIタイプ",
-          "Label": "ラベル",
-          "Do you want to delete this control?": "このコントロールを削除しますか?"
+          "delete_page": "このページを削除",
+          "delete_page_confirmation": "このページを削除しますか?",
+          "columns": "列",
+          "ui_type": "UIタイプ",
+          "label": "ラベル",
+          "delete_control_confirmation": "このコントロールを削除しますか?"
         },
-        "Connection": {
+        "connection": {
           "title": "接続"
         }
       }
