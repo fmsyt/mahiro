@@ -9,7 +9,7 @@ use crate::{
     },
     sheet::{
         Sheet,
-        get_sheet_list, SheetItem
+        get_sheet_list, SheetItem, SheetItemAction,
     }
 };
 
@@ -22,7 +22,7 @@ enum ClientSheetItemInitialize {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ClientSheetItem {
     style: String,
-    control_id: Option<String>,
+    action: Option<SheetItemAction<String>>,
     label: Option<String>,
     disabled: Option<bool>,
     value: Option<String>,
@@ -31,7 +31,7 @@ pub struct ClientSheetItem {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ClientSheetItemDelta {
-    pub control_id: String,
+    pub action: String,
     pub value: Option<String>,
 }
 
@@ -49,10 +49,10 @@ pub trait Convert {
 impl Convert for SheetItem {
     fn to_client_sheet_item(&self, controls: &Vec<Control>) -> ClientSheetItem {
 
-        if self.control_id.is_none() {
+        if self.action.is_none() {
             return ClientSheetItem {
                 style: "empty".to_string(),
-                control_id: None,
+                action: None,
                 label: None,
                 disabled: None,
                 value: None,
@@ -60,13 +60,29 @@ impl Convert for SheetItem {
             }
         }
 
-        let control_id = self.control_id.clone().unwrap();
-        let control_option = controls.iter().find(|&c| c.id == control_id.as_str());
+        let control_id = self.action.clone().unwrap();
+        let control_option = controls.iter().find(|&c| {
+
+            // print type of control_id
+            if control_id.key_down.is_some() {
+                if c.id == control_id.key_down.clone().unwrap() {
+                    return true
+                }
+            }
+
+            if control_id.key_up.is_some() {
+                if c.id == control_id.key_up.clone().unwrap() {
+                    return true
+                }
+            }
+
+            return false
+        });
 
         if control_option.is_none() {
             return ClientSheetItem {
                 style: "empty".to_string(),
-                control_id: None,
+                action: None,
                 label: None,
                 disabled: None,
                 value: None,
@@ -84,7 +100,7 @@ impl Convert for SheetItem {
 
         ClientSheetItem {
             style: self.r#type.clone(),
-            control_id: self.control_id.clone(),
+            action: self.action.clone(),
             label: self.label.clone(),
             disabled: Some(false),
             value,
@@ -203,7 +219,7 @@ impl ReceiveWebSocketClientMessage for State {
 
         if value.is_some() {
             delta = Some(ClientSheetItemDelta {
-                control_id: control_id.clone(),
+                action: control_id.clone(),
                 value,
             });
         }

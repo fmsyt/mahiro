@@ -19,17 +19,17 @@ const Button = (props: EmitControllerProps) => {
       return {}
     }
 
-    const action = sheetItem.control_id || "";
+    const action = sheetItem.action;
     if (!action) {
       return {}
     }
 
     return {
       onMouseUp: () => {
-        emit({ action, event: Events.keyUp })
+        emit({ action: action[Events.keyUp], event: Events.keyUp })
       },
     }
-  }, [disabled, emit, sheetItem.control_id]);
+  }, [disabled, emit, sheetItem.action]);
 
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
 

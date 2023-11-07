@@ -68,7 +68,7 @@ const Slider = (props: EmitControllerProps) => {
       return;
     }
 
-    if (!sheetItem.control_id) {
+    if (!sheetItem.action) {
       return;
     }
 
@@ -76,7 +76,7 @@ const Slider = (props: EmitControllerProps) => {
     setTimeout(() => { isActiveRef.current = false }, 100);
 
     emit({
-      action: sheetItem.control_id,
+      action: sheetItem.action[Events.keyUp],
       event: Events.keyUp,
       context: JSON.stringify(value)
     })
@@ -88,14 +88,14 @@ const Slider = (props: EmitControllerProps) => {
       return;
     }
 
-    if (!sheetItem.control_id) {
+    if (!sheetItem.action) {
       return;
     }
 
     const value = Number(sliderRef.current.value);
 
     emit({
-      action: sheetItem.control_id,
+      action: sheetItem.action[Events.keyUp],
       event: Events.keyUp,
       context: JSON.stringify(value)
     })
@@ -107,7 +107,7 @@ const Slider = (props: EmitControllerProps) => {
       return;
     }
 
-    if (!sheetItem.control_id) {
+    if (!sheetItem.action) {
       return;
     }
 

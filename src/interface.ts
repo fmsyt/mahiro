@@ -234,7 +234,9 @@ export function isTypeOfSheet(data: any): data is ConfigSheetProps {
 
 
 export interface SheetItemProps {
-  control_id?: string;
+  action?: {
+    [key: string]: string | undefined;
+  };
   style: ControlStyle;
   label?: string | null;
   icon?: string | null;
@@ -264,9 +266,9 @@ export function isTypeOfSheetItemProps(data: any): data is SheetItemProps {
     throw new Error("data.style is not ControlStyle");
   }
 
-  if (typeof data.control_id !== "string" && data.control_id != null) {
-    throw new Error("data.control_id is not string");
-  }
+  // if (typeof data.control_id !== "string" && data.control_id != null) {
+  //   throw new Error("data.control_id is not string");
+  // }
 
   if (typeof data.label !== "string" && data.label != null) {
     throw new Error("data.label is not string or null");
