@@ -8,6 +8,8 @@ use serde::{
     Deserialize
 };
 
+use crate::client::ActionEvents;
+
 
 // pub enum SheetItemType {
 //     Button(String),
@@ -37,6 +39,33 @@ pub struct SheetItemAction<T> {
     pub send_to_plugin: Option<T>,
 }
 
+pub trait SheetItemActionTrait<T> {
+    fn get(&self, action: ActionEvents) -> Option<T>;
+}
+
+impl SheetItemActionTrait<String> for SheetItemAction<String> {
+    fn get(&self, action: ActionEvents) -> Option<String> {
+        match action {
+            ActionEvents::KeyDown => self.key_down.clone(),
+            ActionEvents::KeyUp => self.key_up.clone(),
+            ActionEvents::TouchTap => self.touch_tap.clone(),
+            ActionEvents::DialDown => self.dial_down.clone(),
+            ActionEvents::DialUp => self.dial_up.clone(),
+            ActionEvents::DialRotate => self.dial_rotate.clone(),
+            ActionEvents::WillAppear => self.will_appear.clone(),
+            ActionEvents::WillDisappear => self.will_disappear.clone(),
+            ActionEvents::TitleParametersDidChange => self.title_parameters_did_change.clone(),
+            ActionEvents::DeviceDidConnect => self.device_did_connect.clone(),
+            ActionEvents::DeviceDidDisconnect => self.device_did_disconnect.clone(),
+            ActionEvents::ApplicationDidLaunch => self.application_did_launch.clone(),
+            ActionEvents::ApplicationDidTerminate => self.application_did_terminate.clone(),
+            ActionEvents::SystemDidWakeUp => self.system_did_wake_up.clone(),
+            ActionEvents::PropertyInspectorDidAppear => self.property_inspector_did_appear.clone(),
+            ActionEvents::PropertyInspectorDidDisappear => self.property_inspector_did_disappear.clone(),
+            ActionEvents::SendToPlugin => self.send_to_plugin.clone(),
+        }
+    }
+}
 
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
