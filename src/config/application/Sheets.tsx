@@ -1,7 +1,8 @@
-import { SyntheticEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { fs } from "@tauri-apps/api";
 
 import { Box, Button, Card, CardActionArea, CardMedia, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, ListItemIcon, ListItemText, Menu, MenuItem, Paper, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { md5 } from "js-md5";
 
 import AddIcon from '@mui/icons-material/Add';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -53,7 +54,6 @@ const SheetPageControl = (props: SheetPageControlProps) => {
   const openEditMenu = useMemo(() => openMenu === OpenMenu.EditMenu, [openMenu]);
   const openIconMenu = useMemo(() => openMenu === OpenMenu.IconMenu, [openMenu]);
 
-
   const anchorRef = useRef<HTMLElement>(null);
 
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -100,7 +100,6 @@ const SheetPageControl = (props: SheetPageControlProps) => {
 
 
   const previewIconRef = useRef<HTMLImageElement>(null);
-  const inputFileExtensionRef = useRef<string>(null);
   const handleChangeIcon = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
 
@@ -120,17 +119,18 @@ const SheetPageControl = (props: SheetPageControlProps) => {
     const reader = new FileReader();
     reader.onload = () => {
       const arrayBuffer = reader.result as ArrayBuffer;
+      const hash = md5(arrayBuffer);
 
-      const filename = `${item.label}.${extention}`;
+      const filename = `${hash}.${extention}`;
       createTempIcon(arrayBuffer, filename).then(() => {
-        setItem((prev) => ({ ...prev, icon: filename }));
+        handleChange("icon", filename);
       })
     }
 
     reader.readAsArrayBuffer(file);
     previewIconRef.current?.setAttribute("src", URL.createObjectURL(file));
 
-  }, [item.label]);
+  }, [handleChange]);
 
 
   return (
@@ -145,7 +145,7 @@ const SheetPageControl = (props: SheetPageControlProps) => {
         sx={{ textTransform: "none", padding: 0 }}
       >
         <Control
-          sheetItem={{ ...item, style: item.type, icon: control?.icon }}
+          sheetItem={{ ...item, style: item.type }}
           disabled={true}
           emit={() => {}}
           />
@@ -250,6 +250,13 @@ const SheetPageControl = (props: SheetPageControlProps) => {
                 </MenuItem>
               </Menu>
             </FormControl>
+
+            {import.meta.env.DEV && (
+              <Box sx={{ flexGrow: 1, overflow: "auto" }}>
+                <pre>{JSON.stringify(item, null, 2)}</pre>
+              </Box>
+            )}
+
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -395,8 +402,25 @@ export default function Sheets() {
     });
   }, [pageIndex]);
 
-  const handleSave = useCallback(() => {
-    saveSheets(sheets || []);
+  const handleSave = useCallback(async () => {
+
+    if (!sheets) {
+      return;
+    }
+
+    console.log("handleSave", sheets);
+
+    const promises = sheets.map((sheet) => {
+      const list = sheet.items
+        .filter((item) => item.icon != null)
+        .map((item) => commitCreateTempIcon(item.icon));
+
+      return list;
+    }).flat();
+
+    await Promise.all(promises);
+    await saveSheets(sheets || []);
+
   }, [sheets]);
 
   return (
@@ -587,6 +611,8 @@ async function createTempIcon(icon: ArrayBuffer, filename: string) {
 
   const tempname = `${filename}.tmp`;
   const savePath = `${iconsRoot}/${tempname}`;
+
+  console.info("createTempIcon", savePath);
 
   await fs.createDir(iconsRoot, { recursive: true, dir: fs.BaseDirectory.AppCache });
 

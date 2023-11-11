@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Card, CardActionArea, CardMedia, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 
 import { fs } from "@tauri-apps/api";
 
@@ -231,54 +231,6 @@ const ControlAccordion = (props: ControlAccordionProps) => {
               ))}
             </Select>
           </FormControl>
-
-          {/* <FormControl>
-            <FormLabel>Icon</FormLabel>
-            <input
-              id={`${index + 1}.${initialControl.label || initialControl.id}.icon`}
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleChangeIcon}
-              ref={inputFileRef}
-              />
-
-            <Card>
-              <CardActionArea
-                onClick={handleOpenIconMenu}
-              >
-                <CardMedia
-                  component="img"
-                  image={iconSrc}
-                  ref={previewIconRef}
-                  alt=""
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    objectFit: "contain",
-                  }}
-                  />
-              </CardActionArea>
-            </Card>
-            <Menu
-              open={openIconMenu}
-              onClose={handelCloseMenu}
-              anchorEl={anchorEl}
-            >
-              <MenuItem onClick={() => inputFileRef.current?.click()}>
-                <ListItemIcon>
-                  <InputIcon />
-                </ListItemIcon>
-                <ListItemText primary="Change" />
-              </MenuItem>
-              <MenuItem onClick={handleOpenRemoveIconDialog}>
-                <ListItemIcon>
-                  <DeleteForeverIcon />
-                </ListItemIcon>
-                <ListItemText primary="Remove" />
-              </MenuItem>
-            </Menu>
-          </FormControl> */}
 
           {control.type === ControlType.Browser && (
             <ControlAccordionBrowserDetails
