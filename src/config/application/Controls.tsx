@@ -5,14 +5,12 @@ import { fs } from "@tauri-apps/api";
 
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import InputIcon from '@mui/icons-material/Input';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 import { ConfigBrowserControlProps, ConfigCommandControlProps, ConfigControlProps, ConfigHotkeyControlProps, ConfigKeyboardControlProps, ControlType, isTypeOfConfigCommandControl } from "../../interface";
 import fetchControls from "../fetchControls";
 import saveControls from "../saveControls";
-import useIcon from "../../icon/useIcon";
 
 import { iconsRoot } from "../../path";
 
@@ -31,12 +29,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
   const { index, initialControl, onRemove } = props;
   const [control, setControl] = useState<ConfigControlProps>(initialControl);
 
-  const previewIconRef = useRef<HTMLImageElement>(null);
-
-  const inputFileRef = useRef<HTMLInputElement>(null);
   const inputFileExtensionRef = useRef<string>(null);
-
-  const iconSrc = useIcon(control.icon);
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openDeleteIconDialog, setOpenDeleteIconDialog] = useState(false);
@@ -44,28 +37,18 @@ const ControlAccordion = (props: ControlAccordionProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const [openMenu, setOpenMenu] = useState(false);
-  const [openIconMenu, setOpenIconMenu] = useState(false);
 
   const handelOpenMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     setOpenMenu(true);
-    setOpenIconMenu(false);
 
     setAnchorEl(e.currentTarget);
   }, []);
 
-  const handleOpenIconMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
-    setOpenMenu(false);
-    setOpenIconMenu(true);
-
-    setAnchorEl(e.currentTarget);
-  }, []);
 
   const handelCloseMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     setOpenMenu(false);
-    setOpenIconMenu(false);
     setAnchorEl(null);
   }, []);
 
@@ -75,11 +58,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
     setOpenDeleteDialog(true);
   }, [handelCloseMenu]);
 
-  const handleOpenRemoveIconDialog = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
-    handelCloseMenu(e);
-    setOpenDeleteIconDialog(true);
-  }, [handelCloseMenu]);
+
 
   const handleRemove = useCallback(() => {
 
@@ -141,58 +120,6 @@ const ControlAccordion = (props: ControlAccordionProps) => {
   }, []);
 
 
-  const handleChangeIcon = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-
-    const file = e.target.files?.[0];
-    if (file == null) {
-      return;
-    }
-
-    // assert file is image
-    if (!file.type.startsWith("image/")) {
-      return;
-    }
-
-    const extention = file.name.split(".").pop();
-
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-
-      const createTemp = async () => {
-
-        await fs.createDir(iconsRoot, { recursive: true, dir: fs.BaseDirectory.AppCache });
-
-        const filename = `${control.id}.${extention}`;
-
-        const tempname = `${filename}.tmp`;
-        const savePath = `${iconsRoot}/${tempname}`;
-
-        if (await fs.exists(savePath, { dir: fs.BaseDirectory.AppCache })) {
-          await fs.removeFile(savePath, { dir: fs.BaseDirectory.AppCache });
-        }
-
-        try {
-          const arrayBuffer = await fetch(result).then((res) => res.arrayBuffer());
-          await fs.writeBinaryFile(savePath, new Uint8Array(arrayBuffer), { dir: fs.BaseDirectory.AppCache, append: false });
-
-        } catch (error) {
-          console.error(error);
-        }
-
-        inputFileExtensionRef.current = extention;
-        setControl((prev) => ({ ...prev, icon: filename }));
-      }
-
-      createTemp();
-    }
-
-    reader.readAsDataURL(file);
-    previewIconRef.current?.setAttribute("src", URL.createObjectURL(file));
-
-  }, [control.id]);
 
 
   const handleSave = useCallback(() => {
@@ -305,7 +232,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
             </Select>
           </FormControl>
 
-          <FormControl>
+          {/* <FormControl>
             <FormLabel>Icon</FormLabel>
             <input
               id={`${index + 1}.${initialControl.label || initialControl.id}.icon`}
@@ -351,7 +278,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
                 <ListItemText primary="Remove" />
               </MenuItem>
             </Menu>
-          </FormControl>
+          </FormControl> */}
 
           {control.type === ControlType.Browser && (
             <ControlAccordionBrowserDetails

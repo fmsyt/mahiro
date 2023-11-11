@@ -165,6 +165,7 @@ export interface ConfigSheetItemProps {
   label?: string;
   type: ControlStyle;
   disabled?: boolean;
+  icon?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

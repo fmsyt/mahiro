@@ -1,10 +1,14 @@
-import { SyntheticEvent, useCallback, useLayoutEffect, useRef, useState } from "react";
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, Menu, MenuItem, Paper, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { SyntheticEvent, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { fs } from "@tauri-apps/api";
+
+import { Box, Button, Card, CardActionArea, CardMedia, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, ListItemIcon, ListItemText, Menu, MenuItem, Paper, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 
 import AddIcon from '@mui/icons-material/Add';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ErrorIcon from '@mui/icons-material/Error';
+import InputIcon from '@mui/icons-material/Input';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import SaveIcon from '@mui/icons-material/Save';
 
 import { ConfigControlProps, ConfigSheetItemProps, ConfigSheetProps, ControlStyle, isTypeOfConfigSheetItemProps } from "../../interface";
@@ -12,6 +16,8 @@ import fetchSheets from "../fetchSheets";
 import useControls from "../useControls";
 import saveSheets from "../saveSheets";
 import { Control } from "../../Control";
+import { iconsRoot } from "../../path";
+import useIcon from "../../icon/useIcon";
 
 
 interface SheetPageControlProps {
@@ -22,38 +28,58 @@ interface SheetPageControlProps {
   deleteItem?: () => void;
 }
 
+enum OpenDialog {
+  None,
+  DeleteDialog,
+  EditDialog,
+}
+
+enum OpenMenu {
+  None,
+  EditMenu,
+  IconMenu,
+  SetIconMenu,
+  DeleteIconMenu,
+}
+
 const SheetPageControl = (props: SheetPageControlProps) => {
 
   const { control, controls, defaultItem, onChange } = props;
-  const [openEdit, setOpenEdit] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
+  const [openDialog, setOpenDialog] = useState(OpenDialog.None);
+  const [openMenu, setMenu] = useState(OpenMenu.None);
 
-  const [openMenu, setOpenMenu] = useState(false);
-  const anchorRef = useRef<HTMLButtonElement>(null);
+  const openEditDialog = useMemo(() => openDialog === OpenDialog.EditDialog, [openDialog]);
+  const openDeleteDialog = useMemo(() => openDialog === OpenDialog.DeleteDialog, [openDialog]);
+  const openEditMenu = useMemo(() => openMenu === OpenMenu.EditMenu, [openMenu]);
+  const openIconMenu = useMemo(() => openMenu === OpenMenu.IconMenu, [openMenu]);
 
-  const handleOpenMenu = useCallback((event: Event | SyntheticEvent) => {
-    setOpenMenu(true);
-    anchorRef.current = event.currentTarget as HTMLButtonElement;
+
+  const anchorRef = useRef<HTMLElement>(null);
+
+  const inputFileRef = useRef<HTMLInputElement>(null);
+  const iconSrc = useIcon(defaultItem.icon);
+
+  const handleOpenMenu = useCallback((content: OpenMenu, target: HTMLElement) => {
+    setMenu(content);
+    anchorRef.current = target;
   }, []);
 
   const handleCloseMenu = useCallback(() => {
-    setOpenMenu(false);
+    setMenu(OpenMenu.None);
     anchorRef.current = null;
   }, []);
 
-  const handleOpenEdit = useCallback(() => {
-    setOpenEdit(true);
-    setOpenMenu(false);
+  const handleOpenDialog = useCallback((content: OpenDialog) => {
+    handleCloseMenu();
+    setOpenDialog(content)
+  }, [handleCloseMenu]);
 
-    anchorRef.current = null;
-  }, []);
+  const handleCloseDialog = useCallback(() => {
+    handleCloseMenu();
+    setOpenDialog(OpenDialog.None)
+  }, [handleCloseMenu]);
 
-  const handleCloseEdit = useCallback(() => {
-    setOpenEdit(false);
-    setOpenMenu(false);
 
-    anchorRef.current = null;
-  }, []);
 
 
   const [item, setItem] = useState<ConfigSheetItemProps>(defaultItem);
@@ -72,12 +98,47 @@ const SheetPageControl = (props: SheetPageControlProps) => {
 
   }, [onChange]);
 
+
+  const previewIconRef = useRef<HTMLImageElement>(null);
+  const inputFileExtensionRef = useRef<string>(null);
+  const handleChangeIcon = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+
+    const file = e.target.files?.[0];
+    if (file == null) {
+      return;
+    }
+
+    // assert file is image
+    if (!file.type.startsWith("image/")) {
+      return;
+    }
+
+    const extention = file.name.split(".").pop();
+
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const arrayBuffer = reader.result as ArrayBuffer;
+
+      const filename = `${item.label}.${extention}`;
+      createTempIcon(arrayBuffer, filename).then(() => {
+        setItem((prev) => ({ ...prev, icon: filename }));
+      })
+    }
+
+    reader.readAsArrayBuffer(file);
+    previewIconRef.current?.setAttribute("src", URL.createObjectURL(file));
+
+  }, [item.label]);
+
+
   return (
     <>
       <Button
         variant="outlined"
         disabled={item.disabled}
-        onClick={handleOpenMenu}
+        onClick={(e) => handleOpenMenu(OpenMenu.EditMenu, e.currentTarget)}
         startIcon={isError && (
           <ErrorIcon color="error" />
         )}
@@ -90,14 +151,14 @@ const SheetPageControl = (props: SheetPageControlProps) => {
           />
       </Button>
       <Menu
-        open={openMenu}
+        open={openEditMenu}
         anchorEl={anchorRef.current}
-        onClose={handleCloseMenu}
+        onClose={handleCloseDialog}
       >
-        <MenuItem onClick={handleOpenEdit}>編集</MenuItem>
-        <MenuItem onClick={() => setOpenDelete(true)}>削除</MenuItem>
+        <MenuItem onClick={() => handleOpenDialog(OpenDialog.EditDialog)}>編集</MenuItem>
+        <MenuItem onClick={() => handleOpenDialog(OpenDialog.DeleteDialog)}>削除</MenuItem>
       </Menu>
-      <Dialog open={openEdit} onClose={() => item.type !== ControlStyle.Empty && handleCloseEdit()}>
+      <Dialog open={openEditDialog} onClose={() => item.type !== ControlStyle.Empty && handleCloseDialog()}>
         <DialogContent>
           <Stack
             direction="column"
@@ -141,6 +202,54 @@ const SheetPageControl = (props: SheetPageControlProps) => {
                 onChange={(e) => handleChange("label", e.target.value)}
                 />
             </FormControl>
+
+
+            <FormControl>
+              <FormLabel>Icon</FormLabel>
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleChangeIcon}
+                ref={inputFileRef}
+                />
+
+              <Card>
+                <CardActionArea
+                  onClick={(e) => handleOpenMenu(OpenMenu.IconMenu, e.currentTarget)}
+                >
+                  <CardMedia
+                    component="img"
+                    image={iconSrc}
+                    ref={previewIconRef}
+                    alt=""
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      objectFit: "contain",
+                    }}
+                    />
+                </CardActionArea>
+              </Card>
+              <Menu
+                open={openIconMenu}
+                onClose={handleCloseMenu}
+                anchorEl={anchorRef.current}
+              >
+                <MenuItem onClick={() => inputFileRef.current?.click()}>
+                  <ListItemIcon>
+                    <InputIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Change" />
+                </MenuItem>
+                <MenuItem onClick={() => handleOpenDialog(OpenDialog.DeleteDialog)}>
+                  <ListItemIcon>
+                    <DeleteForeverIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Remove" />
+                </MenuItem>
+              </Menu>
+            </FormControl>
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -148,13 +257,13 @@ const SheetPageControl = (props: SheetPageControlProps) => {
             variant="outlined"
             color="primary"
             sx={{ textTransform: "none" }}
-            onClick={handleCloseEdit}
+            onClick={handleCloseDialog}
             >
             Close
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
+      <Dialog open={openDeleteDialog} onClose={() => handleOpenDialog(OpenDialog.None)}>
         <DialogContent>
           <DialogContentText>
             このコントロールを削除しますか？
@@ -166,14 +275,14 @@ const SheetPageControl = (props: SheetPageControlProps) => {
             color="error"
             onClick={() => {
               props.deleteItem?.();
-              setOpenDelete(false);
+              handleOpenDialog(OpenDialog.None)
             }}
           >
             削除
           </Button>
           <Button
             variant="outlined"
-            onClick={() => setOpenDelete(false)}
+            onClick={() => handleOpenDialog(OpenDialog.None)}
           >
             キャンセル
           </Button>
@@ -468,4 +577,60 @@ export default function Sheets() {
       )}
     </Stack>
   );
+}
+
+
+
+
+
+async function createTempIcon(icon: ArrayBuffer, filename: string) {
+
+  const tempname = `${filename}.tmp`;
+  const savePath = `${iconsRoot}/${tempname}`;
+
+  await fs.createDir(iconsRoot, { recursive: true, dir: fs.BaseDirectory.AppCache });
+
+  if (await fs.exists(savePath, { dir: fs.BaseDirectory.AppCache })) {
+    await fs.removeFile(savePath, { dir: fs.BaseDirectory.AppCache });
+  }
+
+  await fs.writeBinaryFile(savePath, new Uint8Array(icon), { dir: fs.BaseDirectory.AppCache, append: false });
+}
+
+async function commitCreateTempIcon(filename: string) {
+
+  const config = {
+    dir: fs.BaseDirectory.AppCache
+  }
+
+  const tempname = `${filename}.tmp`;
+
+  // exit if temp file does not exist
+  if (!await fs.exists(`${iconsRoot}/${tempname}`, config)) {
+    return;
+  }
+
+  // exit if file already exists
+  if (await fs.exists(`${iconsRoot}/${filename}`, config)) {
+    await fs.removeFile(`${iconsRoot}/${filename}`, config);
+  }
+
+  await fs.renameFile(`${iconsRoot}/${tempname}`, `${iconsRoot}/${filename}`, config);
+}
+
+async function deleteIcon(filename: string) {
+
+  const config = {
+    dir: fs.BaseDirectory.AppCache
+  }
+
+  const savePath = `${iconsRoot}/${filename}`;
+
+  if (await fs.exists(savePath, config)) {
+    await fs.removeFile(savePath, config);
+  }
+
+  if (await fs.exists(`${savePath}.tmp`, config)) {
+    await fs.removeFile(`${savePath}.tmp`, config);
+  }
 }
