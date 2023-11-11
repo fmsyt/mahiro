@@ -33,6 +33,7 @@ pub struct ClientSheetItem {
 pub struct ClientSheetItemDelta {
     pub action: String,
     pub value: Option<String>,
+    pub icon: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -163,7 +164,7 @@ impl Convert for SheetItem {
         let control = control_option.unwrap();
 
         let value = control.get_value();
-        let icon = match control.icon {
+        let _icon = match control.icon {
             Some(ref i) => Some(i.clone()),
             None => None,
         };
@@ -174,7 +175,7 @@ impl Convert for SheetItem {
             label: self.label.clone(),
             disabled: Some(false),
             value,
-            icon,
+            icon: self.icon.clone(),
         }
 
     }
@@ -291,6 +292,7 @@ impl ReceiveWebSocketClientMessage for State {
             delta = Some(ClientSheetItemDelta {
                 action: control_id.clone(),
                 value,
+                icon: None,
             });
         }
 

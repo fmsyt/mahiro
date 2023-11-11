@@ -72,6 +72,7 @@ impl SheetItemActionTrait<String> for SheetItemAction<String> {
 pub struct SheetItem {
     pub action: Option<SheetItemAction<String>>,
     pub label: Option<String>,
+    pub icon: Option<String>,
     pub r#type: String,
     pub disabled: Option<bool>,
 }
