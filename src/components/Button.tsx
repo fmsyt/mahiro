@@ -3,7 +3,7 @@ import { Box, Card, CardActionArea, CardMedia, Typography } from "@mui/material"
 import { EmitControllerProps } from "../interface";
 
 import logo from "../logo.svg";
-import { Events } from "../enum";
+import { ActionEvent } from "../enum";
 import useIcon from "../icon/useIcon";
 
 const Button = (props: EmitControllerProps) => {
@@ -19,17 +19,17 @@ const Button = (props: EmitControllerProps) => {
       return {}
     }
 
-    const action = sheetItem.control_id || "";
+    const action = sheetItem.action;
     if (!action) {
       return {}
     }
 
     return {
       onMouseUp: () => {
-        emit({ action, event: Events.keyUp })
+        emit({ action: action[ActionEvent.keyUp], event: ActionEvent.keyUp })
       },
     }
-  }, [disabled, emit, sheetItem.control_id]);
+  }, [disabled, emit, sheetItem.action]);
 
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
 

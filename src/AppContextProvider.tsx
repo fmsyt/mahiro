@@ -62,7 +62,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = (props) => {
             (acc, page) => {
 
             const items = page.items.map((item) => {
-              if (item.control_id !== data.control_id) {
+              if (item.action.key_up !== data.control_id) {
                 return item;
               }
 

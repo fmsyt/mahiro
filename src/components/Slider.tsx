@@ -2,7 +2,7 @@ import { useMemo, useRef } from "react";
 import { Slider as MuiSlider, Paper, Stack, styled, Typography } from "@mui/material";
 
 import { EmitControllerProps } from "../interface";
-import { Events } from "../enum";
+import { ActionEvent } from "../enum";
 
 const sliderSize = "100%";
 const BoldSlider = styled(MuiSlider)(({ theme: _ }) => ({
@@ -68,7 +68,7 @@ const Slider = (props: EmitControllerProps) => {
       return;
     }
 
-    if (!sheetItem.control_id) {
+    if (!sheetItem.action) {
       return;
     }
 
@@ -76,8 +76,8 @@ const Slider = (props: EmitControllerProps) => {
     setTimeout(() => { isActiveRef.current = false }, 100);
 
     emit({
-      action: sheetItem.control_id,
-      event: Events.keyUp,
+      action: sheetItem.action[ActionEvent.keyUp],
+      event: ActionEvent.keyUp,
       context: JSON.stringify(value)
     })
   }
@@ -88,15 +88,15 @@ const Slider = (props: EmitControllerProps) => {
       return;
     }
 
-    if (!sheetItem.control_id) {
+    if (!sheetItem.action) {
       return;
     }
 
     const value = Number(sliderRef.current.value);
 
     emit({
-      action: sheetItem.control_id,
-      event: Events.keyUp,
+      action: sheetItem.action[ActionEvent.keyUp],
+      event: ActionEvent.keyUp,
       context: JSON.stringify(value)
     })
   }
@@ -107,7 +107,7 @@ const Slider = (props: EmitControllerProps) => {
       return;
     }
 
-    if (!sheetItem.control_id) {
+    if (!sheetItem.action) {
       return;
     }
 

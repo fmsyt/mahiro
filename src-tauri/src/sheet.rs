@@ -8,6 +8,8 @@ use serde::{
     Deserialize
 };
 
+use crate::client::ActionEvents;
+
 
 // pub enum SheetItemType {
 //     Button(String),
@@ -17,9 +19,60 @@ use serde::{
 
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SheetItemAction<T> {
+    pub key_down: Option<T>,
+    pub key_up: Option<T>,
+    pub touch_tap: Option<T>,
+    pub dial_down: Option<T>,
+    pub dial_up: Option<T>,
+    pub dial_rotate: Option<T>,
+    pub will_appear: Option<T>,
+    pub will_disappear: Option<T>,
+    pub title_parameters_did_change: Option<T>,
+    pub device_did_connect: Option<T>,
+    pub device_did_disconnect: Option<T>,
+    pub application_did_launch: Option<T>,
+    pub application_did_terminate: Option<T>,
+    pub system_did_wake_up: Option<T>,
+    pub property_inspector_did_appear: Option<T>,
+    pub property_inspector_did_disappear: Option<T>,
+    pub send_to_plugin: Option<T>,
+}
+
+pub trait SheetItemActionTrait<T> {
+    fn get(&self, action: ActionEvents) -> Option<T>;
+}
+
+impl SheetItemActionTrait<String> for SheetItemAction<String> {
+    fn get(&self, action: ActionEvents) -> Option<String> {
+        match action {
+            ActionEvents::KeyDown => self.key_down.clone(),
+            ActionEvents::KeyUp => self.key_up.clone(),
+            ActionEvents::TouchTap => self.touch_tap.clone(),
+            ActionEvents::DialDown => self.dial_down.clone(),
+            ActionEvents::DialUp => self.dial_up.clone(),
+            ActionEvents::DialRotate => self.dial_rotate.clone(),
+            ActionEvents::WillAppear => self.will_appear.clone(),
+            ActionEvents::WillDisappear => self.will_disappear.clone(),
+            ActionEvents::TitleParametersDidChange => self.title_parameters_did_change.clone(),
+            ActionEvents::DeviceDidConnect => self.device_did_connect.clone(),
+            ActionEvents::DeviceDidDisconnect => self.device_did_disconnect.clone(),
+            ActionEvents::ApplicationDidLaunch => self.application_did_launch.clone(),
+            ActionEvents::ApplicationDidTerminate => self.application_did_terminate.clone(),
+            ActionEvents::SystemDidWakeUp => self.system_did_wake_up.clone(),
+            ActionEvents::PropertyInspectorDidAppear => self.property_inspector_did_appear.clone(),
+            ActionEvents::PropertyInspectorDidDisappear => self.property_inspector_did_disappear.clone(),
+            ActionEvents::SendToPlugin => self.send_to_plugin.clone(),
+        }
+    }
+}
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SheetItem {
-    pub control_id: Option<String>,
+    pub action: Option<SheetItemAction<String>>,
     pub label: Option<String>,
+    pub icon: Option<String>,
     pub r#type: String,
     pub disabled: Option<bool>,
 }
