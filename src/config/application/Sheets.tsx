@@ -47,7 +47,7 @@ enum OpenMenu {
 
 const SheetPageControl = (props: SheetPageControlProps) => {
 
-  const { control, controls, defaultItem, onChange } = props;
+  const { controls, defaultItem, onChange } = props;
   const [openDialog, setOpenDialog] = useState(OpenDialog.None);
   const [openMenu, setMenu] = useState(OpenMenu.None);
 
