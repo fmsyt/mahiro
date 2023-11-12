@@ -7,7 +7,6 @@ import { md5 } from "js-md5";
 import AddIcon from '@mui/icons-material/Add';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ErrorIcon from '@mui/icons-material/Error';
 import InputIcon from '@mui/icons-material/Input';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import SaveIcon from '@mui/icons-material/Save';
@@ -19,6 +18,9 @@ import saveSheets from "../saveSheets";
 import { Control } from "../../Control";
 import { iconsRoot } from "../../path";
 import useIcon from "../../icon/useIcon";
+
+import i18n from "../../i18n/config";
+const t = i18n.t;
 
 
 interface SheetPageControlProps {
@@ -83,7 +85,6 @@ const SheetPageControl = (props: SheetPageControlProps) => {
 
 
   const [item, setItem] = useState<ConfigSheetItemProps>(defaultItem);
-  const isError = item.type !== ControlStyle.Empty && !control;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = useCallback((key: string, value: any) => {
@@ -139,9 +140,6 @@ const SheetPageControl = (props: SheetPageControlProps) => {
         variant="outlined"
         disabled={item.disabled}
         onClick={(e) => handleOpenMenu(OpenMenu.EditMenu, e.currentTarget)}
-        startIcon={isError && (
-          <ErrorIcon color="error" />
-        )}
         sx={{ textTransform: "none", padding: 0 }}
       >
         <Control
@@ -175,20 +173,6 @@ const SheetPageControl = (props: SheetPageControlProps) => {
               >
                 {Object.keys(ControlStyle).map((key) => (
                   <MenuItem key={key} value={key.toLowerCase()}>{key}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl>
-              <FormLabel>Control</FormLabel>
-              <Select
-                value={control?.id || ""}
-                variant="standard"
-                disabled={item.type === ControlStyle.Empty}
-                onChange={(e) => handleChange("control_id", e.target.value)}
-              >
-                {controls.map((control, index) => (
-                  <MenuItem key={index} value={control.id}>{control.id}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -251,11 +235,23 @@ const SheetPageControl = (props: SheetPageControlProps) => {
               </Menu>
             </FormControl>
 
-            {import.meta.env.DEV && (
-              <Box sx={{ flexGrow: 1, overflow: "auto" }}>
-                <pre>{JSON.stringify(item, null, 2)}</pre>
-              </Box>
-            )}
+
+            <FormControl>
+              <FormLabel>{t("action.key_up")}</FormLabel>
+                <Select
+                  value={defaultItem.action?.key_up || ""}
+                  variant="standard"
+                  onChange={(e) => handleChange("action", { ...item.action, key_up: e.target.value })}
+                >
+                  <MenuItem value="">None</MenuItem>
+                  {controls.map((control) => (
+                    <MenuItem key={control.id} value={control.id}>
+                      <ListItemText primary={control.id} secondary={control.description} />
+                    </MenuItem>
+                  ))}
+                </Select>
+            </FormControl>
+
 
           </Stack>
         </DialogContent>
@@ -407,8 +403,6 @@ export default function Sheets() {
     if (!sheets) {
       return;
     }
-
-    console.log("handleSave", sheets);
 
     const promises = sheets.map((sheet) => {
       const list = sheet.items
@@ -612,8 +606,6 @@ async function createTempIcon(icon: ArrayBuffer, filename: string) {
   const tempname = `${filename}.tmp`;
   const savePath = `${iconsRoot}/${tempname}`;
 
-  console.info("createTempIcon", savePath);
-
   await fs.createDir(iconsRoot, { recursive: true, dir: fs.BaseDirectory.AppCache });
 
   if (await fs.exists(savePath, { dir: fs.BaseDirectory.AppCache })) {
@@ -642,21 +634,4 @@ async function commitCreateTempIcon(filename: string) {
   }
 
   await fs.renameFile(`${iconsRoot}/${tempname}`, `${iconsRoot}/${filename}`, config);
-}
-
-async function deleteIcon(filename: string) {
-
-  const config = {
-    dir: fs.BaseDirectory.AppCache
-  }
-
-  const savePath = `${iconsRoot}/${filename}`;
-
-  if (await fs.exists(savePath, config)) {
-    await fs.removeFile(savePath, config);
-  }
-
-  if (await fs.exists(`${savePath}.tmp`, config)) {
-    await fs.removeFile(`${savePath}.tmp`, config);
-  }
 }

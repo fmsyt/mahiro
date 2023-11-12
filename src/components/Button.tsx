@@ -3,7 +3,7 @@ import { Box, Card, CardActionArea, CardMedia, Typography } from "@mui/material"
 import { EmitControllerProps } from "../interface";
 
 import logo from "../logo.svg";
-import { Events } from "../enum";
+import { ActionEvent } from "../enum";
 import useIcon from "../icon/useIcon";
 
 const Button = (props: EmitControllerProps) => {
@@ -26,7 +26,7 @@ const Button = (props: EmitControllerProps) => {
 
     return {
       onMouseUp: () => {
-        emit({ action: action[Events.keyUp], event: Events.keyUp })
+        emit({ action: action[ActionEvent.keyUp], event: ActionEvent.keyUp })
       },
     }
   }, [disabled, emit, sheetItem.action]);

@@ -17,6 +17,26 @@
     "empty": "空"
   },
 
+  "action": {
+    "key_down": "押し込まれたとき",
+    "key_up": "離されたとき",
+    "touch_tap": "クリックしたとき",
+    "dial_down": "下がるとき",
+    "dial_up": "上がるとき",
+    "dial_rotate": "1週したとき",
+    "will_appear": "表示されるとき",
+    "will_disappear": "非表示になるとき",
+    "title_parameters_did_change": "パラメータが変更されたとき",
+    "device_did_connect": "デバイスが接続されたとき",
+    "device_did_disconnect": "デバイスが切断されたとき",
+    "application_did_launch": "アプリケーションが起動したとき",
+    "application_did_terminate": "アプリケーションが終了したとき",
+    "system_did_wake_up": "システムが起動したとき",
+    "property_inspector_did_appear": "",
+    "property_inspector_did_disappear": "",
+    "send_to_plugin": ""
+  },
+
   "window": {
     "config": {
       "application": "アプリケーション",

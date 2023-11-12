@@ -5,5 +5,20 @@
   "cSpell.words": [
     "consts",
     "Keybd"
-  ]
+  ],
+  "search.exclude": {
+    "/tauri.dist": true,
+    "/src-tauri/static": true,
+    "/src-tauri/target": true,
+  },
+  "files.watcherExclude": {
+    "/tauri.dist": true,
+    "/src-tauri/static": true,
+    "/src-tauri/target": true,
+  },
+  "files.exclude": {
+    "/tauri.dist": true,
+    "/src-tauri/static": true,
+    "/src-tauri/target": true,
+  }
 }

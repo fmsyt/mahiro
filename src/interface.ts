@@ -1,6 +1,7 @@
 'use strict'
 
-import { Events } from "./enum";
+import { ActionEvent as SheetItemActionKeys } from "./enum";
+type SheetItemActionKeys = typeof SheetItemActionKeys[keyof typeof SheetItemActionKeys];
 
 export enum ControlStyle {
   Button = "button",
@@ -166,6 +167,9 @@ export interface ConfigSheetItemProps {
   type: ControlStyle;
   disabled?: boolean;
   icon?: string;
+  action?: {
+    [key in SheetItemActionKeys]?: string;
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -236,7 +240,7 @@ export function isTypeOfSheet(data: any): data is ConfigSheetProps {
 
 export interface SheetItemProps {
   action?: {
-    [key: string]: string | undefined;
+    [key in SheetItemActionKeys]?: string;
   };
   style: ControlStyle;
   label?: string | null;
@@ -453,7 +457,7 @@ export function isTypeOfPageProps(data: any): data is PageProps {
 }
 export interface EmitTypes {
   action: string;
-  event: Events;
+  event: SheetItemActionKeys;
   context?: number | string;
   payload?: {
     coordinates?: {
