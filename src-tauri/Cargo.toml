@@ -1,8 +1,8 @@
 [package]
 name = "mahiro"
-version = "0.9.0"
+version = "0.0.0"
 description = "mahiro"
-authors = ["you"]
+authors = ["fmsyt"]
 license = ""
 repository = "https://github.com/fmsyt/mahiro"
 edition = "2021"
