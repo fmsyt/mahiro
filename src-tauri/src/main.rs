@@ -92,18 +92,7 @@ fn main() {
         .system_tray(create_systemtray())
         .on_system_tray_event(handle_systemtray)
         .setup(|app: &mut tauri::App| {
-            let window = app.get_window("main").unwrap();
-            window.show().unwrap();
-
-            #[cfg(debug_assertions)]
-            {
-                window.open_devtools();
-                window.close_devtools();
-            }
-
-            // let _config_window = app.get_window("config").unwrap();
             let config_directory_path = app.path_resolver();
-
             tauri::async_runtime::spawn(server::start(config_directory_path));
 
             Ok(())

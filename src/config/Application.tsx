@@ -8,6 +8,9 @@ import ThemeContext from "../ThemeContext";
 import { Button, ButtonGroup, Checkbox, Container, FormControl, FormControlLabel, FormHelperText, FormLabel, Stack, Tooltip, Typography } from "@mui/material";
 
 import { enable, isEnabled, disable } from "tauri-plugin-autostart-api";
+import { WebviewWindow } from "@tauri-apps/api/window";
+
+const mainWindow = WebviewWindow.getByLabel("main");
 
 /**
  * General tab for the config app.
@@ -24,6 +27,7 @@ export default function Application(): JSX.Element {
 
   const { themeMode, setThemeMode } = useContext(ThemeContext);
   const [isAutoStart, setIsAutoStart] = useState<boolean | null>(null);
+  const [isTopMost, setIsTopMost] = useState<boolean | null>(null);
 
   useLayoutEffect(() => {
 
@@ -51,6 +55,17 @@ export default function Application(): JSX.Element {
     } else {
       await disable();
       setIsAutoStart(false);
+    }
+  }
+
+  const handleChangeTopMost = async (toEnable: boolean) => {
+    setIsTopMost(null);
+    if (toEnable) {
+      await mainWindow.setAlwaysOnTop(true);
+      setIsTopMost(true);
+    } else {
+      await mainWindow.setAlwaysOnTop(false);
+      setIsTopMost(false);
     }
   }
 
@@ -96,13 +111,18 @@ export default function Application(): JSX.Element {
           </ButtonGroup>
         </FormControl>
 
-        {/* <FormControl>
+        <FormControl>
           <FormLabel>最前面に表示</FormLabel>
           <FormControlLabel
             label="最前面に表示する"
-            control={<Checkbox />}
+            control={(
+              <Checkbox
+                checked={isTopMost === true}
+                onChange={(e) => { handleChangeTopMost(e.target.checked) }}
+                />
+            )}
             />
-        </FormControl> */}
+        </FormControl> 
         <FormControl>
           <FormLabel>自動実行</FormLabel>
           <FormControlLabel

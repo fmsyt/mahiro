@@ -3299,7 +3299,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-autostart"
 version = "0.0.0"
-source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#68d77f999c72fd260b86ff57f8fd64755de04361"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#aeca2d0d872f6c26a960f80db074abad3fb3f50d"
 dependencies = [
  "auto-launch",
  "log",
@@ -3312,7 +3312,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-log"
 version = "0.0.0"
-source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#68d77f999c72fd260b86ff57f8fd64755de04361"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#aeca2d0d872f6c26a960f80db074abad3fb3f50d"
 dependencies = [
  "byte-unit",
  "fern",
@@ -3327,7 +3327,7 @@ dependencies = [
 [[package]]
 name = "tauri-plugin-websocket"
 version = "0.0.0"
-source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#68d77f999c72fd260b86ff57f8fd64755de04361"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#aeca2d0d872f6c26a960f80db074abad3fb3f50d"
 dependencies = [
  "futures-util",
  "log",

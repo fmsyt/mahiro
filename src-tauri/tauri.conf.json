@@ -34,6 +34,9 @@
         "assetScope": [
           "$APPLOCALDATA/uploads/icons/*"
         ]
+      },
+      "window": {
+        "setAlwaysOnTop": true
       }
     },
     "bundle": {
@@ -68,7 +71,7 @@
         "width": 800,
         "height": 600,
         "url": "tauri.html",
-        "visible": false
+        "visible": true
       },
       {
         "label": "config",
