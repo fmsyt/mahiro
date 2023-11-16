@@ -102,7 +102,6 @@ async fn handle_socket(stream: WebSocket, app_state: GlobalAppState) {
         }
     });
 
-
     tokio::select! {
         _ = (&mut send_task) => recv_task.abort(),
         _ = (&mut recv_task) => send_task.abort(),
@@ -132,9 +131,8 @@ fn websocket_process(app_state: &GlobalAppState, message: Message) {
                     }
 
                     let data = json.data.unwrap();
-                    let state = app_state;
 
-                    let emit_result = state.client.emit(data.action, data.event, data.context, data.payload);
+                    let emit_result = app_state.client.emit(data.action, data.event, data.context, data.payload);
                     if let Err(e) = emit_result {
                         eprintln!("Error: {}", e);
                         return;
@@ -146,23 +144,19 @@ fn websocket_process(app_state: &GlobalAppState, message: Message) {
                     }
 
                     let delta = option_delta.unwrap();
-
-                    let tx = state.tx.clone();
                     let send_text = serde_json::to_string(&SendSheetItemUpdateMessage::from(delta)).unwrap();
 
+                    let tx = app_state.tx.clone();
                     tx.send(send_text).unwrap();
 
                 }
                 "general.update" => {
                 }
                 "sheets.update" => {
-                    let state = app_state;
-
-                    let tx = state.tx.clone();
-
-                    let message = state.client.sheets_update();
-
+                    let message = app_state.client.sheets_update();
                     let send_text = serde_json::to_string(&message).unwrap();
+
+                    let tx = app_state.tx.clone();
                     tx.send(send_text).unwrap();
 
                     // let peer = state.peer_map.get(&addr).unwrap();
