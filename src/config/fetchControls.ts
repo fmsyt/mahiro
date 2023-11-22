@@ -1,19 +1,15 @@
 import { fs } from "@tauri-apps/api";
 import { isTypeOfConfigControl } from "../interface";
-import { BaseDirectory, FsOptions } from "@tauri-apps/api/fs";
-
-const fsOptions: FsOptions = {
-  dir: BaseDirectory.AppLocalData,
-}
+import { controlsFsOptions } from "./controls";
 
 const fetchControls = async () => {
-  const isExists = await fs.exists("controls.json", fsOptions);
+  const isExists = await fs.exists("controls.json", controlsFsOptions);
 
   if (!isExists) {
-    await fs.writeFile("controls.json", "[]", fsOptions);
+    await fs.writeFile("controls.json", "[]", controlsFsOptions);
   }
 
-  const text = await fs.readTextFile("controls.json", fsOptions);
+  const text = await fs.readTextFile("controls.json", controlsFsOptions);
   const json = JSON.parse(text);
 
   if (Array.isArray(json) && json.every(isTypeOfConfigControl)) {
