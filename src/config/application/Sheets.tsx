@@ -309,7 +309,7 @@ export default function Sheets() {
 
   const pageIndex = page - 1;
 
-  const [columns, setColumns] = useState(sheets?.[pageIndex].columns || 4);
+  const [columns, setColumns] = useState(sheets?.[pageIndex]?.columns || 4);
 
   useLayoutEffect(() => {
 
@@ -445,67 +445,67 @@ export default function Sheets() {
           )}
 
 
-          {!!sheets?.[pageIndex] && (
-            <Stack direction="column" gap={2} justifyContent="center" alignItems="start">
-              <Paper sx={{ width: "100%", padding: 2 }}>
-                <Stack direction="row" justifyContent="space-around" width="100%">
-                  <Stack gap={1} direction="row" justifyContent="flex-start" alignItems="center" width="100%">
-                    <FormLabel htmlFor="select-page">Page:</FormLabel>
-                    <TextField
-                      select
-                      id="select-page"
-                      value={page}
-                      variant="outlined"
-                      size="small"
-                      onChange={(e) => handlePageChange(Number(e.target.value))}
-                    >
-                      {Array(sheets.length).fill(0).map((_, index) => (
-                        <MenuItem key={index} value={index + 1}>{index + 1}</MenuItem>
-                      ))}
-                    </TextField>
-                    <Button
-                      color="primary"
-                      variant="outlined"
-                      onClick={addPage}
-                      startIcon={<AddCircleOutlineIcon />}
-                    >
-                      ページを追加
-                    </Button>
-                  </Stack>
-
-                  <Tooltip title="Delete this page">
-                    <Button
-                      color="secondary"
-                      variant="outlined"
-                      startIcon={<DeleteIcon />}
-                      sx={{
-                        textTransform: "none",
-                        "&:hover": {
-                          color: "error.main",
-                          borderColor: "error.main",
-                        }
-                      }}
-                      onClick={() => setOpenDeletePageDialog(true)}
-                    >
-                      Delete
-                    </Button>
-                  </Tooltip>
-                </Stack>
-              </Paper>
-
-              <Paper sx={{ width: "100%", padding: 2 }}>
-                <Stack gap={2} direction="column" width="100%" justifyContent="center" alignItems="start">
+          <Stack direction="column" gap={2} justifyContent="center" alignItems="start">
+            <Paper sx={{ width: "100%", padding: 2 }}>
+              <Stack direction="row" justifyContent="space-around" width="100%">
+                <Stack gap={1} direction="row" justifyContent="flex-start" alignItems="center" width="100%">
+                  <FormLabel htmlFor="select-page">Page:</FormLabel>
                   <TextField
-                    label="Columns"
-                    value={columns}
-                    variant="standard"
-                    inputProps={{
-                      type: "number",
-                      min: 1,
-                    }}
-                    onChange={(e) => setColumns(Number(e.target.value))}
-                    />
+                    select
+                    id="select-page"
+                    value={page}
+                    variant="outlined"
+                    size="small"
+                    onChange={(e) => handlePageChange(Number(e.target.value))}
+                  >
+                    {Array(sheets.length).fill(0).map((_, index) => (
+                      <MenuItem key={index} value={index + 1}>{index + 1}</MenuItem>
+                    ))}
+                  </TextField>
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    onClick={addPage}
+                    startIcon={<AddCircleOutlineIcon />}
+                  >
+                    ページを追加
+                  </Button>
+                </Stack>
 
+                <Tooltip title="Delete this page">
+                  <Button
+                    color="secondary"
+                    variant="outlined"
+                    startIcon={<DeleteIcon />}
+                    sx={{
+                      textTransform: "none",
+                      "&:hover": {
+                        color: "error.main",
+                        borderColor: "error.main",
+                      }
+                    }}
+                    onClick={() => setOpenDeletePageDialog(true)}
+                  >
+                    Delete
+                  </Button>
+                </Tooltip>
+              </Stack>
+            </Paper>
+
+            <Paper sx={{ width: "100%", padding: 2 }}>
+              <Stack gap={2} direction="column" width="100%" justifyContent="center" alignItems="start">
+                <TextField
+                  label="Columns"
+                  value={columns}
+                  variant="standard"
+                  inputProps={{
+                    type: "number",
+                    min: 1,
+                  }}
+                  onChange={(e) => setColumns(Number(e.target.value))}
+                  />
+
+                {!!sheets?.[pageIndex] && (
                   <Box
                     gap={2}
                     sx={{
@@ -515,7 +515,7 @@ export default function Sheets() {
                       gridTemplateColumns: `repeat(${columns}, 1fr)`,
                       gridTemplateRows: `repeat(${Math.ceil(sheets[pageIndex].items.length / columns)}, 1fr)`
                     }}>
-                    {sheets[pageIndex].items.map((item, index) => (
+                    {sheets.length > 0 && sheets[pageIndex].items.map((item, index) => (
                       <SheetPageControl
                         key={`${pageIndex * 10000 + index}.${item.control_id}`}
                         control={findControl(item.control_id)}
@@ -533,10 +533,12 @@ export default function Sheets() {
                       <AddIcon />
                     </Button>
                   </Box>
-                </Stack>
-              </Paper>
-            </Stack>
-          )}
+                )}
+
+
+              </Stack>
+            </Paper>
+          </Stack>
 
           <Dialog open={openSaveDialog} onClose={() => setOpenSaveDialog(false)}>
             <DialogContent>
