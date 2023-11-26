@@ -1,4 +1,4 @@
-use std::{path::PathBuf, fmt::Display};
+use std::{path::PathBuf, fmt::Display, collections::HashMap};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -27,6 +27,7 @@ pub struct ClientSheetItem {
     disabled: Option<bool>,
     value: Option<String>,
     icon: Option<String>,
+    props: Option<HashMap<String, i32>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -128,6 +129,7 @@ impl Convert for SheetItem {
                 disabled: None,
                 value: None,
                 icon: None,
+                props: None,
             }
         }
 
@@ -158,16 +160,13 @@ impl Convert for SheetItem {
                 disabled: None,
                 value: None,
                 icon: None,
+                props: None,
             }
         }
 
         let control = control_option.unwrap();
 
         let value = control.get_value();
-        let _icon = match control.icon {
-            Some(ref i) => Some(i.clone()),
-            None => None,
-        };
 
         ClientSheetItem {
             style: self.r#type.clone(),
@@ -176,6 +175,7 @@ impl Convert for SheetItem {
             disabled: Some(false),
             value,
             icon: self.icon.clone(),
+            props: control.props.clone(),
         }
 
     }

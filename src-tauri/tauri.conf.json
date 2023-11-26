@@ -11,6 +11,15 @@
     "version": "0.9.3"
   },
   "tauri": {
+    "cli": {
+      "args": [
+        {
+          "name": "config",
+          "short": "c",
+          "takesValue": false
+        }
+      ]
+    },
     "allowlist": {
       "all": false,
       "shell": {

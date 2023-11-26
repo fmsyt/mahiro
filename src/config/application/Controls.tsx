@@ -1,18 +1,22 @@
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 
 import { fs } from "@tauri-apps/api";
 
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
-import { ConfigBrowserControlProps, ConfigCommandControlProps, ConfigControlProps, ConfigHotkeyControlProps, ConfigKeyboardControlProps, ControlType, isTypeOfConfigCommandControl } from "../../interface";
+import { ConfigControlProps, ControlType } from "../../interface";
 import fetchControls from "../fetchControls";
 import saveControls from "../saveControls";
 
 import { iconsRoot } from "../../path";
+
+import ControlAccordionBrowserDetails from "./ControlAccordionBrowserDetails";
+import ControlAccordionCommandDetails from "./ControlAccordionCommandDetails";
+import ControlAccordionHotkeyDetails from "./ControlAccordionHotkeyDetails";
+import ControlAccordionKeyboardDetails from "./ControlAccordionKeyboardDetails";
 
 const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
 
@@ -22,6 +26,11 @@ interface ControlAccordionProps {
   index: number;
   onSave?: (control: ConfigControlProps) => void;
   onRemove?: (control: ConfigControlProps) => void;
+}
+
+export interface ControlAccordionDetailsProps {
+  control: ConfigControlProps;
+  setControl: React.Dispatch<React.SetStateAction<ConfigControlProps>>;
 }
 
 const ControlAccordion = (props: ControlAccordionProps) => {
@@ -123,36 +132,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
 
 
   const handleSave = useCallback(() => {
-
-    const save = async () => {
-
-      const config = {
-        dir: fs.BaseDirectory.AppCache
-      }
-
-      const extention = inputFileExtensionRef.current;
-
-      const filename = `${control.id}.${extention}`;
-      const tempname = `${filename}.tmp`;
-
-      // exit if temp file does not exist
-      if (!await fs.exists(`${iconsRoot}/${tempname}`, config)) {
-        return;
-      }
-
-      // exit if file already exists
-      if (await fs.exists(`${iconsRoot}/${filename}`, config)) {
-        await fs.removeFile(`${iconsRoot}/${filename}`, config);
-      }
-
-      if (control.icon) {
-        await fs.renameFile(`${iconsRoot}/${tempname}`, `${iconsRoot}/${filename}`, config);
-      }
-
-      props.onSave?.(control);
-    }
-
-    save();
+    props.onSave?.(control);
 
   }, [control, props]);
 
@@ -335,195 +315,6 @@ const ControlAccordion = (props: ControlAccordionProps) => {
     </Accordion>
   )
 }
-
-interface ControlAccordionDetailsProps {
-  control: ConfigControlProps;
-  setControl: React.Dispatch<React.SetStateAction<ConfigControlProps>>;
-}
-
-const ControlAccordionBrowserDetails = (props: ControlAccordionDetailsProps) => {
-
-  const { control, setControl } = props;
-  const url = (control as ConfigBrowserControlProps).url || "";
-
-  return (
-    <FormControl>
-      <FormLabel>URL</FormLabel>
-      <TextField
-        defaultValue={url}
-        variant="standard"
-        onChange={(e) => setControl({ ...control, url: e.target.value })}
-        />
-    </FormControl>
-  )
-}
-
-const ControlAccordionCommandDetails = (props: ControlAccordionDetailsProps) => {
-
-  const { control, setControl } = props;
-  const commands = (control as ConfigCommandControlProps).commands || [];
-
-  const command = commands[0] || "";
-  const [, ...args] = commands || [];
-
-  const handleDeleteArgument = useCallback((index: number) => {
-
-    setControl((prev) => {
-
-      if (isTypeOfConfigCommandControl(prev)) {
-        const newCommands = [...prev.commands];
-        newCommands.splice(index + 1, 1);
-        return { ...prev, commands: newCommands };
-      }
-
-      return prev;
-    });
-
-  }, [setControl]);
-
-
-  return (
-    <Stack gap={2}>
-      <FormControl>
-        <FormLabel>Command</FormLabel>
-        <TextField
-          defaultValue={command}
-          variant="standard"
-          onChange={(e) => setControl({ ...control, command: e.target.value })}
-          />
-      </FormControl>
-      <FormControl>
-        <FormLabel>arguments</FormLabel>
-
-        <Stack gap={2} alignItems="flex-start">
-          {args.map((arg, index) => (
-            <Stack key={index} direction="row" gap={2}>
-              <TextField
-                key={index}
-                defaultValue={arg}
-                variant="standard"
-                onChange={(e) => {
-                  const newArgs = [...args];
-                  newArgs[index] = e.target.value;
-                  setControl({ ...control, commands: [command, ...newArgs] })
-                }}
-                />
-
-              <Tooltip title="この引数を削除">
-                <IconButton
-                  size="small"
-                  onClick={() => handleDeleteArgument(index)}
-                >
-                  <RemoveCircleIcon
-                    sx={{
-                      "&:hover": {
-                        color: "error.main",
-                        borderColor: "error.main",
-                      }
-                    }}
-                    />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          ))}
-
-          <Button
-            variant="outlined"
-            color="primary"
-            sx={{ textTransform: "none" }}
-            onClick={() => { setControl((prev) => ({ ...prev, commands: [command, ...args, ""] })) }}
-          >
-            Add argument
-          </Button>
-        </Stack>
-      </FormControl>
-    </Stack>
-  )
-}
-
-const ControlAccordionKeyboardDetails = (props: ControlAccordionDetailsProps) => {
-
-  const { control, setControl } = props;
-  const text = (control as ConfigKeyboardControlProps).text || "";
-
-  return (
-    <FormControl>
-      <FormLabel>Text</FormLabel>
-      <TextField
-        defaultValue={text}
-        variant="standard"
-        onChange={(e) => setControl({ ...control, key: e.target.value })}
-        />
-    </FormControl>
-  )
-}
-
-const ControlAccordionHotkeyDetails = (props: ControlAccordionDetailsProps) => {
-
-  const { control, setControl } = props;
-  const hotkeys = (control as ConfigHotkeyControlProps).hotkeys || [];
-
-  return (
-    <FormControl>
-      <FormLabel>Hotkey</FormLabel>
-
-      <Stack gap={2} alignItems="flex-start">
-        {hotkeys.map((hotkey, index) => (
-          <Stack
-            key={index}
-            direction="row"
-            gap={2}
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <TextField
-              key={index}
-              defaultValue={hotkey}
-              variant="standard"
-              onChange={(e) => {
-                const newHotkeys = [...hotkeys];
-                newHotkeys[index] = e.target.value;
-                setControl({ ...control, hotkeys: newHotkeys })
-              }}
-              />
-
-            <Tooltip title="このホットキーを削除">
-              <IconButton
-                size="small"
-                onClick={() => {
-                  const newHotkeys = [...hotkeys];
-                  newHotkeys.splice(index, 1);
-                  setControl({ ...control, hotkeys: newHotkeys })
-                }}
-              >
-                <RemoveCircleIcon
-                  sx={{
-                    "&:hover": {
-                      color: "error.main",
-                      borderColor: "error.main",
-                    }
-                  }}
-                  />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        ))}
-
-        <Button
-          variant="outlined"
-          color="primary"
-          sx={{ textTransform: "none" }}
-          onClick={() => { setControl((prev) => ({ ...prev, hotkeys: [...hotkeys, ""] })) }}
-          >
-          Add hotkey
-        </Button>
-      </Stack>
-
-    </FormControl>
-  )
-}
-
-
 
 export default function Controls() {
 
