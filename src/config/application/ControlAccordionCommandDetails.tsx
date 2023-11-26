@@ -1,31 +1,31 @@
-import { useCallback } from "react";
 import { Button, FormControl, FormLabel, IconButton, Stack, TextField, Tooltip } from "@mui/material";
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
-import { ConfigCommandControlProps, isTypeOfConfigCommandControl } from "../../interface";
+import { ConfigCommandControlProps } from "../../interface";
 import { ControlAccordionDetailsProps } from "./Controls";
 
 export default function ControlAccordionCommandDetails(props: ControlAccordionDetailsProps) {
 
-  const { control, setControl } = props;
+  const { control, onChange } = props;
   const commands = (control as ConfigCommandControlProps).commands || [];
 
   const command = commands[0] || "";
   const [, ...args] = commands || [];
 
-  const handleDeleteArgument = useCallback((index: number) => {
+  const handleDeleteArgument = (index: number) => {
 
-    setControl((prev) => {
+    const newCommands = [...commands];
+    newCommands.splice(index, 1);
 
-      if (isTypeOfConfigCommandControl(prev)) {
-        const newCommands = [...prev.commands];
-        newCommands.splice(index + 1, 1);
-        return { ...prev, commands: newCommands };
-      }
+    onChange("commands", newCommands);
+  }
 
-      return prev;
-    });
+  const handleChangeParameter = (index: number, value: string) => {
+    const newCommands = [...commands];
+    newCommands[index] = value;
 
-  }, [setControl]);
+    onChange("commands", newCommands);
+  }
+
 
 
   return (
@@ -35,7 +35,8 @@ export default function ControlAccordionCommandDetails(props: ControlAccordionDe
         <TextField
           defaultValue={command}
           variant="standard"
-          onChange={(e) => setControl({ ...control, command: e.target.value })} />
+          onChange={(e) => handleChangeParameter(0, e.target.value) }
+          />
       </FormControl>
       <FormControl>
         <FormLabel>arguments</FormLabel>
@@ -50,13 +51,13 @@ export default function ControlAccordionCommandDetails(props: ControlAccordionDe
                 onChange={(e) => {
                   const newArgs = [...args];
                   newArgs[index] = e.target.value;
-                  setControl({ ...control, commands: [command, ...newArgs] });
+                  handleChangeParameter(index + 1, e.target.value);
                 } } />
 
               <Tooltip title="この引数を削除">
                 <IconButton
                   size="small"
-                  onClick={() => handleDeleteArgument(index)}
+                  onClick={() => handleDeleteArgument(index + 1)}
                 >
                   <RemoveCircleIcon
                     sx={{
@@ -74,7 +75,7 @@ export default function ControlAccordionCommandDetails(props: ControlAccordionDe
             variant="outlined"
             color="primary"
             sx={{ textTransform: "none" }}
-            onClick={() => { setControl((prev) => ({ ...prev, commands: [command, ...args, ""] })); } }
+            onClick={() => onChange("commands", [...commands, ""])}
           >
             Add argument
           </Button>

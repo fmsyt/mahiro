@@ -4,7 +4,7 @@ import { ControlAccordionDetailsProps } from "./Controls";
 
 export default function ControlAccordionKeyboardDetails(props: ControlAccordionDetailsProps) {
 
-  const { control, setControl } = props;
+  const { control, onChange } = props;
   const text = (control as ConfigKeyboardControlProps).text || "";
 
   return (
@@ -13,7 +13,8 @@ export default function ControlAccordionKeyboardDetails(props: ControlAccordionD
       <TextField
         defaultValue={text}
         variant="standard"
-        onChange={(e) => setControl({ ...control, key: e.target.value })} />
+        onChange={(e) => onChange("text", e.target.value || undefined)}
+        />
     </FormControl>
   );
 }

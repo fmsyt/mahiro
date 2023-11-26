@@ -30,12 +30,12 @@ interface ControlAccordionProps {
 
 export interface ControlAccordionDetailsProps {
   control: ConfigControlProps;
-  setControl: React.Dispatch<React.SetStateAction<ConfigControlProps>>;
+  onChange: (key: keyof ConfigControlProps, value: unknown) => void;
 }
 
 const ControlAccordion = (props: ControlAccordionProps) => {
 
-  const { index, initialControl, onRemove } = props;
+  const { index, initialControl, onRemove, onSave } = props;
   const [control, setControl] = useState<ConfigControlProps>(initialControl);
 
   const inputFileExtensionRef = useRef<string>(null);
@@ -129,12 +129,10 @@ const ControlAccordion = (props: ControlAccordionProps) => {
   }, []);
 
 
-
-
-  const handleSave = useCallback(() => {
-    props.onSave?.(control);
-
-  }, [control, props]);
+  const handleSave = useCallback(() => onSave?.(control), [control, onSave]);
+  const handleDetailsChange = useCallback((key: keyof ConfigControlProps, value: unknown) => {
+    setControl((prev) => ({ ...prev, [key]: value }));
+  }, []);
 
   return (
     <Accordion key={index}>
@@ -215,28 +213,28 @@ const ControlAccordion = (props: ControlAccordionProps) => {
           {control.type === ControlType.Browser && (
             <ControlAccordionBrowserDetails
               control={control}
-              setControl={setControl}
+              onChange={handleDetailsChange}
               />
           )}
 
           {control.type === ControlType.Command && (
             <ControlAccordionCommandDetails
               control={control}
-              setControl={setControl}
+              onChange={handleDetailsChange}
               />
           )}
 
           {control.type === ControlType.Keyboard && (
             <ControlAccordionKeyboardDetails
               control={control}
-              setControl={setControl}
+              onChange={handleDetailsChange}
               />
           )}
 
           {control.type === ControlType.Hotkey && (
             <ControlAccordionHotkeyDetails
               control={control}
-              setControl={setControl}
+              onChange={handleDetailsChange}
               />
           )}
 

@@ -5,7 +5,7 @@ import { ControlAccordionDetailsProps } from "./Controls";
 
 export default function ControlAccordionHotkeyDetails(props: ControlAccordionDetailsProps) {
 
-  const { control, setControl } = props;
+  const { control, onChange } = props;
   const hotkeys = (control as ConfigHotkeyControlProps).hotkeys || [];
 
   return (
@@ -28,8 +28,9 @@ export default function ControlAccordionHotkeyDetails(props: ControlAccordionDet
               onChange={(e) => {
                 const newHotkeys = [...hotkeys];
                 newHotkeys[index] = e.target.value;
-                setControl({ ...control, hotkeys: newHotkeys });
-              } } />
+                onChange("hotkeys", newHotkeys);
+              }}
+              />
 
             <Tooltip title="このホットキーを削除">
               <IconButton
@@ -37,8 +38,8 @@ export default function ControlAccordionHotkeyDetails(props: ControlAccordionDet
                 onClick={() => {
                   const newHotkeys = [...hotkeys];
                   newHotkeys.splice(index, 1);
-                  setControl({ ...control, hotkeys: newHotkeys });
-                } }
+                  onChange("hotkeys", newHotkeys);
+                }}
               >
                 <RemoveCircleIcon
                   sx={{
@@ -46,7 +47,8 @@ export default function ControlAccordionHotkeyDetails(props: ControlAccordionDet
                       color: "error.main",
                       borderColor: "error.main",
                     }
-                  }} />
+                  }}
+                  />
               </IconButton>
             </Tooltip>
           </Stack>
@@ -56,7 +58,12 @@ export default function ControlAccordionHotkeyDetails(props: ControlAccordionDet
           variant="outlined"
           color="primary"
           sx={{ textTransform: "none" }}
-          onClick={() => { setControl((prev) => ({ ...prev, hotkeys: [...hotkeys, ""] })); } }
+          onClick={() => {
+            const newHotkeys = [...hotkeys];
+
+            newHotkeys.push("");
+            onChange("hotkeys", newHotkeys);
+          }}
         >
           Add hotkey
         </Button>

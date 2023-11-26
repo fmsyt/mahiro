@@ -4,7 +4,7 @@ import { ControlAccordionDetailsProps } from "./Controls";
 
 export default function ControlAccordionBrowserDetails(props: ControlAccordionDetailsProps) {
 
-  const { control, setControl } = props;
+  const { control, onChange } = props;
   const url = (control as ConfigBrowserControlProps).url || "";
 
   return (
@@ -13,7 +13,8 @@ export default function ControlAccordionBrowserDetails(props: ControlAccordionDe
       <TextField
         defaultValue={url}
         variant="standard"
-        onChange={(e) => setControl({ ...control, url: e.target.value })} />
+        onChange={(e) => onChange("url", e.target.value || undefined)}
+        />
     </FormControl>
   );
 }
