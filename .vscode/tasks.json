@@ -2,20 +2,22 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "npm",
-			"script": "web:dev",
-			"problemMatcher": [],
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["web:dev"],
 			"label": "Start Client on Web",
 		},
 		{
-			"type": "npm",
-			"script": "tauri:dev",
-			"problemMatcher": [],
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["tauri:dev"],
 			"label": "Start Client on Application",
+			"problemMatcher": "$tsc-watch"
 		},
 		{
-			"type": "npm",
-			"script": "web:build",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["web:build"],
 			"label": "Build Client",
 			"group": {
 				"kind": "build",
@@ -26,41 +28,29 @@
       "label": "ui:dev",
       "type": "shell",
       "isBackground": true,
-      "command": "npm",
-      "args": [
-				"run",
-				"tauri:dev:ui",
-			],
+      "command": "pnpm",
+      "args": ["tauri:dev:ui"],
 			"problemMatcher": []
     },
     {
       "label": "ui:build",
       "type": "shell",
-      "command": "npm",
-      "args": [
-				"run",
-				"tauri:build:ui",
-			],
-			"problemMatcher": []
+      "command": "pnpm",
+      "args": ["tauri:build:ui"],
+			"problemMatcher": "$tsc-watch"
     },
 		{
 			"label": "Lint Client",
 			"type": "shell",
-			"command": "npm",
-			"args": [
-				"run",
-				"lint",
-			],
+			"command": "pnpm",
+			"args": ["lint"],
 			"problemMatcher": [],
 		},
 		{
 			"label": "Lint Client and Fix",
 			"type": "shell",
-			"command": "npm",
-			"args": [
-				"run",
-				"lint:fix",
-			],
+			"command": "pnpm",
+			"args": ["lint:fix"],
 		}
 	]
 }
