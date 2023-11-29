@@ -20,22 +20,39 @@ use crate::client::ActionEvents;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SheetItemAction<T> {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub key_down: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub key_up: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub touch_tap: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub dial_down: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub dial_up: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub dial_rotate: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub will_appear: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub will_disappear: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub title_parameters_did_change: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub device_did_connect: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub device_did_disconnect: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub application_did_launch: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub application_did_terminate: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub system_did_wake_up: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub property_inspector_did_appear: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub property_inspector_did_disappear: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub send_to_plugin: Option<T>,
 }
 

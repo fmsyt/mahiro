@@ -102,9 +102,18 @@ async fn handle_socket(stream: WebSocket, app_state: GlobalAppState) {
         }
     });
 
+    // // 1秒ごとに標準出力するタスク
+    // let mut test_task = tokio::spawn(async move {
+    //     loop {
+    //         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+    //         // println!("tick");
+    //     }
+    // });
+
     tokio::select! {
         _ = (&mut send_task) => recv_task.abort(),
         _ = (&mut recv_task) => send_task.abort(),
+        // _ = (&mut test_task) => test_task.abort(),
     };
 
 }
