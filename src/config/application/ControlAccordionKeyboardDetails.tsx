@@ -11,8 +11,11 @@ export default function ControlAccordionKeyboardDetails(props: ControlAccordionD
     <FormControl>
       <FormLabel>Text</FormLabel>
       <TextField
+        multiline
+        fullWidth
+        rows={4}
         defaultValue={text}
-        variant="standard"
+        variant="outlined"
         onChange={(e) => onChange("text", e.target.value || undefined)}
         />
     </FormControl>

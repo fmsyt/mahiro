@@ -1,4 +1,4 @@
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Card, CardContent, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { fs } from "@tauri-apps/api";
@@ -17,9 +17,6 @@ import ControlAccordionBrowserDetails from "./ControlAccordionBrowserDetails";
 import ControlAccordionCommandDetails from "./ControlAccordionCommandDetails";
 import ControlAccordionHotkeyDetails from "./ControlAccordionHotkeyDetails";
 import ControlAccordionKeyboardDetails from "./ControlAccordionKeyboardDetails";
-
-const disallowed = !import.meta.env.TAURI_PLATFORM_VERSION;
-
 
 interface ControlAccordionProps {
   initialControl: ConfigControlProps;
@@ -164,7 +161,7 @@ const ControlAccordion = (props: ControlAccordionProps) => {
             </Typography>
           </Stack>
 
-          <IconButton onClick={handelOpenMenu} disabled={disallowed}>
+          <IconButton onClick={handelOpenMenu}>
             <MoreHorizIcon />
           </IconButton>
           <Menu open={openMenu} onClose={handelCloseMenu} anchorEl={anchorEl}>
@@ -210,33 +207,38 @@ const ControlAccordion = (props: ControlAccordionProps) => {
             </Select>
           </FormControl>
 
-          {control.type === ControlType.Browser && (
-            <ControlAccordionBrowserDetails
-              control={control}
-              onChange={handleDetailsChange}
-              />
-          )}
+          <Card sx={{ width: "100%" }} variant="outlined">
+            <CardContent>
+              {control.type === ControlType.Browser && (
+                <ControlAccordionBrowserDetails
+                  control={control}
+                  onChange={handleDetailsChange}
+                  />
+              )}
 
-          {control.type === ControlType.Command && (
-            <ControlAccordionCommandDetails
-              control={control}
-              onChange={handleDetailsChange}
-              />
-          )}
+              {control.type === ControlType.Command && (
+                <ControlAccordionCommandDetails
+                  control={control}
+                  onChange={handleDetailsChange}
+                  />
+              )}
 
-          {control.type === ControlType.Keyboard && (
-            <ControlAccordionKeyboardDetails
-              control={control}
-              onChange={handleDetailsChange}
-              />
-          )}
+              {control.type === ControlType.Keyboard && (
+                <ControlAccordionKeyboardDetails
+                  control={control}
+                  onChange={handleDetailsChange}
+                  />
+              )}
 
-          {control.type === ControlType.Hotkey && (
-            <ControlAccordionHotkeyDetails
-              control={control}
-              onChange={handleDetailsChange}
-              />
-          )}
+              {control.type === ControlType.Hotkey && (
+                <ControlAccordionHotkeyDetails
+                  control={control}
+                  onChange={handleDetailsChange}
+                  />
+              )}
+            </CardContent>
+          </Card>
+
 
         </Stack>
         <Stack direction="row" spacing={2} justifyContent="center" paddingTop={2}>
@@ -362,12 +364,6 @@ export default function Controls() {
   return (
     <Stack gap={2} alignItems="flex-start" justifyContent="center">
       <Typography variant="h5">Controls</Typography>
-      {disallowed && (
-        <Typography variant="body1">
-          This feature is not available on this platform.
-        </Typography>
-      )}
-
 
       {controls == null ? (
         <Stack justifyContent="center" alignItems="center">

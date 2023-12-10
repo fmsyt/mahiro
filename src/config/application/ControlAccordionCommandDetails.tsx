@@ -39,6 +39,8 @@ export default function ControlAccordionCommandDetails(props: ControlAccordionDe
           />
       </FormControl>
       <FormControl>
+
+      <Stack gap={1} alignItems="flex-start">
         <FormLabel>arguments</FormLabel>
 
         <Stack gap={2} alignItems="flex-start">
@@ -74,12 +76,15 @@ export default function ControlAccordionCommandDetails(props: ControlAccordionDe
           <Button
             variant="outlined"
             color="primary"
+            size="small"
             sx={{ textTransform: "none" }}
             onClick={() => onChange("commands", [...commands, ""])}
           >
             Add argument
           </Button>
         </Stack>
+
+      </Stack>
       </FormControl>
     </Stack>
   );
