@@ -1,6 +1,7 @@
-import { fs } from "@tauri-apps/api";
+import {  } from "@tauri-apps/api";
 import { isTypeOfSheet } from "../interface";
 import { sheetsFsOptions } from "./sheets";
+import * as fs from "@tauri-apps/plugin-fs"
 
 const fetchSheets = async () => {
   const isExists = await fs.exists("sheets.json", sheetsFsOptions);

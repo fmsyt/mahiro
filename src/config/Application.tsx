@@ -8,7 +8,7 @@ import ThemeContext from "../ThemeContext";
 import { Button, ButtonGroup, Checkbox, Container, FormControl, FormControlLabel, FormHelperText, FormLabel, Stack, Tooltip, Typography } from "@mui/material";
 
 import { enable, isEnabled, disable } from "tauri-plugin-autostart-api";
-import { WebviewWindow } from "@tauri-apps/api/window";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 
 const mainWindow = WebviewWindow.getByLabel("main");
 

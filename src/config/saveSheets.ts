@@ -1,6 +1,7 @@
-import { fs } from "@tauri-apps/api";
+import {  } from "@tauri-apps/api";
 import { ConfigSheetProps } from "../interface";
 import { sheetsFsOptions } from "./sheets";
+import * as fs from "@tauri-apps/plugin-fs"
 
 const saveSheets = async (sheets: ConfigSheetProps[]) => {
   const json = JSON.stringify(sheets);

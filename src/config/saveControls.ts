@@ -1,6 +1,7 @@
-import { fs } from "@tauri-apps/api";
+import {  } from "@tauri-apps/api";
 import { ConfigControlProps } from "../interface";
 import { controlsFsOptions } from "./controls";
+import * as fs from "@tauri-apps/plugin-fs"
 
 const saveControls = async (controls: ConfigControlProps[]) => {
   const json = JSON.stringify(controls);

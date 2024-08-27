@@ -1,12 +1,13 @@
-import { fs } from "@tauri-apps/api";
-import { BaseDirectory } from "@tauri-apps/api/fs";
+import {  } from "@tauri-apps/api";
+import { BaseDirectory } from "@tauri-apps/plugin-fs";
 import { appCacheDir, join } from "@tauri-apps/api/path";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 import { useContext, useLayoutEffect, useState } from "react";
 import { iconsRoot } from "../path";
 
 import WebSocketContext from "../WebSocketContext";
+import * as fs from "@tauri-apps/plugin-fs"
 
 interface useIconArgs {
   name?: string,

@@ -1,5 +1,5 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { fs } from "@tauri-apps/api";
+import {  } from "@tauri-apps/api";
 
 import { Box, Button, Card, CardActionArea, CardMedia, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, ListItemIcon, ListItemText, Menu, MenuItem, Paper, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { md5 } from "js-md5";
@@ -20,6 +20,7 @@ import { iconsRoot } from "../../path";
 import useIcon from "../../icon/useIcon";
 
 import i18n from "../../i18n/config";
+import * as fs from "@tauri-apps/plugin-fs"
 const t = i18n.t;
 
 

@@ -1,6 +1,7 @@
-import { fs } from "@tauri-apps/api";
+import {  } from "@tauri-apps/api";
 import { isTypeOfConfigControl } from "../interface";
 import { controlsFsOptions } from "./controls";
+import * as fs from "@tauri-apps/plugin-fs"
 
 const fetchControls = async () => {
   const isExists = await fs.exists("controls.json", controlsFsOptions);

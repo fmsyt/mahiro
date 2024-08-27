@@ -1,7 +1,7 @@
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Card, CardContent, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { fs } from "@tauri-apps/api";
+import {  } from "@tauri-apps/api";
 
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -17,6 +17,7 @@ import ControlAccordionBrowserDetails from "./ControlAccordionBrowserDetails";
 import ControlAccordionCommandDetails from "./ControlAccordionCommandDetails";
 import ControlAccordionHotkeyDetails from "./ControlAccordionHotkeyDetails";
 import ControlAccordionKeyboardDetails from "./ControlAccordionKeyboardDetails";
+import * as fs from "@tauri-apps/plugin-fs"
 
 interface ControlAccordionProps {
   initialControl: ConfigControlProps;
