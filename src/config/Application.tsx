@@ -1,16 +1,14 @@
 import { useContext, useLayoutEffect, useState } from "react";
 
-import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import ThemeContext from "../ThemeContext";
 
 import { Button, ButtonGroup, Checkbox, Container, FormControl, FormControlLabel, FormHelperText, FormLabel, Stack, Tooltip, Typography } from "@mui/material";
 
-import { enable, isEnabled, disable } from "tauri-plugin-autostart-api";
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
-
-const mainWindow = WebviewWindow.getByLabel("main");
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { disable, enable, isEnabled } from "tauri-plugin-autostart-api";
 
 /**
  * General tab for the config app.
@@ -61,10 +59,10 @@ export default function Application(): JSX.Element {
   const handleChangeTopMost = async (toEnable: boolean) => {
     setIsTopMost(null);
     if (toEnable) {
-      await mainWindow.setAlwaysOnTop(true);
+      await getCurrentWindow().setAlwaysOnTop(true);
       setIsTopMost(true);
     } else {
-      await mainWindow.setAlwaysOnTop(false);
+      await getCurrentWindow().setAlwaysOnTop(false);
       setIsTopMost(false);
     }
   }
@@ -122,7 +120,7 @@ export default function Application(): JSX.Element {
                 />
             )}
             />
-        </FormControl> 
+        </FormControl>
         <FormControl>
           <FormLabel>自動実行</FormLabel>
           <FormControlLabel
