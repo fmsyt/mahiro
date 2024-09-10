@@ -1,16 +1,23 @@
-import {  } from "@tauri-apps/api";
+import { } from "@tauri-apps/api";
+import * as fs from "@tauri-apps/plugin-fs";
 import { isTypeOfSheet } from "../interface";
-import { sheetsFsOptions } from "./sheets";
-import * as fs from "@tauri-apps/plugin-fs"
+import { SHEETS_DIR } from "./sheets";
 
 const fetchSheets = async () => {
-  const isExists = await fs.exists("sheets.json", sheetsFsOptions);
+  const isExists = await fs.exists("sheets.json", {
+    baseDir: SHEETS_DIR
+  });
 
   if (!isExists) {
-    await fs.writeFile("sheets.json", "[]", sheetsFsOptions);
+    await fs.writeTextFile("sheets.json", "[]", {
+      baseDir: SHEETS_DIR,
+      append: false,
+    });
   }
 
-  const text = await fs.readTextFile("sheets.json", sheetsFsOptions);
+  const text = await fs.readTextFile("sheets.json", {
+    baseDir: SHEETS_DIR
+  });
   const json = JSON.parse(text);
 
   if (Array.isArray(json) && json.every(isTypeOfSheet)) {

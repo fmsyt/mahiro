@@ -236,7 +236,7 @@ pub struct ReceivedEmitMessageData {
 
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct State {
+pub struct ClientState {
     pub config_dir: PathBuf,
     pub controls: Vec<Control>,
     pub sheets: Vec<Sheet>,
@@ -246,7 +246,7 @@ pub trait SendWebSocketClientMessage {
     fn sheets_update(&self) -> SendSheetsUpdateMessage;
 }
 
-impl SendWebSocketClientMessage for State {
+impl SendWebSocketClientMessage for ClientState {
     fn sheets_update(&self) -> SendSheetsUpdateMessage {
 
         let controls = get_control_list(self.config_dir.clone());
@@ -267,7 +267,7 @@ pub trait ReceiveWebSocketClientMessage {
     fn emit(&self, control_id: String, event_name: String, context: Option<String>, payload: Option<ReceivedEmitMessageData>) -> Result<Option<ClientSheetItemDelta>, String>;
 }
 
-impl ReceiveWebSocketClientMessage for State {
+impl ReceiveWebSocketClientMessage for ClientState {
     fn emit(&self, control_id: String, event_name: String, context: Option<String>, payload: Option<ReceivedEmitMessageData>) -> Result<Option<ClientSheetItemDelta>, String> {
 
         let option_control = self.controls.iter().find(|&c| c.id == control_id);
@@ -301,12 +301,12 @@ impl ReceiveWebSocketClientMessage for State {
 }
 
 
-pub fn load_state(config_dir: PathBuf) -> State {
+pub fn load_client_state(config_dir: PathBuf) -> ClientState {
 
     let sheets = get_sheet_list(config_dir.clone());
     let controls = get_control_list(config_dir.clone());
 
-    let state = State {
+    let state = ClientState {
         config_dir,
         controls,
         sheets,

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 
 use axum::{
     Router,
@@ -15,14 +15,13 @@ use axum::{
 };
 
 use futures_util::{StreamExt, SinkExt};
-use tauri::PathResolver;
 use tokio::sync::broadcast;
 use tower_http::services::ServeDir;
 
 use crate::client::{
-    load_state,
+    load_client_state,
     ReceivedMessage,
-    State as ClientState,
+    ClientState as ClientState,
     SendWebSocketClientMessage,
     ReceiveWebSocketClientMessage, SendSheetItemUpdateMessage
 };
@@ -34,24 +33,28 @@ struct AppState {
 
 type GlobalAppState = Arc<AppState>;
 
+pub struct ServerDirs {
+    pub config_dir: PathBuf,
+    pub uploads_dir: PathBuf,
+    pub html_root_dir: PathBuf,
+}
 
 // https://github.com/tokio-rs/axum/blob/axum-v0.6.20/examples/chat/src/main.rs
-pub async fn start(resolver: PathResolver) {
+pub async fn start(pathes: ServerDirs) {
     let addr: String = "0.0.0.0:17001".to_string();
 
     let (tx, _rx) = broadcast::channel(100);
 
-    let config_directory_path = resolver.app_local_data_dir().unwrap();
     let app_state = Arc::new(AppState {
         tx,
-        client: load_state(config_directory_path.clone()),
+        client: load_client_state(pathes.config_dir.clone()),
     });
 
 
-    let uploads_serve_dir = ServeDir::new(config_directory_path.join("assets"));
+    let uploads_serve_dir = ServeDir::new(pathes.uploads_dir.clone());
 
     let app: Router = Router::new()
-        .nest_service("/", ServeDir::new(resolver.resource_dir().unwrap().join("static")))
+        .nest_service("/", ServeDir::new(pathes.html_root_dir.clone()))
         .route("/ws", get(ws_handler))
         .with_state(app_state)
         .nest_service("/uploads", uploads_serve_dir)

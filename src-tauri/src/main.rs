@@ -1,39 +1,36 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::process::exit;
-
-use enigo::MouseButton;
-use log::LevelFilter;
+use server::ServerDirs;
 use tauri::{
+    image::Image,
     menu::{MenuBuilder, MenuItemBuilder},
-    tray::{MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem, Wry,
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    Manager
 };
 
 use tauri_plugin_autostart::{self, MacosLauncher};
-use tauri_plugin_log::{fern::colors::ColoredLevelConfig, LogTarget};
 
 mod client;
 mod control;
 mod server;
 mod sheet;
 
-#[cfg(debug_assertions)]
-const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Stderr];
+// #[cfg(debug_assertions)]
+// const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stdout, LogTarget::Stderr];
 
-#[cfg(not(debug_assertions))]
-const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stderr, LogTarget::LogDir];
+// #[cfg(not(debug_assertions))]
+// const LOG_TARGETS: [LogTarget; 2] = [LogTarget::Stderr, LogTarget::LogDir];
 
-fn handle_window(event: tauri::GlobalWindowEvent) {
-    match event.event() {
-        tauri::WindowEvent::CloseRequested { api, .. } => {
-            api.prevent_close();
-            event.window().hide().unwrap();
-        }
-        _ => {}
-    }
-}
+// fn handle_window(event: tauri::GlobalWindowEvent) {
+//     match event.event() {
+//         tauri::WindowEvent::CloseRequested { api, .. } => {
+//             api.prevent_close();
+//             event.window().hide().unwrap();
+//         }
+//         _ => {}
+//     }
+// }
 
 // fn create_systemtray() -> SystemTray {
 //     let open_config = tauri::CustomMenuItem::new("open_config".to_string(), "Config");
@@ -74,52 +71,60 @@ fn handle_window(event: tauri::GlobalWindowEvent) {
 // }
 
 fn main() {
-
     #[cfg(target_os = "linux")]
     {
         env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
     }
 
     tauri::Builder::default()
-        .plugin(
-            tauri_plugin_log::Builder::default()
-                .targets(LOG_TARGETS)
-                .with_colors(ColoredLevelConfig::default())
-                .level(LevelFilter::Info)
-                .build(),
-        )
+        // .plugin(
+        //     tauri_plugin_log::Builder::default()
+        //         .targets(LOG_TARGETS)
+        //         .with_colors(ColoredLevelConfig::default())
+        //         .level(LevelFilter::Info)
+        //         .build(),
+        // )
         .plugin(tauri_plugin_websocket::init())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
             Some(vec![]),
         ))
-        .on_window_event(handle_window)
+        // .on_window_event(handle_window)
         // .system_tray(create_systemtray())
         // .on_system_tray_event(handle_systemtray)
         .setup(|app: &mut tauri::App| {
-            let config_directory_path = app.path_resolver();
-            tauri::async_runtime::spawn(server::start(config_directory_path));
+            let resolver = app.path();
+
+            let config_directory_path = resolver.config_dir().unwrap();
+            let resource_dir = resolver.resource_dir().unwrap();
+
+            let dirs = ServerDirs {
+                config_dir: config_directory_path.clone(),
+                uploads_dir: config_directory_path.join("assets"),
+                html_root_dir: resource_dir.join("static"),
+            };
+
+            tauri::async_runtime::spawn(server::start(dirs));
 
             let quit_menu = MenuItemBuilder::with_id("quit", "終了").build(app)?;
             let menu = MenuBuilder::new(app).item(&quit_menu).build()?;
             let tray = TrayIconBuilder::new()
                 .menu(&menu)
-                .on_menu_event(move |app, event| match event {
-                    tauri::MenuEvent::ItemClick { id, .. } => {
-                        if id == "quit" {
-                            app.exit(0);
-                        }
+                .on_menu_event(move |app, event| match event.id().as_ref() {
+                    "quit" => {
+                        app.exit(0);
                     }
                     _ => {}
                 })
-                .on_tray_icon_event(move |app, event| {
+                .on_tray_icon_event(move |tray, event| {
                     if let TrayIconEvent::Click {
                         button: MouseButton::Left | MouseButton::Right,
                         button_state: MouseButtonState::Up,
                         ..
                     } = event
                     {
-                        if let Some(window) = app.get_window("main") {
+                        let app = tray.app_handle();
+                        if let Some(window) = app.get_webview_window("main") {
                             window.show().unwrap();
                             window.set_focus().unwrap();
                         }

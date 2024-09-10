@@ -1,9 +1,7 @@
-import { BaseDirectory, FsOptions } from "@tauri-apps/plugin-fs";
+import { BaseDirectory } from "@tauri-apps/plugin-fs";
 
-const sheetsFsOptions: FsOptions = {
-  dir: BaseDirectory.AppLocalData,
-}
+const SHEETS_DIR = BaseDirectory.AppLocalData;
 
 export {
-  sheetsFsOptions
-}
+  SHEETS_DIR
+};

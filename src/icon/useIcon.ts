@@ -1,13 +1,13 @@
-import {  } from "@tauri-apps/api";
-import { BaseDirectory } from "@tauri-apps/plugin-fs";
-import { appCacheDir, join } from "@tauri-apps/api/path";
+import { } from "@tauri-apps/api";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import { appCacheDir, join } from "@tauri-apps/api/path";
+import { BaseDirectory } from "@tauri-apps/plugin-fs";
 
 import { useContext, useLayoutEffect, useState } from "react";
 import { iconsRoot } from "../path";
 
+import * as fs from "@tauri-apps/plugin-fs";
 import WebSocketContext from "../WebSocketContext";
-import * as fs from "@tauri-apps/plugin-fs"
 
 interface useIconArgs {
   name?: string,
@@ -17,11 +17,14 @@ interface useIconArgs {
 
 const fromFs = async (name: string) => {
 
-  if (!window.__TAURI_IPC__) {
-    throw new Error("Tauri IPC not found");
-  }
+  // if (!window.__TAURI_IPC__) {
+  //   throw new Error("Tauri IPC not found");W
+  // }
 
-  const exists = await fs.exists(`${iconsRoot}/${name}`, { dir: BaseDirectory.AppCache });
+  const exists = await fs.exists(`${iconsRoot}/${name}`, {
+    // dir: BaseDirectory.AppCache
+    baseDir: BaseDirectory.AppCache
+  });
   if (!exists) {
     return null;
   }

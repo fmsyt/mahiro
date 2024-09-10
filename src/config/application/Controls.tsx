@@ -1,7 +1,7 @@
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Card, CardContent, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import {  } from "@tauri-apps/api";
+import { } from "@tauri-apps/api";
 
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -13,11 +13,11 @@ import saveControls from "../saveControls";
 
 import { iconsRoot } from "../../path";
 
+import fs from "@tauri-apps/plugin-fs";
 import ControlAccordionBrowserDetails from "./ControlAccordionBrowserDetails";
 import ControlAccordionCommandDetails from "./ControlAccordionCommandDetails";
 import ControlAccordionHotkeyDetails from "./ControlAccordionHotkeyDetails";
 import ControlAccordionKeyboardDetails from "./ControlAccordionKeyboardDetails";
-import * as fs from "@tauri-apps/plugin-fs"
 
 interface ControlAccordionProps {
   initialControl: ConfigControlProps;
@@ -82,12 +82,12 @@ const ControlAccordion = (props: ControlAccordionProps) => {
       const filename = `${control.id}.${extention}`;
       const savePath = `${iconsRoot}/${filename}`;
 
-      if (await fs.exists(savePath, { dir: fs.BaseDirectory.AppCache })) {
-        await fs.removeFile(savePath, { dir: fs.BaseDirectory.AppCache });
+      if (await fs.exists(savePath, { baseDir: fs.BaseDirectory.AppCache })) {
+        await fs.remove(savePath, { baseDir: fs.BaseDirectory.AppCache });
       }
 
-      if (await fs.exists(`${savePath}.tmp`, { dir: fs.BaseDirectory.AppCache })) {
-        await fs.removeFile(`${savePath}.tmp`, { dir: fs.BaseDirectory.AppCache });
+      if (await fs.exists(`${savePath}.tmp`, { baseDir: fs.BaseDirectory.AppCache })) {
+        await fs.remove(`${savePath}.tmp`, { baseDir: fs.BaseDirectory.AppCache });
       }
     }
 
@@ -109,12 +109,12 @@ const ControlAccordion = (props: ControlAccordionProps) => {
     const filename = `${control.id}.${extention}`;
     const tempname = `${filename}.tmp`;
 
-    if (await fs.exists(`${iconsRoot}/${filename}`, { dir: fs.BaseDirectory.AppCache })) {
-      await fs.removeFile(`${iconsRoot}/${filename}`, { dir: fs.BaseDirectory.AppCache });
+    if (await fs.exists(`${iconsRoot}/${filename}`, { baseDir: fs.BaseDirectory.AppCache })) {
+      await fs.remove(`${iconsRoot}/${filename}`, { baseDir: fs.BaseDirectory.AppCache });
     }
 
-    if (await fs.exists(`${iconsRoot}/${tempname}`, { dir: fs.BaseDirectory.AppCache })) {
-      await fs.removeFile(`${iconsRoot}/${tempname}`, { dir: fs.BaseDirectory.AppCache });
+    if (await fs.exists(`${iconsRoot}/${tempname}`, { baseDir: fs.BaseDirectory.AppCache })) {
+      await fs.remove(`${iconsRoot}/${tempname}`, { baseDir: fs.BaseDirectory.AppCache });
     }
 
     setControl((prev) => ({ ...prev, icon: undefined }));

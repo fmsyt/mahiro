@@ -25,6 +25,7 @@ tauri = { version = "2.0.0-rc", features = [
     "image-ico",
 ] }
 tauri-plugin-autostart = { version = "2.0.0-rc" }
+tauri-plugin-fs = { version = "2.0.0-rc" }
 # tauri-plugin-fs-watch = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 tauri-plugin-log = { features = ["colored"] , version = "2.0.0-rc" }
 # tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }

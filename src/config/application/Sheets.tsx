@@ -1,5 +1,5 @@
+import { } from "@tauri-apps/api";
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import {  } from "@tauri-apps/api";
 
 import { Box, Button, Card, CardActionArea, CardMedia, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, FormControl, FormLabel, ListItemIcon, ListItemText, Menu, MenuItem, Paper, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { md5 } from "js-md5";
@@ -7,20 +7,20 @@ import { md5 } from "js-md5";
 import AddIcon from '@mui/icons-material/Add';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
-import InputIcon from '@mui/icons-material/Input';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import InputIcon from '@mui/icons-material/Input';
 import SaveIcon from '@mui/icons-material/Save';
 
-import { ConfigControlProps, ConfigSheetItemProps, ConfigSheetProps, ControlStyle, isTypeOfConfigSheetItemProps } from "../../interface";
-import fetchSheets from "../fetchSheets";
-import useControls from "../useControls";
-import saveSheets from "../saveSheets";
 import { Control } from "../../Control";
-import { iconsRoot } from "../../path";
 import useIcon from "../../icon/useIcon";
+import { ConfigControlProps, ConfigSheetItemProps, ConfigSheetProps, ControlStyle, isTypeOfConfigSheetItemProps } from "../../interface";
+import { iconsRoot } from "../../path";
+import fetchSheets from "../fetchSheets";
+import saveSheets from "../saveSheets";
+import useControls from "../useControls";
 
+import fs from "@tauri-apps/plugin-fs";
 import i18n from "../../i18n/config";
-import * as fs from "@tauri-apps/plugin-fs"
 const t = i18n.t;
 
 
@@ -609,19 +609,19 @@ async function createTempIcon(icon: ArrayBuffer, filename: string) {
   const tempname = `${filename}.tmp`;
   const savePath = `${iconsRoot}/${tempname}`;
 
-  await fs.createDir(iconsRoot, { recursive: true, dir: fs.BaseDirectory.AppCache });
+  await fs.create(iconsRoot, { baseDir: fs.BaseDirectory.AppCache });
 
-  if (await fs.exists(savePath, { dir: fs.BaseDirectory.AppCache })) {
-    await fs.removeFile(savePath, { dir: fs.BaseDirectory.AppCache });
+  if (await fs.exists(savePath, { baseDir: fs.BaseDirectory.AppCache })) {
+    await fs.remove(savePath, { baseDir: fs.BaseDirectory.AppCache });
   }
 
-  await fs.writeBinaryFile(savePath, new Uint8Array(icon), { dir: fs.BaseDirectory.AppCache, append: false });
+  await fs.writeFile(savePath, new Uint8Array(icon), { baseDir: fs.BaseDirectory.AppCache, append: false });
 }
 
 async function commitCreateTempIcon(filename: string) {
 
   const config = {
-    dir: fs.BaseDirectory.AppCache
+    baseDir: fs.BaseDirectory.AppCache
   }
 
   const tempname = `${filename}.tmp`;
@@ -633,8 +633,11 @@ async function commitCreateTempIcon(filename: string) {
 
   // exit if file already exists
   if (await fs.exists(`${iconsRoot}/${filename}`, config)) {
-    await fs.removeFile(`${iconsRoot}/${filename}`, config);
+    await fs.remove(`${iconsRoot}/${filename}`, config);
   }
 
-  await fs.renameFile(`${iconsRoot}/${tempname}`, `${iconsRoot}/${filename}`, config);
+  await fs.rename(`${iconsRoot}/${tempname}`, `${iconsRoot}/${filename}`, {
+    oldPathBaseDir: config.baseDir,
+    newPathBaseDir: config.baseDir
+  });
 }
